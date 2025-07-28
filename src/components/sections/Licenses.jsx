@@ -1,7 +1,7 @@
 // src/components/sections/Licenses.jsx
 import { motion } from 'framer-motion';
-import licenseImage1 from '../../assets/images/vypiska.jpg'; 
-import licenseImage2 from '../../assets/images/licenses.jpg';
+import VypiskaImage from '../../assets/images/vypiska.jpg'; 
+import licenseImage from '../../assets/images/licenses.jpg';
 
 
 export const Licenses = () => {
@@ -14,7 +14,7 @@ export const Licenses = () => {
       issuedBy: "Федеральное дорожное агентство",
       issueDate: "17.05.2024",
       expiryDate: "16.05.2029",
-      image: licenseImage1,
+      image: VypiskaImage,
       description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожноего хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
     },
     {
@@ -24,7 +24,7 @@ export const Licenses = () => {
       issuedBy: "Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области",
       issueDate: "12.12.2019",
       expiryDate: "бессрочно",
-      image: licenseImage2,
+      image: licenseImage,
       description: "Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения"
     },
   ];
