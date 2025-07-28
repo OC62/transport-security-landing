@@ -1,6 +1,7 @@
 // src/components/layout/Header.jsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import logoImage from '../../assets/images/logo.png';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +24,7 @@ export const Header = () => {
         <div className="flex justify-between items-center py-4">
           {/* Логотип */}
           <div className="flex items-center space-x-2">
-            <img src="/images/logo.png" alt="Логотип ООО ПТБ-М" className="h-8" />
+            <img src={logoImage} alt="Логотип ООО ПТБ-М" className="h-8" />
             {/* Шрифт уменьшается на lg и выше */}
             <span className="text-xl lg:text-base font-bold text-primary">ООО "ПТБ-М"</span>
           </div>

@@ -1,5 +1,6 @@
 // src/components/sections/Hero.jsx
 import { motion } from 'framer-motion';
+import heroVideo from '../../assets/videos/Bridge.webm';
 
 const Button = ({ children, variant, size, onClick, className = '', ...props }) => {
   const baseClasses = "font-medium rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
@@ -24,16 +25,16 @@ const Button = ({ children, variant, size, onClick, className = '', ...props }) 
 export const Hero = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-16">
-      {/* Фоновое изображение (замените на видео, если нужно) */}
-       <div className="absolute inset-0 z-0">
-        <video 
-          autoPlay 
-          loop 
-          muted 
+      {/* Фоновое видео */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="/videos/Bridge.webm" type="video/webm" />
+          <source src={heroVideo} type="video/webm" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-blue-800 opacity-70"></div>
       </div>
