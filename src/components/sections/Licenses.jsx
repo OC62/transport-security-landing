@@ -1,5 +1,8 @@
 // src/components/sections/Licenses.jsx
 import { motion } from 'framer-motion';
+import licenseImage1 from '../../assets/images/vypiska.jpg'; 
+import licenseImage2 from '../../assets/images/licenses.jpg';
+
 
 export const Licenses = () => {
   // Массив с лицензиями и свидетельствами
@@ -11,7 +14,7 @@ export const Licenses = () => {
       issuedBy: "Федеральное дорожное агентство",
       issueDate: "17.05.2024",
       expiryDate: "16.05.2029",
-      image: "/images/Выписка.jpg", // Заглушка
+      image: "/images/vypiska.jpg", // Заглушка
       description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожноего хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
     },
     {

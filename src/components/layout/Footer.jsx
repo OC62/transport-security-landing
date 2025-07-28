@@ -1,4 +1,6 @@
 // src/components/layout/Footer.jsx
+import logoImage from '../../assets/images/logo.png';
+
 export const Footer = () => {
   const socialLinks = [
     { name: 'VK', url: '#' },
@@ -24,7 +26,7 @@ export const Footer = () => {
           {/* Логотип и описание */}
           <div className="md:col-span-2">
              <div className="flex items-center space-x-2 mb-4">
-              <img src="/images/logo.png" alt="Логотип ООО ПТБ-М" className="h-8" />
+              <img src={logoImage} alt="Логотип ООО ПТБ-М" className="h-8" />
               <span className="text-2xl font-bold">ООО "ПТБ-М"</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
