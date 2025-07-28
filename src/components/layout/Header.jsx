@@ -10,6 +10,7 @@ export const Header = () => {
     { name: 'О нас', href: '#about' },
     { name: 'Услуги', href: '#services' },
     { name: 'Кейсы', href: '#cases' },
+    { name: 'Наши вакансии', href: '#careers' },
     { name: 'Лицензии', href: '#licenses' },
     { name: 'Партнеры', href: '#partners' },
     { name: 'Вакансии', href: '#careers' },

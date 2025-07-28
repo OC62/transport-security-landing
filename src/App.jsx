@@ -4,15 +4,15 @@ import { Hero } from './components/sections/Hero';
 import { About } from './components/sections/About';
 import { ServicesGrid } from './components/sections/ServicesGrid';
 import { CasesSlider } from './components/sections/CasesSlider';
+import { Careers } from './components/sections/Careers';
 import { ContactForm } from './components/sections/ContactForm';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-// Импортируем новую секцию
 import { Licenses } from './components/sections/Licenses';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/transport-security-landing">
       <div className="min-h-screen bg-white">
         <Header />
         <main>
@@ -23,7 +23,8 @@ function App() {
                 <About />
                 <ServicesGrid />
                 <CasesSlider />
-                <Licenses /> {/* Добавляем секцию Лицензии и свидетельства */}
+                <Careers />
+                <Licenses />
                 <ContactForm />
               </>
             } />
