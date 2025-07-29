@@ -12,7 +12,7 @@ import { Licenses } from './components/sections/Licenses';
 
 function App() {
   return (
-    {/* basename для корня домена */}
+    // basename для корня домена
     <Router basename="/">
       <div className="min-h-screen bg-white">
         <Header />
