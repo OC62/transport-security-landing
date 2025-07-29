@@ -1,13 +1,14 @@
 // src/components/sections/CasesSlider.jsx
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react'; // Добавлены useRef и useEffect
 import { motion } from 'framer-motion';
 import BusstationsImage from '../../assets/images/Main_Bus_Station.png';
 import BreadgeImage from '../../assets/images/Rost_Sea.png';
 import OtiImage from '../../assets/images/bg_Hero.png';
 
-
 export const CasesSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef(0); // useRef для хранения начальной координаты касания
+  const sliderRef = useRef(null); // useRef для получения ссылки на контейнер слайдера
 
   const cases = [
     {
@@ -33,6 +34,61 @@ export const CasesSlider = () => {
     }
   ];
 
+  // Функция для обработки начала касания
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  // Функция для обработки движения пальца
+  const handleTouchMove = (e) => {
+    // Предотвращаем стандартное поведение (прокрутку страницы), если палец движется горизонтально
+    if (!sliderRef.current) return;
+    const touchX = e.touches[0].clientX;
+    const diffX = touchStartX.current - touchX;
+
+    // Порог чувствительности (например, 10px)
+    if (Math.abs(diffX) > 10) {
+      e.preventDefault(); // Предотвращаем вертикальную прокрутку при горизонтальном свайпе
+    }
+  };
+
+  // Функция для обработки окончания касания
+  const handleTouchEnd = (e) => {
+    if (!sliderRef.current || !e.changedTouches.length) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX.current - touchEndX;
+
+    // Минимальная дистанция свайпа для переключения (например, 50px)
+    const minSwipeDistance = 50;
+
+    if (diffX > minSwipeDistance) {
+      // Свайп влево - следующий слайд
+      setCurrentSlide((prev) => (prev === cases.length - 1 ? 0 : prev + 1));
+    } else if (diffX < -minSwipeDistance) {
+      // Свайп вправо - предыдущий слайд
+      setCurrentSlide((prev) => (prev === 0 ? cases.length - 1 : prev - 1));
+    }
+    // Если дистанция меньше порога, ничего не делаем
+  };
+
+  // useEffect для добавления/удаления обработчиков событий
+  useEffect(() => {
+    const sliderElement = sliderRef.current;
+    if (!sliderElement) return;
+
+    // Добавляем обработчики событий касания
+    sliderElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+    sliderElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    sliderElement.addEventListener('touchend', handleTouchEnd);
+
+    // Функция для очистки (удаления обработчиков при размонтировании компонента)
+    return () => {
+      sliderElement.removeEventListener('touchstart', handleTouchStart);
+      sliderElement.removeEventListener('touchmove', handleTouchMove);
+      sliderElement.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [cases.length]); // Зависимость от длины массива cases
+
   return (
     <section id="cases" className="py-20 bg-gray-900 text-white">
       <div className="container mx-auto px-4">
@@ -45,7 +101,11 @@ export const CasesSlider = () => {
           </p>
         </div>
 
-        <div className="relative max-w-6xl mx-auto">
+        {/* Контейнер слайдера с ref для отслеживания касаний */}
+        <div
+          ref={sliderRef} // Добавлен ref
+          className="relative max-w-6xl mx-auto"
+        >
           <motion.div
             key={currentSlide}
             initial={{ opacity: 0, x: 50 }}
@@ -69,19 +129,19 @@ export const CasesSlider = () => {
                 </div>
               </div>
               <div>
-                <img 
-                    src={cases[currentSlide].image} 
-                    alt={cases[currentSlide].title}
-                    className="w-full h-80 object-cover rounded-lg"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      // Создаем элемент с иконкой, если изображение не загрузилось
-                      const iconElement = document.createElement('div');
-                      iconElement.className = 'w-full h-80 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center';
-                      iconElement.innerHTML = '<span class="text-6xl">📊</span>';
-                      e.target.parentNode.appendChild(iconElement);
-                    }}
-                  />
+                <img
+                  src={cases[currentSlide].image}
+                  alt={cases[currentSlide].title}
+                  className="w-full h-80 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    // Создаем элемент с иконкой, если изображение не загрузилось
+                    const iconElement = document.createElement('div');
+                    iconElement.className = 'w-full h-80 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center';
+                    iconElement.innerHTML = '<span class="text-6xl">📊</span>';
+                    e.target.parentNode.appendChild(iconElement);
+                  }}
+                />
               </div>
             </div>
           </motion.div>
