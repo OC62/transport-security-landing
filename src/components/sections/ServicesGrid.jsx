@@ -71,6 +71,14 @@ export const ServicesGrid = () => {
     }
   ];
 
+  // Функция для плавной прокрутки к секции контактов
+  const scrollToContact = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <section id="services" className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -114,8 +122,11 @@ export const ServicesGrid = () => {
                   </li>
                 ))}
               </ul>
-              {/* Простая кнопка вместо ссылки, так как это SPA */}
-              <button className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+              {/* Активная кнопка "Узнать больше" */}
+              <button 
+                onClick={scrollToContact}
+                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+              >
                 Узнать больше
               </button>
             </motion.div>

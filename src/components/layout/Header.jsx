@@ -6,6 +6,26 @@ import logoImage from '../../assets/images/logo.png';
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Централизованная функция для плавной прокрутки к секции
+  const scrollToSection = (sectionId) => {
+    // Закрываем мобильное меню, если оно открыто
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+
+    // Небольшая задержка, чтобы меню успело закрыться перед прокруткой (только для мобильного)
+    const delay = isMenuOpen ? 100 : 0;
+    
+    setTimeout(() => {
+      // Убедимся, что sectionId начинается с #
+      const id = sectionId.startsWith('#') ? sectionId.slice(1) : sectionId;
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, delay);
+  };
+
   const navItems = [
     { name: 'Главная', href: '#hero' },
     { name: 'О нас', href: '#about' },
@@ -30,20 +50,27 @@ export const Header = () => {
           </div>
 
           {/* Навигация для десктопа - теперь скрывается на lg и меньше */}
-          <nav className="hidden lg:flex space-x-6 xl:space-x-8"> {/* Добавлен xl:space-x-8 для больших экранов */}
+          <nav className="hidden lg:flex space-x-6 xl:space-x-8">
             {navItems.map((item) => (
-              <a
+              // Используем button для внутренней навигации
+              <button
                 key={item.name}
-                href={item.href}
-                className="text-gray-700 hover:text-primary font-medium transition-colors text-sm xl:text-base whitespace-nowrap" // text-sm по умолчанию, xl:text-base для больших
+                onClick={(e) => {
+                  e.preventDefault(); // На случай, если останется href
+                  scrollToSection(item.href);
+                }}
+                className="text-gray-700 hover:text-primary font-medium transition-colors text-sm xl:text-base whitespace-nowrap"
               >
                 {item.name}
-              </a>
+              </button>
             ))}
           </nav>
 
           {/* Кнопка CTA - также скрывается на lg и меньше */}
-          <button className="hidden lg:block btn-primary text-sm">
+          <button 
+            className="hidden lg:block btn-primary text-sm"
+            onClick={() => scrollToSection('#contact')}
+          >
             Получить консультацию
           </button>
 
@@ -71,36 +98,20 @@ export const Header = () => {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden py-4 border-t"
           >
-            <div className="space-y-3"> {/* Уменьшено расстояние между пунктами */}
+            <div className="space-y-3">
               {navItems.map((item) => (
-                <a
+                // Используем button для внутренней навигации
+                <button
                   key={item.name}
-                  href={item.href}
-                  className="block text-gray-700 hover:text-primary font-medium py-2 px-2" // Добавлен px-2 для лучшего вида
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    // Плавная прокрутка для мобильных тоже
-                    setTimeout(() => {
-                      const element = document.querySelector(item.href);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 100); // Небольшая задержка, чтобы меню успело закрыться
-                  }}
+                  onClick={() => scrollToSection(item.href)}
+                  className="block text-gray-700 hover:text-primary font-medium py-2 px-2 w-full text-left"
                 >
                   {item.name}
-                </a>
+                </button>
               ))}
               <button
-                className="w-full btn-primary mt-2" // Добавлен отступ сверху
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  // Прокрутка к форме контактов
-                  setTimeout(() => {
-                    const contactSection = document.getElementById('contact');
-                    contactSection?.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
-                }}
+                className="w-full btn-primary mt-2"
+                onClick={() => scrollToSection('#contact')}
               >
                 Получить консультацию
               </button>
