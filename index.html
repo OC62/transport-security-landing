@@ -1,13 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/assets/images/logo.png" />
+    <link rel="icon" type="image/png" href="/images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ООО "ПТБ-М</title>
+    
+    <!-- Основные SEO-теги -->
+    <title>ООО "ПТБ-М" - Безопасность на объектах дорожного хозяйства</title>
+    <meta name="description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года. Специалисты по транспортной безопасности, лицензии и аккредитации.">
+    <meta name="keywords" content="транспортная безопасность, дорожное хозяйство, безопасность объектов, лицензия транспортная безопасность, аудит безопасности, консультации по безопасности">
+    <meta name="author" content="ООО ПТБ-М">
+    <meta name="robots" content="index, follow">
+
+    <!-- Google Analytics (замените GA-TRACKING_ID на ваш ID) -->
+    <!-- Убедитесь, что заменили GA-TRACKING_ID на реальный ID от Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA-TRACKING_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA-TRACKING_ID');
+    </script>
+
+    <!-- Open Graph (для социальных сетей) -->
+    <meta property="og:title" content="ООО ПТБ-М - Транспортная безопасность">
+    <meta property="og:description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года.">
+    <meta property="og:image" content="https://OC62.github.io/transport-security-landing/images/logo.png">
+    <meta property="og:url" content="https://OC62.github.io/transport-security-landing/">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card (для Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ООО ПТБ-М - Транспортная безопасность">
+    <meta name="twitter:description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года.">
+    <meta name="twitter:image" content="https://OC62.github.io/transport-security-landing/images/logo.png">
+
+    <!-- Канонический URL -->
+    <link rel="canonical" href="https://OC62.github.io/transport-security-landing/" />
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Vite автоматически обрабатывает этот тег во время разработки и сборки.
+      Путь '/src/main.jsx' корректен для стандартной структуры Vite,
+      даже если index.html находится в корне проекта.
+    -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
