@@ -4,6 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
+// Замените YOUR_FORM_ID на ID вашей формы на Formspree
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/meozkvov";
+
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -28,26 +31,38 @@ export const ContactForm = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitError('');
-    try {
-      // Симуляция отправки формы
-      console.log('Отправка данных формы:', data);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Имитация API-запроса
-      
-      // Здесь должна быть реальная отправка, например:
-      // const response = await fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data)
-      // });
-      // if (!response.ok) throw new Error('Ошибка отправки');
+    setSubmitSuccess(false); // Сброс предыдущего успеха
 
-      setSubmitSuccess(true);
-      reset();
-      // Автоматически скрыть сообщение успеха через 5 секунд
-      setTimeout(() => setSubmitSuccess(false), 5000);
+    try {
+      // Отправка данных формы на Formspree
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setSubmitSuccess(true);
+        reset();
+        // Автоматически скрыть сообщение успеха через 5 секунд
+        setTimeout(() => setSubmitSuccess(false), 5000);
+      } else {
+        // Обработка ошибок от Formspree
+        const result = await response.json();
+        if (result.errors) {
+          // Formspree может вернуть конкретные ошибки
+          const errorMessage = result.errors.map(err => err.message).join(', ');
+          setSubmitError(`Ошибка отправки: ${errorMessage}`);
+        } else {
+          setSubmitError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте еще раз.');
+        }
+      }
     } catch (error) {
-      console.error('Ошибка отправки:', error);
-      setSubmitError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте еще раз.');
+      console.error('Ошибка сети или другая ошибка:', error);
+      setSubmitError('Произошла ошибка при отправке формы. Проверьте подключение к интернету и попробуйте еще раз.');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,8 +95,8 @@ export const ContactForm = () => {
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {submitError && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                    <p className="text-red-700">{submitError}</p>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-700 text-sm">{submitError}</p>
                   </div>
                 )}
 
@@ -166,12 +181,12 @@ export const ContactForm = () => {
                   )}
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-start">
                   <input
                     type="checkbox"
                     id="privacy"
                     required
-                    className="mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+                    className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
                   />
                   <label htmlFor="privacy" className="text-gray-600 text-sm">
                     Согласен с обработкой персональных данных *
@@ -181,7 +196,7 @@ export const ContactForm = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center py-3"
                 >
                   {isSubmitting ? (
                     <>
