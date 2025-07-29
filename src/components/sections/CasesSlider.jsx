@@ -1,6 +1,10 @@
 // src/components/sections/CasesSlider.jsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import BusstationsImage from '../../assets/images/Main_Bus_Station.png';
+import BreadgeImage from '../../assets/images/Rost_Sea.png';
+import OtiImage from '../../assets/images/bg_Hero.png';
+
 
 export const CasesSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -8,24 +12,24 @@ export const CasesSlider = () => {
   const cases = [
     {
       id: 1,
-      title: "Обеспечение безопасности на ЖД узле в Сибири",
-      description: "Комплексное решение для защиты железнодорожного транспорта в условиях экстремальных климатических условий",
+      title: "Реализация комплексной системы транспортной безопасности на автовокзалах",
+      description: "Комплексное решение для защиты автовокзалов",
       results: "Снижение инцидентов на 85%, экономия 2 млн руб. в год",
-      image: "/images/case1.jpg" // Заглушка
+      image: BusstationsImage,
     },
     {
       id: 2,
-      title: "Система мониторинга для логистической компании",
-      description: "Внедрение системы GPS-навигации и трекинга грузов для крупного логистического оператора",
-      results: "Повышение эффективности на 40%, уменьшение простоев",
-      image: "/images/case2.jpg" // Заглушка
+      title: "Реализация комплексной системы транспортной безопасности на строящихся объектах транспортной инфраструктуры (СОТИ)",
+      description: "Комплексное решение для защиты СОТИ",
+      results: "Снижение инцидентов на 90%, экономия 2 млн руб. в год",
+      image: BreadgeImage,
     },
     {
       id: 3,
-      title: "Аудит безопасности аэропорта",
-      description: "Проведение комплексного аудита системы безопасности международного аэропорта",
+      title: "Реализация комплексной системы транспортной безопасности на действующих объектах транспортной инфраструктуры (ОТИ)",
+      description: "Проведение комплексного аудита системы безопасности ОТИ",
       results: "Выявлено 15 критических уязвимостей, разработан план улучшений",
-      image: "/images/case3.jpg" // Заглушка
+      image: OtiImage,
     }
   ];
 
@@ -65,15 +69,19 @@ export const CasesSlider = () => {
                 </div>
               </div>
               <div>
-                {/* Заглушка для изображения */}
-                <div className="w-full h-80 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center">
-                    <span className="text-6xl">📊</span>
-                </div>
-                {/* <img 
-                  src={cases[currentSlide].image} 
-                  alt={cases[currentSlide].title}
-                  className="w-full h-80 object-cover rounded-lg"
-                /> */}
+                <img 
+                    src={cases[currentSlide].image} 
+                    alt={cases[currentSlide].title}
+                    className="w-full h-80 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      // Создаем элемент с иконкой, если изображение не загрузилось
+                      const iconElement = document.createElement('div');
+                      iconElement.className = 'w-full h-80 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center';
+                      iconElement.innerHTML = '<span class="text-6xl">📊</span>';
+                      e.target.parentNode.appendChild(iconElement);
+                    }}
+                  />
               </div>
             </div>
           </motion.div>

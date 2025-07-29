@@ -1,5 +1,6 @@
 // src/components/sections/About.jsx
 import { motion } from 'framer-motion';
+import TeamImage from '../../assets/images/team.jpg';
 
 export const About = () => {
   const advantages = [
@@ -76,9 +77,12 @@ export const About = () => {
             viewport={{ once: true, margin: "-100px" }}
             className="bg-white p-8 rounded-xl shadow-lg"
           >
-            {/* Замените на реальное изображение */}
-            <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mb-6 flex items-center justify-center">
-                <span className="text-5xl">👥</span>
+            <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
+              <img 
+                src={TeamImage} 
+                alt="Команда ООО ПТБ-М" 
+                className="w-full h-full object-cover" // Изменены классы здесь
+              />
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500">
