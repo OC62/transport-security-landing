@@ -2,6 +2,7 @@
 import logoImage from '../../assets/images/logo.png';
 
 export const Footer = () => {
+  // Обновленный список социальных ссылок с иконками
   const socialLinks = [
     { 
       name: 'VK', 
@@ -65,14 +66,11 @@ export const Footer = () => {
     window.location.href = 'tel:+79176197981';
   };
 
-  // Функция для открытия карты (координаты Ростова-на-Дону, можно уточнить)
+  // Функция для открытия карты
   const handleAddressClick = (e) => {
     e.preventDefault();
-    // Открывает Google Maps или Яндекс.Карты с координатами
-    // Вы можете заменить координаты на точные для вашего адреса
+    // Открывает Яндекс.Карты с адресом
     window.open('https://yandex.ru/maps/?text=Ростов-на-Дону, ул. Большая Садовая, 102', '_blank');
-    // Или Google Maps:
-    // window.open('https://www.google.com/maps/search/?api=1&query=Ростов-на-Дону, ул. Большая Садовая, 102', '_blank');
   };
 
   return (
@@ -93,10 +91,10 @@ export const Footer = () => {
                 <a
                   key={social.name}
                   href={social.url}
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
                   aria-label={social.name}
                 >
-                  {social.name[0]}
+                  {social.icon} {/* Используем SVG иконку */}
                 </a>
               ))}
             </div>
@@ -131,9 +129,10 @@ export const Footer = () => {
               <p>
                 <button
                   onClick={handleAddressClick}
-                  className="text-gray-400 hover:text-white transition-colors text-left cursor-pointer"
+                  className="text-gray-400 hover:text-white transition-colors text-left cursor-pointer flex items-start"
                 >
-                  📍344019 г. Ростов-на-Дону, ул. Большая Садовая, 102, офис 15
+                  <span className="mr-2">📍</span> {/* Иконка адреса */}
+                  <span>344019 г. Ростов-на-Дону, ул. Большая Садовая, 102, офис 15</span>
                 </button>
               </p>
               {/* Телефон с возможностью звонка */}
@@ -141,9 +140,10 @@ export const Footer = () => {
                 <a
                   href="tel:+79176197981"
                   onClick={handlePhoneClick}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
-                  📞 +7 (917) 619 79 81
+                  <span className="mr-2">📞</span> {/* Иконка телефона */}
+                  <span>+7 (917) 619 79 81</span>
                 </a>
               </p>
               {/* Email с возможностью отправки письма */}
@@ -151,9 +151,10 @@ export const Footer = () => {
                 <a
                   href="mailto:dtsm.rnd@gmail.com"
                   onClick={handleEmailClick}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
-                  ✉️ dtsm.rnd@gmail.com
+                  <span className="mr-2">✉️</span> {/* Иконка email */}
+                  <span>dtsm.rnd@gmail.com</span>
                 </a>
               </p>
             </div>
