@@ -12,7 +12,8 @@ import { Licenses } from './components/sections/Licenses';
 
 function App() {
   return (
-    <Router basename="/transport-security-landing">
+    {/* basename для корня домена */}
+    <Router basename="/">
       <div className="min-h-screen bg-white">
         <Header />
         <main>
