@@ -1,30 +1,89 @@
 <!DOCTYPE html>
 <html lang="ru">
   <head>
+    <!-- Основные мета-теги -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Основные SEO-теги -->
-    <title>ООО "ПТБ-М" - Безопасность на объектах дорожного хозяйства</title>
-    <meta name="description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года. Специалисты по транспортной безопасности, лицензии и аккредитации.">
-    <meta name="keywords" content="транспортная безопасность, дорожное хозяйство, безопасность объектов, лицензия транспортная безопасность, аудит безопасности, консультации по безопасности">
-    <meta name="author" content="ООО ПТБ-М">
-    <meta name="robots" content="index, follow">
-    <meta name="yandex-verification" content="f5bc48680f827787">
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-        (function(m,e,t,r,i,k,a){
-            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103534344', 'ym');
+    <!-- Название страницы (Title) - УЛУЧШЕНО для ключевых запросов -->
+    <!-- Включает сокращённое название (ПТБ-М), полное название, ключевые услуги и регион для лучшей релевантности -->
+    <title>ПТБ-М | ООО Подразделение транспортной безопасности | Услуги по транспортной безопасности в Ростове-на-Дону</title>
 
-        ym(103534344, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+    <!-- Описание страницы (Description) - УЛУЧШЕНО для ключевых запросов -->
+    <!-- Чётко указывает на "Подразделение транспортной безопасности" и ключевые услуги -->
+    <meta name="description" content="ООО ПТБ-М - Подразделение транспортной безопасности. Профессиональные услуги по транспортной безопасности с 2017 года в Ростове-на-Дону и по всей России. Лицензии, аудит, мониторинг, обучение.">
+
+    <!-- Ключевые слова (Keywords) - РАСШИРЕНО для ключевых запросов -->
+    <!-- Включает прямые запросы и их вариации -->
+    <meta name="keywords" content="ПТБ, Подразделение транспортной безопасности, транспортная безопасность, услуги по транспортной безопасности, ООО ПТБ-М, транспортная безопасность Ростов-на-Дону, аудит транспортной безопасности, лицензия транспортная безопасность, консультации по транспортной безопасности, безопасность на объектах дорожного хозяйства, мониторинг угроз транспорту, обучение транспортной безопасности, Ростов-на-Дону">
+
+    <!-- Автор -->
+    <meta name="author" content="ООО ПТБ-М">
+
+    <!-- Инструкции для роботов - УЛУЧШЕНО -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+    <!-- Верификация в Яндекс.Вебмастере -->
+    <meta name="yandex-verification" content="f5bc48680f827787" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <!-- Apple Touch Icon (рекомендуется для PWA/мобильных) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo.png"> <!-- Или создайте специальный apple-touch-icon.png -->
+
+    <!-- Preconnect для Google Fonts (если используете) - ДОБАВЛЕНО -->
+    <!-- Помогает ускорить загрузку шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Если вы используете Google Fonts, убедитесь, что эта строка актуальна -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=ВАШ_ШРИФТ&display=swap" rel="stylesheet"> -->
+
+    <!-- Open Graph (для социальных сетей) - УЛУЧШЕНО -->
+    <meta property="og:title" content="ПТБ-М | ООО Подразделение транспортной безопасности | Услуги по транспортной безопасности">
+    <meta property="og:description" content="Профессиональные услуги по транспортной безопасности с 2017 года. Лицензии, аудит, мониторинг, обучение. Работаем по всей России.">
+    <meta property="og:image" content="https://ПТБ-М.РФ/images/logo.png"> <!-- Убедитесь, что URL абсолютный и изображение доступно -->
+    <meta property="og:url" content="https://ПТБ-М.РФ/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+
+    <!-- Twitter Card (для Twitter) - УЛУЧШЕНО -->
+    <meta name="twitter:card" content="summary_large_image"> <!-- Или "summary", если у вас нет большого изображения -->
+    <meta name="twitter:title" content="ПТБ-М | Подразделение транспортной безопасности">
+    <meta name="twitter:description" content="Профессиональные услуги по транспортной безопасности с 2017 года. Лицензии, аудит, мониторинг, обучение.">
+    <meta name="twitter:image" content="https://ПТБ-М.РФ/images/logo.png"> <!-- Убедитесь, что URL абсолютный и изображение доступно -->
+
+    <!-- Канонический URL - ИСПРАВЛЕНО (убраны пробелы) -->
+    <link rel="canonical" href="https://ПТБ-М.РФ/" />
+
+    <!-- Структурированные данные (JSON-LD) - УЛУЧШЕНЫ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ООО \"ПТБ-М\"", // Полное официальное название
+      "alternateName": [
+        "ПТБ-М", // Сокращенное название (ключевой запрос)
+        "ООО Подразделение транспортной безопасности - М" // Полное название с уточнением
+      ],
+      "description": "Профессиональное подразделение транспортной безопасности. Предоставляем услуги по транспортной безопасности с 2017 года.", // Описание с ключевыми словами
+      "url": "https://ПТБ-М.РФ/",
+      "logo": "https://ПТБ-М.РФ/images/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "ул. Большая Садовая, 102, офис 15",
+        "addressLocality": "Ростов-на-Дону",
+        "postalCode": "344019",
+        "addressCountry": "RU"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+7-917-619-79-81",
+        "contactType": "sales",
+        "email": "dtsm.rnd@gmail.com"
+      },
+      "keywords": "ПТБ, Подразделение транспортной безопасности, транспортная безопасность, услуги по транспортной безопасности, аудит транспортной безопасности, лицензия транспортная безопасность, консультации по транспортной безопасности" // Ключевые слова для структурированных данных
+    }
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/103534344" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
 
     <!-- Google Analytics -->
     <!-- Замените ВАШ_РЕАЛЬНЫЙ_GA_ID на ваш идентификатор от Google Analytics -->
@@ -36,30 +95,30 @@
       gtag('config', 'ВАШ_РЕАЛЬНЫЙ_GA_ID');
     </script>
 
-    <!-- Open Graph (для социальных сетей) -->
-    <meta property="og:title" content="ООО ПТБ-М - Транспортная безопасность">
-    <meta property="og:description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года.">
-    <!-- Убедитесь, что logo.png доступен по этому адресу -->
-    <meta property="og:image" content="https://ПТБ-М.РФ/images/logo.png">
-    <meta property="og:url" content="https://ПТБ-М.РФ/">
-    <meta property="og:type" content="website">
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for(var j = 0; j < document.scripts.length; j++) {if(document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-    <!-- Twitter Card (для Twitter) -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ООО ПТБ-М - Транспортная безопасность">
-    <meta name="twitter:description" content="Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года.">
-    <!-- Убедитесь, что logo.png доступен по этому адресу -->
-    <meta name="twitter:image" content="https://ПТБ-М.РФ/images/logo.png">
+       ym(103534344, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <!-- /Yandex.Metrika counter -->
 
-    <!-- Канонический URL -->
-    <link rel="canonical" href="https://ПТБ-М.РФ/" />
   </head>
   <body>
+    <!-- Yandex.Metrika counter (noscript перемещен в body для корректной сборки Vite) -->
+    <noscript><div><img src="https://mc.yandex.ru/watch/103534344" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
     <div id="root"></div>
-    <!--
-      Vite автоматически обрабатывает этот тег во время разработки и сборки.
-      Путь '/src/main.jsx' корректен для стандартной структуры Vite.
-    -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
