@@ -1,4 +1,0 @@
-User-agent: *
-Disallow:
-
-Sitemap: https://OC62.github.io/transport-security-landing/sitemap.xml
