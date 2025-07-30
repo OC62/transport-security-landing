@@ -9,6 +9,7 @@ import { ContactForm } from './components/sections/ContactForm';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Licenses } from './components/sections/Licenses';
+import { Breadcrumbs } from './components/Breadcrumbs';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
     <Router basename="/">
       <div className="min-h-screen bg-white">
         <Header />
+        <Breadcrumbs />
         <main>
           <Routes>
             <Route path="/" element={
