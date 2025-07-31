@@ -1,30 +1,59 @@
-# 6. Шаг: Загрузка файлов на FTP-сервер
-- name: FTP Deploy
-  uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-  with:
-    server: ${{ secrets.REGRU_FTP_HOST }}
-    username: ${{ secrets.REGRU_FTP_USER }}
-    password: ${{ secrets.REGRU_FTP_PASSWORD }}
-    server-dir: ${{ secrets.REGRU_FTP_REMOTE_PATH }}
-    local-dir: ./dist/
-    port: ${{ secrets.REGRU_FTP_PORT }}
-    protocol: ftp
-    exclude: |
-      .git*
-      .env*
-      node_modules/
-      *.md
-      README*
-      LICENSE*
-      .editorconfig
-      .gitattributes
-      .github/
-      .gitignore
-      .vite/
-      vite.config.js
-      postcss.config.js
-      tailwind.config.js
-    # --- Исправленные/обновленные настройки ---
-    # security: strict # Можно раскомментировать, если нужно явно указать
-    dangerous-clean-slate: true # Перезаписывать файлы
-    # dry-run: true # Раскомментируйте для тестового запуска без реальной загрузки
+# .github/workflows/deploy.yml
+name: Deploy to Reg.ru via FTP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Project
+      run: npm run build
+
+    - name: List dist contents
+      run: ls -la dist/
+
+    - name: FTP Deploy
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.REGRU_FTP_HOST }}
+        username: ${{ secrets.REGRU_FTP_USER }}
+        password: ${{ secrets.REGRU_FTP_PASSWORD }}
+        server-dir: ${{ secrets.REGRU_FTP_REMOTE_PATH }}
+        local-dir: ./dist/
+        port: ${{ secrets.REGRU_FTP_PORT }}
+        protocol: ftp
+        exclude: |
+          .git*
+          .env*
+          node_modules/
+          *.md
+          README*
+          LICENSE*
+          .editorconfig
+          .gitattributes
+          .github/
+          .gitignore
+          .vite/
+          vite.config.js
+          postcss.config.js
+          tailwind.config.js
+        dangerous-clean-slate: true
+        # security: strict # Раскомментируйте, если нужно явно указать. Удалите, если вызывает ошибку.
