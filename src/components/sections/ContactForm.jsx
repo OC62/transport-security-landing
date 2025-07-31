@@ -3,16 +3,19 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
-// Замените YOUR_FORM_ID на ID вашей формы на Formspree
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/meozkvov";
-
+// Схема валидации формы с помощью Yup
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
   phone: yup.string().required('Телефон обязателен'),
   message: yup.string().required('Сообщение обязательно')
 }).required();
+
+// Замените YOUR_FORM_ID на ID вашей формы на Formspree
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/meozkvov";
 
 export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,7 +98,7 @@ export const ContactForm = () => {
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {submitError && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="bg-red-50 border-l-4 border-red-200 rounded-lg p-4">
                     <p className="text-red-700 text-sm">{submitError}</p>
                   </div>
                 )}
@@ -193,10 +196,13 @@ export const ContactForm = () => {
                   </label>
                 </div>
 
-                <button
+                {/* Заменено GlassButton на GlassmorphicButton */}
+                <GlassmorphicButton
                   type="submit"
+                  variant="onWhite"
+                  size="large"
                   disabled={isSubmitting}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center py-3"
+                  className="w-full flex items-center justify-center"
                 >
                   {isSubmitting ? (
                     <>
@@ -209,7 +215,7 @@ export const ContactForm = () => {
                   ) : (
                     'Отправить заявку'
                   )}
-                </button>
+                </GlassmorphicButton>
               </form>
             )}
           </div>

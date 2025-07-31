@@ -1,26 +1,10 @@
 // src/components/sections/Hero.jsx
 import { motion } from 'framer-motion';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 import heroVideo from '../../assets/videos/Bridge.webm';
 
-const Button = ({ children, variant, size, onClick, className = '', ...props }) => {
-  const baseClasses = "font-medium rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const variantClasses = variant === 'primary'
-    ? "bg-green-900 hover:bg-green-800 text-white focus:ring-green-500"
-    : "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500";
-  const sizeClasses = size === 'large'
-    ? "py-3 px-6 text-base"
-    : "py-2 px-4 text-sm";
-
-  return (
-    <button
-      className={`${baseClasses} ${variantClasses} ${sizeClasses} ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
+// Локальный компонент Button УДАЛЕН
 
 export const Hero = () => {
   return (
@@ -91,7 +75,8 @@ export const Hero = () => {
             }}
             transition={{ duration: 0.5, delay: 0.7 }} // Появляется чуть позже
           >
-            <Button
+            {/* Заменено локальное Button на GlassmorphicButton */}
+            <GlassmorphicButton
               variant="primary"
               size="large"
               onClick={() => {
@@ -100,7 +85,7 @@ export const Hero = () => {
               }}
             >
               Получить консультацию
-            </Button>
+            </GlassmorphicButton>
           </motion.div>
         </motion.div>
       </div>

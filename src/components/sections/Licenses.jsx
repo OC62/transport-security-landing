@@ -1,8 +1,10 @@
 // src/components/sections/Licenses.jsx
 import { motion } from 'framer-motion';
-import VypiskaImage from '../../assets/images/vypiska.jpg'; 
-import licenseImage from '../../assets/images/licenses.jpg';
-
+// Импорты изображений остаются без изменений
+import vypiskaImage from '../../assets/images/vypiska.jpg';
+import licensesImage from '../../assets/images/licenses.jpg';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
 export const Licenses = () => {
   // Массив с лицензиями и свидетельствами
@@ -14,20 +16,28 @@ export const Licenses = () => {
       issuedBy: "Федеральное дорожное агентство",
       issueDate: "17.05.2024",
       expiryDate: "16.05.2029",
-      image: VypiskaImage,
-      description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожноего хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
+      image: vypiskaImage, // Используем импортированное изображение
+      description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожного хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
     },
     {
       id: 2,
       title: "Лицензия на осуществление деятельности в области использования источников ионизирующего излучения",
-      number: "№61.РЦ.10.002.Л.00009.12.19",
+      number: "№61.Ц.10.002.Л.00009.12.19",
       issuedBy: "Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области",
       issueDate: "12.12.2019",
       expiryDate: "бессрочно",
-      image: licenseImage,
+      image: licensesImage, // Используем импортированное изображение
       description: "Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения"
     },
   ];
+
+  // Функция для плавной прокрутки к секции контактов
+  const scrollToContact = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section id="licenses" className="py-20 bg-white">
@@ -69,13 +79,13 @@ export const Licenses = () => {
                         // Создаем элемент с иконкой, если изображение не загрузилось
                         const iconElement = document.createElement('div');
                         iconElement.className = 'text-4xl';
-                        iconElement.innerHTML = '📄';
+                        iconElement.innerHTML = '📊';
                         e.target.parentNode.appendChild(iconElement);
                       }}
                     />
                   </div>
                 </div>
-                
+
                 {/* Информация о документе */}
                 <div className="md:w-2/3">
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -116,21 +126,21 @@ export const Licenses = () => {
               Хотите увидеть оригиналы документов?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Мы готовы предоставить полный пакет лицензий и свидетельств по запросу. 
+              Мы готовы предоставить полный пакет лицензий и свидетельств по запросу.
               Наши документы регулярно проходят проверку контролирующими органами.
             </p>
-            <button 
-              onClick={() => {
-                const contactSection = document.getElementById('contact');
-                contactSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="btn-primary inline-flex items-center"
+            {/* Заменено GlassButton на GlassmorphicButton */}
+            <GlassmorphicButton 
+              variant="onWhite"
+              size="large"
+              onClick={scrollToContact}
+              className="inline-flex items-center"
             >
               Запросить документы
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-            </button>
+            </GlassmorphicButton>
           </div>
         </motion.div>
       </div>

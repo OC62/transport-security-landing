@@ -1,6 +1,8 @@
 // src/components/sections/Careers.jsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
 export const Careers = () => {
   const [openJobId, setOpenJobId] = useState(null);
@@ -179,13 +181,14 @@ export const Careers = () => {
                   </div>
                   
                   <div className="mt-6">
-                    {/* Активная кнопка "Откликнуться на вакансию" */}
-                    <button 
+                    {/* Заменено GlassButton на GlassmorphicButton */}
+                    <GlassmorphicButton 
+                      variant="onWhite"
+                      size="large"
                       onClick={scrollToContact}
-                      className="btn-primary"
                     >
                       Откликнуться на вакансию
-                    </button>
+                    </GlassmorphicButton>
                   </div>
                 </motion.div>
               )}
@@ -205,13 +208,14 @@ export const Careers = () => {
           <p className="text-gray-600 mb-6">
             Присылайте ваше резюме, мы свяжемся с вами при появлении подходящих предложений
           </p>
-          {/* Активная кнопка "Отправить резюме" */}
-          <button 
+          {/* Заменено GlassButton на GlassmorphicButton */}
+          <GlassmorphicButton 
+            variant="onWhite"
+            size="large"
             onClick={scrollToContact}
-            className="btn-primary"
           >
             Отправить резюме
-          </button>
+          </GlassmorphicButton>
         </motion.div>
       </div>
     </section>

@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import logoImage from '../../assets/images/logo.png';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,13 +68,15 @@ export const Header = () => {
             ))}
           </nav>
 
-          {/* Кнопка CTA - также скрывается на lg и меньше */}
-          <button 
-            className="hidden lg:block btn-primary text-sm"
+          {/* Кнопка CTA - теперь GlassmorphicButton */}
+          <GlassmorphicButton 
+            variant="onWhite" 
+            size="large"
             onClick={() => scrollToSection('#contact')}
+            className="hidden lg:block text-sm"
           >
             Получить консультацию
-          </button>
+          </GlassmorphicButton>
 
           {/* Мобильное меню кнопка - теперь показывается на lg и меньше */}
           <button
@@ -82,7 +86,7 @@ export const Header = () => {
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 18" />
               ) : (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               )}
@@ -109,12 +113,15 @@ export const Header = () => {
                   {item.name}
                 </button>
               ))}
-              <button
-                className="w-full btn-primary mt-2"
+              {/* Кнопка CTA в мобильном меню - теперь GlassmorphicButton */}
+              <GlassmorphicButton
+                variant="onWhite"
+                size="large"
                 onClick={() => scrollToSection('#contact')}
+                className="w-full mt-2"
               >
                 Получить консультацию
-              </button>
+              </GlassmorphicButton>
             </div>
           </motion.div>
         )}

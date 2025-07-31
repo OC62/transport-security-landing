@@ -1,5 +1,7 @@
 // src/components/sections/ServicesGrid.jsx
 import { motion } from 'framer-motion';
+// Импортируем новый компонент GlassmorphicButton
+import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
 export const ServicesGrid = () => {
   const services = [
@@ -122,13 +124,15 @@ export const ServicesGrid = () => {
                   </li>
                 ))}
               </ul>
-              {/* Активная кнопка "Узнать больше" */}
-              <button 
+              {/* Заменено GlassButton на GlassmorphicButton */}
+              <GlassmorphicButton 
+                variant="onWhite" 
+                size="large"
                 onClick={scrollToContact}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                className="w-full"
               >
                 Узнать больше
-              </button>
+              </GlassmorphicButton>
             </motion.div>
           ))}
         </div>
