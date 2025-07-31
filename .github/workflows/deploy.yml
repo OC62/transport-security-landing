@@ -1,0 +1,90 @@
+# .github/workflows/deploy.yml
+# Название workflow, отображается на вкладке Actions
+name: Deploy to Reg.ru via FTP
+
+# Условия запуска workflow
+on:
+  # Запускать при пуше (push) в ветку main
+  push:
+    branches: [ main ]
+  # Также разрешить запуск вручную из интерфейса Github Actions (workflow_dispatch)
+  workflow_dispatch:
+
+# Определение задач (jobs)
+jobs:
+  # Задача с названием 'deploy'
+  deploy:
+    name: Deploy
+    # Тип виртуальной машины для выполнения задачи (Ubuntu)
+    runs-on: ubuntu-latest
+    # Шаги задачи
+    steps:
+    # 1. Шаг: Получение кода из репозитория
+    - uses: actions/checkout@v4
+      with:
+        # Не сохранять учетные данные Git в рабочей директории
+        persist-credentials: false
+
+    # 2. Шаг: Установка Node.js
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        # Версия Node.js
+        node-version: 20
+        # Использовать кэш npm для ускорения установки зависимостей
+        cache: 'npm'
+
+    # 3. Шаг: Установка зависимостей проекта
+    - name: Install Dependencies
+      # Используем 'npm ci' для более быстрой и детерминированной установки
+      run: npm ci
+
+    # 4. Шаг: Сборка проекта
+    - name: Build Project
+      # Выполняем команду сборки, определённую в package.json
+      run: npm run build
+      # env: # Если у вас есть переменные окружения для сборки, раскомментируйте и добавьте их
+        # Например: VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+    # 5. Шаг: (Отладка) Просмотр содержимого папки dist
+    - name: List dist contents
+      # Показать список файлов в папке dist после сборки
+      run: ls -la dist/
+
+    # 6. Шаг: Загрузка файлов на FTP-сервер
+    - name: FTP Deploy
+      # Используем готовое действие (action) для деплоя по FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        # Параметры подключения берутся из Secrets
+        server: ${{ secrets.REGRU_FTP_HOST }}
+        username: ${{ secrets.REGRU_FTP_USER }}
+        password: ${{ secrets.REGRU_FTP_PASSWORD }}
+        server-dir: ${{ secrets.REGRU_FTP_REMOTE_PATH }}
+        local-dir: ./dist/
+        port: ${{ secrets.REGRU_FTP_PORT }}
+        # Явно указываем протокол
+        protocol: ftp
+        # Файлы и папки, которые нужно исключить из загрузки
+        exclude: |
+          .git*
+          .env*
+          node_modules/
+          *.md
+          README*
+          LICENSE*
+          .editorconfig
+          .gitattributes
+          .github/
+          .gitignore
+          .vite/
+          vite.config.js
+          postcss.config.js
+          tailwind.config.js
+          # Добавьте другие файлы/папки, если нужно
+        # --- Дополнительные настройки для надежности ---
+        # Таймаут для сетевых операций (в миллисекундах)
+        security: timeout=30000
+        # Количество попыток повтора при ошибке
+        danger-dangerous-overwrite: true # Перезаписывать файлы
+        # dry-run: true # Раскомментируйте для тестового запуска без реальной загрузки
