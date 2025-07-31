@@ -4,11 +4,11 @@ import heroVideo from '../../assets/videos/Bridge.webm';
 
 const Button = ({ children, variant, size, onClick, className = '', ...props }) => {
   const baseClasses = "font-medium rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const variantClasses = variant === 'primary' 
-    ? "bg-green-900 hover:bg-green-800 text-white focus:ring-green-500" 
+  const variantClasses = variant === 'primary'
+    ? "bg-green-900 hover:bg-green-800 text-white focus:ring-green-500"
     : "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500";
-  const sizeClasses = size === 'large' 
-    ? "py-3 px-6 text-base" 
+  const sizeClasses = size === 'large'
+    ? "py-3 px-6 text-base"
     : "py-2 px-4 text-sm";
 
   return (
@@ -41,24 +41,58 @@ export const Hero = () => {
 
       {/* Контент */}
       <div className="container mx-auto px-4 relative z-10">
+        {/* Обернем весь текст в motion.div для staggering */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.2, // Задержка между анимациями дочерних элементов
+                delayChildren: 0.3,   // Начальная задержка для дочерних элементов
+              }
+            }
+          }}
           className="max-w-3xl"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года
-          </h1>
-          <p className="text-xl text-blue-100 mb-8">
-            ООО "Подразделение транспортной безопасности -М" – профессионалы, которым можно доверять
-          </p>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          {/* Анимируемый заголовок h1 с градиентным текстом */}
+          <motion.h1
+            variants={{
+              hidden: { opacity: 0, y: -20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ type: "spring", stiffness: 100, damping: 12 }} // Используем spring для более "живого" эффекта
+            // Добавлены классы для градиентного текста
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-200 to-green-300 text-transparent bg-clip-text"
           >
-            <Button 
-              variant="primary" 
+            Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года
+          </motion.h1>
+
+          {/* Анимируемый абзац p с градиентным текстом */}
+          <motion.p
+            variants={{
+              hidden: { opacity: 0, y: -15 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ duration: 0.6 }}
+            // Добавлены классы для градиентного текста
+            className="text-xl mb-8 bg-gradient-to-r from-blue-100 to-blue-200 text-transparent bg-clip-text"
+          >
+            ООО "Подразделение транспортной безопасности -М" – профессионалы, которым можно доверять
+          </motion.p>
+
+          {/* Анимируемая кнопка (без float-эффекта) */}
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ duration: 0.5, delay: 0.7 }} // Появляется чуть позже
+          >
+            <Button
+              variant="primary"
               size="large"
               onClick={() => {
                 const contactSection = document.getElementById('contact');
