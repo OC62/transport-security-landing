@@ -14,8 +14,9 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
-// Замените YOUR_FORM_ID на ID вашей формы на Formspree
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/meozkvov";
+// --- НАСТРОЙКИ ---
+const BACKEND_ENDPOINT = "https://ПТБ-М.рф/api/send-email"; // Для продакшена (когда задеплоите бэкенд на сервер)
+// --- КОНЕЦ НАСТРОЕК ---
 
 export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,41 +32,49 @@ export const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
+  // Функция для отправки данных формы на бэкенд
+  const sendFormData = async (formData) => {
+    try {
+      const response = await fetch(BACKEND_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Accept': 'application/json' // Не обязательно, но можно оставить
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Успешно отправлено
+        setSubmitSuccess(true);
+        reset(); // Очищаем форму
+        // Автоматически скрыть сообщение успеха через 5 секунд
+        setTimeout(() => setSubmitSuccess(false), 5000);
+        return true; // Успешно
+      } else {
+        // Сервер вернул ошибку или не success
+        throw new Error(result.message || 'Неизвестная ошибка сервера');
+      }
+    } catch (error) {
+      console.error('Ошибка сети или сервера:', error);
+      // Обработка ошибок сети или сервера
+      setSubmitError(error.message || 'Произошла ошибка при отправке формы. Проверьте подключение к интернету и попробуйте еще раз.');
+      return false; // Ошибка
+    }
+  };
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitError('');
     setSubmitSuccess(false); // Сброс предыдущего успеха
 
     try {
-      // Отправка данных формы на Formspree
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        setSubmitSuccess(true);
-        reset();
-        // Автоматически скрыть сообщение успеха через 5 секунд
-        setTimeout(() => setSubmitSuccess(false), 5000);
-      } else {
-        // Обработка ошибок от Formspree
-        const result = await response.json();
-        if (result.errors) {
-          // Formspree может вернуть конкретные ошибки
-          const errorMessage = result.errors.map(err => err.message).join(', ');
-          setSubmitError(`Ошибка отправки: ${errorMessage}`);
-        } else {
-          setSubmitError('Произошла ошибка при отправке формы. Пожалуйста, попробуйте еще раз.');
-        }
+      const isSuccess = await sendFormData(data);
+      if (!isSuccess) {
+        // Ошибка уже установлена в sendFormData
       }
-    } catch (error) {
-      console.error('Ошибка сети или другая ошибка:', error);
-      setSubmitError('Произошла ошибка при отправке формы. Проверьте подключение к интернету и попробуйте еще раз.');
     } finally {
       setIsSubmitting(false);
     }
@@ -199,14 +208,14 @@ export const ContactForm = () => {
                 {/* Заменено GlassButton на GlassmorphicButton */}
                 <GlassmorphicButton
                   type="submit"
-                  variant="onWhite"
+                  variant="onLight" // Используем вариант для светлого фона
                   size="large"
                   disabled={isSubmitting}
                   className="w-full flex items-center justify-center"
                 >
                   {isSubmitting ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
