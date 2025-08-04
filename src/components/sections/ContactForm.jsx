@@ -15,7 +15,7 @@ const schema = yup.object({
 }).required();
 
 // --- НАСТРОЙКИ ---
-const BACKEND_ENDPOINT = "https://ПТБ-М.рф/api/send-email"; // Для продакшена (когда задеплоите бэкенд на сервер)
+const BACKEND_ENDPOINT = "https://ПТБ-М.рф/send-email.php"; // Для продакшена (когда задеплоите бэкенд на сервер)
 // --- КОНЕЦ НАСТРОЕК ---
 
 export const ContactForm = () => {
