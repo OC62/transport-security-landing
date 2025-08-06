@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-// Импортируем новый компонент GlassmorphicButton
 import { GlassmorphicButton } from '../ui/GlassmorphicButton';
+// Импорт SmartCaptcha
+import { SmartCaptcha } from '@yandex/smart-captcha';
 
-// Схема валидации формы с помощью Yup
+// Схема валидации формы
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -14,14 +15,16 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
-// --- НАСТРОЙКИ ---
-const BACKEND_ENDPOINT = "https://ПТБ-М.рф/send-email.php"; // Для продакшена (когда задеплоите бэкенд на сервер)
-// --- КОНЕЦ НАСТРОЕК ---
+// Настройки
+const BACKEND_ENDPOINT = "https://ПТБ-М.РФ/send-email.php";
+const CAPTCHA_SITE_KEY = "ysc1_S7YlBYqkQu6YRPm3K4ljjMccaQHSj8PjOmxhPfZK247c6a1c"; // Ваш sitekey
 
 export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
 
   const {
     register,
@@ -32,52 +35,71 @@ export const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Функция для отправки данных формы на бэкенд
+  // Функция для отправки данных формы
   const sendFormData = async (formData) => {
     try {
       const response = await fetch(BACKEND_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Accept': 'application/json' // Не обязательно, но можно оставить
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(formData),
+        // Исправлено: правильное имя поля для токена
+        body: JSON.stringify({ 
+          ...formData, 
+          smartcaptcha_token: captchaToken 
+        }),
       });
 
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Успешно отправлено
         setSubmitSuccess(true);
-        reset(); // Очищаем форму
-        // Автоматически скрыть сообщение успеха через 5 секунд
+        reset();
         setTimeout(() => setSubmitSuccess(false), 5000);
-        return true; // Успешно
+        return true;
       } else {
-        // Сервер вернул ошибку или не success
         throw new Error(result.message || 'Неизвестная ошибка сервера');
       }
     } catch (error) {
       console.error('Ошибка сети или сервера:', error);
-      // Обработка ошибок сети или сервера
       setSubmitError(error.message || 'Произошла ошибка при отправке формы. Проверьте подключение к интернету и попробуйте еще раз.');
-      return false; // Ошибка
+      return false;
     }
   };
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitError('');
-    setSubmitSuccess(false); // Сброс предыдущего успеха
+    setSubmitSuccess(false);
+    setCaptchaError('');
+
+    // Проверка капчи
+    if (!captchaToken) {
+      setCaptchaError('Пожалуйста, подтвердите, что вы не робот.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      const isSuccess = await sendFormData(data);
-      if (!isSuccess) {
-        // Ошибка уже установлена в sendFormData
-      }
+      await sendFormData(data);
+    } catch (error) {
+      console.error('Ошибка при отправке формы:', error);
+      setSubmitError(error.message || 'Произошла неизвестная ошибка');
     } finally {
       setIsSubmitting(false);
+      // Сброс капчи после отправки
+      setCaptchaToken('');
+      if (window.smartCaptcha) {
+        window.smartCaptcha.reset();
+      }
     }
+  };
+
+  // Обработчик ошибок капчи
+  const handleCaptchaError = (error) => {
+    console.error('Ошибка SmartCaptcha:', error);
+    setCaptchaError('Произошла ошибка при загрузке капчи. Пожалуйста, обновите страницу.');
   };
 
   return (
@@ -205,13 +227,39 @@ export const ContactForm = () => {
                   </label>
                 </div>
 
-                {/* Заменено GlassButton на GlassmorphicButton */}
+                {/* Виджет SmartCaptcha */}
+                <div className="mt-4">
+                  <SmartCaptcha
+                    sitekey={CAPTCHA_SITE_KEY}
+                    onSuccess={(token) => {
+                      setCaptchaToken(token);
+                      setCaptchaError('');
+                    }}
+                    onError={handleCaptchaError}
+                    onChallengeHidden={() => setCaptchaToken('')}
+                  />
+                  
+                  {/* Сообщения об ошибках капчи */}
+                  {captchaError && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {captchaError}
+                    </p>
+                  )}
+                  
+                  {!captchaToken && !captchaError && (
+                    <p className="text-gray-500 text-sm mt-2">
+                      Пожалуйста, подтвердите, что вы не робот
+                    </p>
+                  )}
+                </div>
+
+                {/* Кнопка отправки */}
                 <GlassmorphicButton
                   type="submit"
-                  variant="onLight" // Используем вариант для светлого фона
+                  variant="onLight"
                   size="large"
-                  disabled={isSubmitting}
-                  className="w-full flex items-center justify-center"
+                  disabled={isSubmitting || !captchaToken}
+                  className="w-full flex items-center justify-center mt-6"
                 >
                   {isSubmitting ? (
                     <>
