@@ -1,8 +1,10 @@
 # Logs
 logs
 *.log
-.env* # <-- Игнорируем все файлы, начинающиеся с .env (включая .env, .env.local, .env.production и т.д.)
-npm-debug.log*
+.env
+*.env
+.env.local
+php-errors.log
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
