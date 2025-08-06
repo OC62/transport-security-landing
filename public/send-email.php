@@ -21,7 +21,7 @@ register_shutdown_function(function() {
 });
 
 // --- УЛУЧШЕННАЯ ЗАГРУЗКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ---
-$env_path = __DIR__ . '/.env';
+ $env_path = __DIR__ . '/../.env';
 $env = [];
 
 if (file_exists($env_path)) {
