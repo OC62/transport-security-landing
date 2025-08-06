@@ -21,11 +21,14 @@ register_shutdown_function(function() {
 });
 
 // --- УЛУЧШЕННАЯ ЗАГРУЗКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ---
- $env_path = __DIR__ . '/../.env';
+$env_path = realpath(__DIR__ . '/../.env');
 $env = [];
 
 if (file_exists($env_path)) {
     $env = parse_ini_file($env_path);
+} else {
+    error_log("ERROR: .env file not found at: $env_path");
+    returnJsonError("Server configuration error", 500);
 }
 
 // --- НАСТРОЙКИ С ЗНАЧЕНИЯМИ ПО УМОЛЧАНИЮ ---
@@ -37,8 +40,14 @@ $smtp_password = $env['SMTP_PASS'] ?? 'bnwa lhco lnij xnzi';
 $from_email = $env['FROM_EMAIL'] ?? 'oc611164@gmail.com';
 $from_name = $env['FROM_NAME'] ?? 'Форма обратной связи ПТБ-М';
 $to_email = $env['TO_EMAIL'] ?? 'oc611164@gmail.com';
-$captcha_secret = $env['CAPTCHA_SECRET'];
+$captcha_secret = $env['CAPTCHA_SECRET'] ?? null;
 $allowed_origin = $env['ALLOWED_ORIGIN'] ?? 'https://ПТБ-М.РФ';
+
+// Проверка обязательных настроек
+if (empty($captcha_secret)) {
+    error_log("ERROR: CAPTCHA_SECRET is missing in .env");
+    returnJsonError("Server configuration error: missing captcha secret", 500);
+}
 
 // Устанавливаем заголовки для JSON-ответов
 header("Access-Control-Allow-Origin: $allowed_origin");
@@ -99,13 +108,13 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 
 $captcha_response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-if (curl_errno($ch)) {
-    error_log("CURL error: " . curl_error($ch));
-    returnJsonError("Ошибка подключения к сервису капчи");
-}
-
+$curl_error = curl_error($ch);
 curl_close($ch);
+
+if ($curl_error) {
+    error_log("CURL error: " . $curl_error);
+    returnJsonError("Ошибка подключения к сервису капчи", 500);
+}
 
 // Анализ ответа
 if ($http_code === 403) {
@@ -119,11 +128,17 @@ if ($http_code === 403) {
 }
 
 if ($http_code !== 200) {
+    error_log("Yandex API returned HTTP $http_code. Response: " . $captcha_response);
     returnJsonError("Сервер капчи вернул ошибку: HTTP $http_code", 500);
 }
 
 $captcha_data = json_decode($captcha_response, true);
-if (!$captcha_data || $captcha_data['status'] !== 'ok') {
+if (!$captcha_data) {
+    error_log("Invalid JSON response from Yandex: " . $captcha_response);
+    returnJsonError("Неверный ответ от сервера капчи", 500);
+}
+
+if ($captcha_data['status'] !== 'ok') {
     $error_msg = $captcha_data['message'] ?? 'Неизвестная ошибка';
     returnJsonError("Ошибка капчи: $error_msg", 400);
 }
@@ -187,6 +202,13 @@ try {
     $mail->SMTPSecure = $smtp_secure;
     $mail->Port = $smtp_port;
     $mail->CharSet = 'UTF-8';
+    $mail->SMTPOptions = [
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        ]
+    ];
     
     // Отправитель/получатель
     $mail->setFrom($from_email, $from_name);
@@ -205,5 +227,12 @@ try {
 } catch (Exception $e) {
     error_log("Ошибка отправки email: " . $e->getMessage());
     returnJsonError("Ошибка отправки: " . $e->getMessage(), 500);
+}
+
+// Вспомогательная функция для возврата ошибок в JSON
+function returnJsonError($message, $code = 500) {
+    http_response_code($code);
+    echo json_encode(["success" => false, "message" => $message]);
+    exit();
 }
 ?>
