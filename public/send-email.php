@@ -33,7 +33,7 @@ function returnJsonError($message, $code = 500) {
 }
 
 // --- ЗАГРУЗКА .ENV ---
-$env_path = realpath(__DIR__ . '/../.env');
+$env_path = __DIR__ . '/../.env';
 $env = [];
 
 if (file_exists($env_path)) {
