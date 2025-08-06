@@ -17,7 +17,7 @@ const schema = yup.object({
 
 // Настройки
 const BACKEND_ENDPOINT = "https://ПТБ-М.РФ/send-email.php";
-const CAPTCHA_SITE_KEY = "ysc1_S7YlBYqkQu6YRPm3K4ljjMccaQHSj8PjOmxhPfZK247c6a1c"; // Ваш sitekey
+const CAPTCHA_SITE_KEY = "ysc1_PAeNWQ41EXYOrMHaP4Ge3cA28NZFfQdgDMVGybiS91af00ab"; // Ваш sitekey
 
 export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
