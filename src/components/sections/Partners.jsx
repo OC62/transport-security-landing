@@ -5,9 +5,9 @@ export const Partners = () => {
   // Массив с логотипами партнеров (в реальном проекте замените на реальные изображения)
   const partners = [
     { id: 1, name: "ООО 'Ростдонавтокозал'", logo: "/images/logo_rda.png" },
-    { id: 2, name: "РЖД", logo: "/images/partner2.jpg" },
-    { id: 3, name: "Аэрофлот", logo: "/images/partner3.jpg" },
-    { id: 4, name: "Почта России", logo: "/images/partner4.jpg" },
+    { id: 2, name: "ФКУ УПРДОР МОСКВА-ВОЛГОГРАД", logo: "/images/fkuLogo.svg" },
+    { id: 3, name: "ГБУ Вокзал-Авто", logo: "/images/GBUVolgograd.png" },
+    { id: 4, name: "ООО Т-Транс", logo: "/images/Ttrans.png" },
     { id: 5, name: "Деловые Линии", logo: "/images/partner5.jpg" },
     { id: 6, name: "СберТранс", logo: "/images/partner6.jpg" },
   ];
