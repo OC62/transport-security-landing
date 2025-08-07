@@ -6,6 +6,7 @@ import { ServicesGrid } from './components/sections/ServicesGrid';
 import { CasesSlider } from './components/sections/CasesSlider';
 import { Careers } from './components/sections/Careers';
 import { ContactForm } from './components/sections/ContactForm';
+import { Partners } from './components/sections/Partners';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Licenses } from './components/sections/Licenses';
@@ -28,6 +29,7 @@ function App() {
                 <CasesSlider />
                 <Careers />
                 <Licenses />
+                <Partners />
                 <ContactForm />
               </>
             } />
