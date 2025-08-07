@@ -8,8 +8,8 @@ export const Partners = () => {
     { id: 2, name: "ФКУ УПРДОР МОСКВА-ВОЛГОГРАД", logo: "/images/fkuLogo.svg" },
     { id: 3, name: "ГБУ Вокзал-Авто", logo: "/images/GBUVolgograd.png" },
     { id: 4, name: "ООО Т-Транс", logo: "/images/Ttrans.png" },
-    { id: 5, name: "СК Автодор-Казань", logo: "/images/logoAvtodor.svg" },
-    { id: 6, name: "АО Донавтовокзал", logo: "/images/LogoDonavto.webp" },
+    { id: 5, name: "СК Автодор-Казань", logo: "/images/logoAvtodor.webp" },
+    { id: 6, name: "АО Донавтовокзал", logo: "/images/LogoDonavto.png" },
   ];
 
   return (
