@@ -9,7 +9,7 @@ export const Partners = () => {
     { id: 3, name: "ГБУ Вокзал-Авто", logo: "/images/GBUVolgograd.png" },
     { id: 4, name: "ООО Т-Транс", logo: "/images/Ttrans.png" },
     { id: 5, name: "СК Автодор-Казань", logo: "/images/logoAvtodor.svg" },
-    { id: 6, name: "АО Донавтовокзал", logo: "/images/LogoDonavto.png" },
+    { id: 6, name: "АО Донавтовокзал", logo: "/images/LogoDonavto.webp" },
   ];
 
   return (
