@@ -1,8 +1,8 @@
 // src/components/sections/Licenses.jsx
 import { motion } from 'framer-motion';
 // Импорты изображений остаются без изменений
-import vypiskaImage from '../../assets/images/vypiska.jpg';
-import licensesImage from '../../assets/images/licenses.jpg';
+import vypiskaImage from '../../assets/images/vypiska.webp';
+import licensesImage from '../../assets/images/licenses.webp';
 // Импортируем новый компонент GlassmorphicButton
 import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 

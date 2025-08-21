@@ -1,29 +1,88 @@
 // src/components/sections/About.jsx
 import { motion } from 'framer-motion';
-import TeamImage from '../../assets/images/team.jpg';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+
+// Импорт стилей Swiper (если не подключены глобально — раскомментируйте)
+// import 'swiper/css';
+// import 'swiper/css/autoplay';
+
+// Импортируем изображения команды
+import TeamImage1 from '../../assets/images/team1.webp';
+import TeamImage2 from '../../assets/images/team2.webp';
+import TeamImage3 from '../../assets/images/team3.webp';
+import TeamImage4 from '../../assets/images/team4.webp';
+import TeamImage5 from '../../assets/images/team5.webp';
+import TeamImage6 from '../../assets/images/team6.webp';
+import TeamImage7 from '../../assets/images/team7.webp';
+import TeamImage8 from '../../assets/images/team8.webp';
 
 export const About = () => {
+  // Обновлённый список преимуществ с упором на реальные достижения
   const advantages = [
     {
       title: "Более 8 лет на рынке",
-      description: "Опыт работы в сфере транспортной безопасности",
+      description: "Опыт в проектировании и строительстве объектов дорожной инфраструктуры",
       icon: "🏆"
     },
     {
       title: "Аттестованные специалисты",
-      description: "Команда профессионалов которая работает для вас 24/7",
+      description: "Команда сертифицированных экспертов, прошедших подготовку по требованиям ФЗ-16",
       icon: "👨‍💼"
     },
     {
-      title: "По всей России",
-      description: "Уже работаем в 5+ регионах страны",
-      icon: "🗺️"
+      title: "Работа с госзаказчиками",
+      description: "Сотрудничаем с ФКУ Упрдор, администрациями регионов и ГКУ",
+      icon: "🏛️"
     },
     {
       title: "Комплексный подход",
-      description: "Полный спектр услуг под ключ",
+      description: "Полный цикл работ: от разработки проекта до сдачи объекта",
       icon: "🔧"
     }
+  ];
+
+  const teamPhotos = [
+    {
+      src: TeamImage1,
+      name: "Группа быстрого реагирования",
+      position: "Автомобиль ГБР в режиме ожидания"
+    },
+    {
+      src: TeamImage2,
+      name: "Дежурная смена",
+      position: "Коллектив перед заступлением на дежурство"
+    },
+    {
+      src: TeamImage3,
+      name: "Группа быстрого реагирования",
+      position: "Инструктаж перед выездом на объект"
+    },
+    {
+      src: TeamImage4,
+      name: "Группа быстрого реагирования",
+      position: "Выезд на проверку объекта транспортной безопасности"
+    },
+    {
+      src: TeamImage5,
+      name: "Сотрудники дежурной смены",
+      position: "В полной экипировке перед началом дежурства"
+    },
+    {
+      src: TeamImage6,
+      name: "Специалисты ТСО",
+      position: "Настройка и диагностика технических средств охраны"
+    },
+    {
+      src: TeamImage7,
+      name: "Группа быстрого реагирования",
+      position: "Проверка объекта транспортной безопасности"
+    },
+    {
+      src: TeamImage8,
+      name: "Дежурная смена",
+      position: "Тренировка и инструктаж перед заступлением на дежурство"
+    },
   ];
 
   return (
@@ -64,25 +123,54 @@ export const About = () => {
               Наш опыт
             </h3>
             <p className="text-gray-600">
-              Уже более 8 лет мы разрабатываем индивидуальные 
-              решения для каждого клиента, учитывая особенности его деятельности и 
-              актуальные законодательные требования. Наши услуги помогают обеспечить 
-              безопасность на всех этапах работы.
+              Уже более 8 лет мы участвуем в реализации крупных инфраструктурных проектов 
+              в сотрудничестве с ФКУ Упрдор, администрациями Ростовской и Волгоградской областей. 
+              Наша команда отвечает за безопасность на всех этапах строительства и эксплуатации 
+              объектов транспортной инфраструктуры.
             </p>
           </motion.div>
 
+          {/* Слайдер с фото команды */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             className="bg-white p-8 rounded-xl shadow-lg"
           >
-            <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-              <img 
-                src={TeamImage} 
-                alt="Команда ООО ПТБ-М" 
-                className="w-full h-full object-cover" // Изменены классы здесь
-              />
+            <div className="w-full h-64 rounded-lg mb-6 overflow-hidden">
+              <Swiper
+                modules={[Autoplay]}
+                spaceBetween={0}
+                slidesPerView={1}
+                loop={true}
+                autoplay={{
+                  delay: 4000,
+                  disableOnInteraction: false,
+                }}
+                className="team-swiper"
+              >
+                {teamPhotos.map((member, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="relative w-full h-64">
+                      <img
+                        src={member.src}
+                        alt={`Фото: ${member.position}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 bg-black/50 flex flex-col justify-end p-4 text-white"
+                      >
+                        <p className="font-semibold text-sm sm:text-base">{member.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-200">{member.position}</p>
+                      </motion.div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500">

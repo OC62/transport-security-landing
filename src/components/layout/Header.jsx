@@ -1,7 +1,7 @@
 // src/components/layout/Header.jsx
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import logoImage from '../../assets/images/logo.png';
+import logoImage from '../../assets/images/logo.webp';
 // Импортируем новый компонент GlassmorphicButton
 import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 

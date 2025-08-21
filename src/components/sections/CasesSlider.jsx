@@ -1,9 +1,9 @@
 // src/components/sections/CasesSlider.jsx
 import { useState, useRef, useEffect } from 'react'; // Добавлены useRef и useEffect
 import { motion } from 'framer-motion';
-import BusstationsImage from '../../assets/images/Main_Bus_Station.png';
-import BreadgeImage from '../../assets/images/Rost_Sea.png';
-import OtiImage from '../../assets/images/bg_Hero.png';
+import BusstationsImage from '../../assets/images/Main_Bus_Station.webp';
+import BreadgeImage from '../../assets/images/Rost_Sea.webp';
+import OtiImage from '../../assets/images/bg_Hero.webp';
 
 export const CasesSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

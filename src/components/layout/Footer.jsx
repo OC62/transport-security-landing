@@ -1,5 +1,5 @@
 // src/components/layout/Footer.jsx
-import logoImage from '../../assets/images/logo.png'; // Импорт логотипа
+import logoImage from '../../assets/images/logo.webp'; // Импорт логотипа
 
 export const Footer = () => {
   // Обновленный список социальных ссылок с SVG иконками
@@ -142,7 +142,7 @@ export const Footer = () => {
                   className="text-gray-400 hover:text-white transition-colors flex items-center"
                 >
                   <span className="mr-2">📞</span>
-                  <span>+7 (917) 619 79 81</span>
+                  <span>+7 (909) 407 23 74</span>
                 </a>
               </p>
               {/* Email с возможностью отправки письма */}

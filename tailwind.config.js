@@ -12,8 +12,14 @@ export default {
         accent: '#FFFFFF', // Белый
         'green-900/80': 'rgba(154, 205, 50, 0.8)', // Прозрачный зеленый
         'green-800/60': 'rgba(154, 205, 50, 0.6)', // Прозрачный зеленый
-      }
+      },
     },
   },
   plugins: [],
+  // Добавьте safelist для классов Swiper
+  safelist: [
+    'swiper-button-next',
+    'swiper-button-prev',
+    'swiper-button-disabled', // опционально: для состояния "отключено"
+  ],
 }

@@ -10,6 +10,7 @@ import { Partners } from './components/sections/Partners';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Licenses } from './components/sections/Licenses';
+import { CommunitySupport } from './components/sections/CommunitySupport';
 import { Breadcrumbs } from './components/Breadcrumbs';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                 <Careers />
                 <Licenses />
                 <Partners />
+                <CommunitySupport />
                 <ContactForm />
               </>
             } />
