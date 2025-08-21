@@ -1,56 +1,61 @@
 // src/components/sections/Partners.jsx
 import { motion } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+
+// Импорт стилей Swiper
+import 'swiper/css';
+import 'swiper/css/autoplay';
 
 export const Partners = () => {
-  // Массив с логотипами и ссылками на сайты партнеров
   const partners = [
     { 
       id: 1, 
       name: "ООО 'Ростдонавтокозал'", 
       logo: "/images/logo_rda.png", 
-      url: "https://rostdonavtokozal.ru  " 
+      url: "https://rostdonavtokozal.ru" 
     },
     { 
       id: 2, 
       name: "ФКУ УПРДОР МОСКВА-ВОЛГОГРАД", 
       logo: "/images/fkuLogo.svg", 
-      url: "https://mv.rosavtodor.gov.ru  " 
+      url: "https://mv.rosavtodor.gov.ru" 
     },
     { 
       id: 3, 
       name: "ГБУ Вокзал-Авто", 
       logo: "/images/GBUVolgograd.png", 
-      url: "https://vokzal-avto.ru  " 
+      url: "https://vokzal-avto.ru" 
     },
     { 
       id: 4, 
       name: "ООО Т-Транс", 
       logo: "/images/Ttrans.png", 
-      url: "https://t-trans61.ru  " 
+      url: "https://t-trans61.ru" 
     },
     { 
       id: 5, 
       name: "ГКУ Транспортная дирекция РБ", 
       logo: "/images/logoBashkiria.webp", 
-      url: "https://tdrb.bashkortostan.ru  " 
+      url: "https://tdrb.bashkortostan.ru" 
     },
     { 
       id: 6, 
       name: "МКУ 'КОМИТЕТ ВНЕШНЕГО БЛАГОУСТРОЙСТВА ГОРОДА КАЗАНИ'", 
       logo: "/images/logoKazan.png", 
-      url: "https://kzn.ru/meriya/ispolnitelnyy-komitet/komitet-vneshnego-blagoustroystva  " 
+      url: "https://kzn.ru/meriya/ispolnitelnyy-komitet/komitet-vneshnego-blagoustroystva" 
     },
     { 
       id: 7, 
       name: "СК Автодор-Казань", 
       logo: "/images/logoAvtodor.webp", 
-      url: "https://skavtodor.ru  " 
+      url: "https://skavtodor.ru" 
     },
     { 
       id: 8, 
       name: "АО Донавтовокзал", 
       logo: "/images/LogoDonavto.png", 
-      url: "https://donavto.ru  " 
+      url: "https://donavto.ru" 
     },
   ];
 
@@ -71,48 +76,62 @@ export const Partners = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {partners.map((partner, index) => {
-            // Удаляем лишние пробелы из URL
-            const cleanUrl = partner.url?.trim();
+        {/* Слайдер */}
+        <div className="relative">
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={30}
+            slidesPerView={2}
+            loop={true}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+            }}
+            breakpoints={{
+              640: { slidesPerView: 3 },
+              768: { slidesPerView: 4 },
+              1024: { slidesPerView: 5 },
+              1280: { slidesPerView: 6 },
+            }}
+            className="partners-swiper"
+          >
+            {partners.map((partner) => {
+              const cleanUrl = partner.url?.trim();
+              const isValidUrl = cleanUrl && /^https?:\/\//i.test(cleanUrl);
 
-            // Проверяем, валиден ли URL (простейшая проверка)
-            const isValidUrl = cleanUrl && /^https?:\/\//i.test(cleanUrl);
-
-            return (
-              <motion.a
-                key={partner.id}
-                href={isValidUrl ? cleanUrl : undefined}
-                target={isValidUrl ? "_blank" : undefined}
-                rel={isValidUrl ? "noopener noreferrer" : undefined}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: index * 0.1 }}
-                className={`block bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow ${
-                  isValidUrl ? 'cursor-pointer' : 'cursor-default pointer-events-none'
-                }`}
-                title={partner.name}
-              >
-                {/* Контейнер для логотипа */}
-                <div className="flex items-center justify-center mb-3 w-full h-24">
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} логотип`}
-                    className="max-h-20 w-auto object-contain"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                </div>
-                
-                {/* Наименование партнера */}
-                <p className="text-xs font-medium text-gray-700 text-center break-words leading-tight px-1">
-                  {partner.name}
-                </p>
-              </motion.a>
-            );
-          })}
+              return (
+                <SwiperSlide key={partner.id}>
+                  <motion.a
+                    href={isValidUrl ? cleanUrl : undefined}
+                    target={isValidUrl ? "_blank" : undefined}
+                    rel={isValidUrl ? "noopener noreferrer" : undefined}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.5 }}
+                    className={`block bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center hover:shadow-md transition-all ${
+                      isValidUrl ? 'cursor-pointer transform hover:scale-105' : 'cursor-default'
+                    }`}
+                    title={partner.name}
+                  >
+                    <div className="flex items-center justify-center mb-3 w-full h-24">
+                      <img
+                        src={partner.logo}
+                        alt={`${partner.name} логотип`}
+                        className="max-h-20 w-auto object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs font-medium text-gray-700 text-center break-words leading-tight px-1">
+                      {partner.name}
+                    </p>
+                  </motion.a>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
         </div>
       </div>
     </section>
