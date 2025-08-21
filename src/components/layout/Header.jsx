@@ -36,6 +36,7 @@ export const Header = () => {
     { name: 'Наши вакансии', href: '#careers' },
     { name: 'Лицензии', href: '#licenses' },
     { name: 'Партнеры', href: '#partners' },
+    { name: 'Растим чемпионов', href: '#community' },
     { name: 'Вакансии', href: '#careers' },
     { name: 'Контакты', href: '#contact' }
   ];
