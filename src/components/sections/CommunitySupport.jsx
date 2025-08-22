@@ -1,7 +1,8 @@
 // src/components/sections/CommunitySupport.jsx
 import { motion } from 'framer-motion';
+import { GlassmorphicButton } from '../ui/GlassmorphicButton'; // Импортируем кнопку
 
-// Импортируем изображение (замените путь на реальный)
+// Импортируем изображение
 import footballTeamImage from '../../assets/images/team-football.webp';
 
 export const CommunitySupport = () => {
@@ -9,12 +10,11 @@ export const CommunitySupport = () => {
     <section id="community" className="relative py-20 bg-gray-50">
       {/* Фоновое изображение */}
       <div className="absolute inset-0 z-0">
-        <div 
+        <div
           className="w-full h-full bg-cover bg-center"
           style={{ backgroundImage: `url(${footballTeamImage})` }}
         ></div>
-        {/* Градиентная маска для улучшения читаемости текста */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-green-800 opacity-80"></div>
+        {/* Убрана градиентная маска */}
       </div>
 
       {/* Контент */}
@@ -38,22 +38,24 @@ export const CommunitySupport = () => {
             и организации турниров, внося вклад в будущее региона.
           </p>
 
-          {/* Кнопка (опционально) */}
+          {/* Кнопка с тем же стилем, что и в ContactForm.jsx */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ delay: 0.3 }}
           >
-            <button
+            <GlassmorphicButton
+              variant="onLight"
+              size="large"
               onClick={() => {
                 const contactSection = document.getElementById('contact');
                 contactSection?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="bg-white text-blue-900 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-300 transform hover:scale-105"
+              className="mt-4"
             >
               Поддержать проект
-            </button>
+            </GlassmorphicButton>
           </motion.div>
         </motion.div>
       </div>

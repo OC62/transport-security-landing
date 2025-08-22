@@ -9,7 +9,6 @@ import 'swiper/css/autoplay';
 import 'swiper/css/navigation';
 
 export const Partners = () => {
-  // Список партнеров с очищенными URL
   const partners = [
     { 
       id: 1, 
@@ -78,7 +77,7 @@ export const Partners = () => {
           </p>
         </motion.div>
 
-        {/* Слайдер с адаптивными кнопками */}
+        {/* Слайдер с автопрокруткой и галочками для десктопа */}
         <div className="relative">
           <Swiper
             modules={[Autoplay, Navigation]}
@@ -88,19 +87,41 @@ export const Partners = () => {
             autoplay={{
               delay: 3000,
               disableOnInteraction: false,
+              pauseOnMouseEnter: true, // Останавливает при наведении
             }}
             navigation={{
               nextEl: '.swiper-button-next',
               prevEl: '.swiper-button-prev',
             }}
             breakpoints={{
-              320: { slidesPerView: 2, spaceBetween: 15 },
-              480: { slidesPerView: 3, spaceBetween: 20 },
-              768: { slidesPerView: 4, spaceBetween: 24 },
-              1024: { slidesPerView: 5 },
-              1280: { slidesPerView: 6 },
+              // Мобильные
+              320: { 
+                slidesPerView: 2, 
+                spaceBetween: 15,
+                touchRatio: 1,
+                slideToClickedSlide: true,
+              },
+              480: { 
+                slidesPerView: 3, 
+                spaceBetween: 20 
+              },
+              // Планшет
+              768: { 
+                slidesPerView: 4, 
+                spaceBetween: 24 
+              },
+              // Десктоп
+              1024: { 
+                slidesPerView: 5 
+              },
+              1280: { 
+                slidesPerView: 6 
+              },
             }}
             className="partners-swiper"
+            // Улучшает плавность на тач-устройствах
+            touchMoveStopPropagation={false}
+            grabCursor={true} // Показывает "ручку" при наведении
           >
             {partners.map((partner) => {
               const cleanUrl = partner.url?.trim();
@@ -114,9 +135,10 @@ export const Partners = () => {
                     rel={isValidUrl ? "noopener noreferrer" : undefined}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.05 }} // Анимация при наведении
                     viewport={{ once: true, margin: "-100px" }}
-                    transition={{ duration: 0.5 }}
-                    className={`flex flex-col items-center justify-center bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all ${
+                    transition={{ duration: 0.3 }}
+                    className={`flex flex-col items-center justify-center bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-all duration-300 ${
                       isValidUrl 
                         ? 'cursor-pointer transform hover:scale-105' 
                         : 'cursor-default pointer-events-none'
@@ -127,7 +149,7 @@ export const Partners = () => {
                       <img
                         src={partner.logo}
                         alt={`${partner.name} логотип`}
-                        className="max-h-16 sm:max-h-20 w-auto object-contain"
+                        className="max-h-16 sm:max-h-20 w-auto object-contain transition-transform duration-300"
                         onError={(e) => {
                           e.target.style.display = 'none';
                         }}
@@ -142,15 +164,15 @@ export const Partners = () => {
             })}
           </Swiper>
 
-          {/* Кнопки навигации — видны только с md (768px) и выше */}
-          <div className="swiper-button-prev hidden md:flex absolute top-1/2 -translate-y-1/2 left-2 md:left-4 w-10 h-10 bg-white border border-gray-300 rounded-full shadow-lg hover:bg-gray-50 items-center justify-center z-10 transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 text-gray-700">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          {/* Кнопки-галочки — видны только с md и выше */}
+          <div className="swiper-button-prev hidden md:flex absolute top-1/2 -translate-y-1/2 left-2 md:left-4 w-10 h-10 bg-white border-2 border-green-500 rounded-full shadow-lg hover:bg-green-50 items-center justify-center z-10 transition-all duration-300 hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 text-green-600">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <div className="swiper-button-next hidden md:flex absolute top-1/2 -translate-y-1/2 right-2 md:right-4 w-10 h-10 bg-white border border-gray-300 rounded-full shadow-lg hover:bg-gray-50 items-center justify-center z-10 transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 text-gray-700">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          <div className="swiper-button-next hidden md:flex absolute top-1/2 -translate-y-1/2 right-2 md:right-4 w-10 h-10 bg-white border-2 border-green-500 rounded-full shadow-lg hover:bg-green-50 items-center justify-center z-10 transition-all duration-300 hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5 text-green-600">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
