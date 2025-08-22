@@ -42,7 +42,7 @@ export const CasesSlider = () => {
     }
   ];
 
-  // Обработчик свайпа — только если нужен touch на десктопе
+  // Обработчик свайпа (опционально, если нужно кастомное поведение)
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -95,8 +95,9 @@ export const CasesSlider = () => {
         </div>
 
         {/* Слайдер с текстом и изображением */}
-        <div className="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden">
+        <div className="max-w-6xl mx-auto bg-gray-800 rounded-xl">
           <Swiper
+            ref={sliderRef}
             modules={[Autoplay]}
             spaceBetween={0}
             slidesPerView={1}
@@ -106,32 +107,32 @@ export const CasesSlider = () => {
               disableOnInteraction: false,
             }}
             onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
-            className="h-[400px] md:h-[480px]"
+            className="h-[60vw] min-h-[380px] md:h-[480px]"
           >
             {cases.map((item) => (
               <SwiperSlide key={item.id}>
                 <div className="grid md:grid-cols-2 h-full">
                   {/* Текстовая часть */}
-                  <div className="flex flex-col justify-center p-8 md:p-12 text-white">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  <div className="flex flex-col justify-center p-6 md:p-12 text-white">
+                    <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 leading-tight">
                       {item.title}
                     </h3>
-                    <p className="text-gray-300 mb-6 text-lg">
+                    <p className="text-gray-300 mb-6 text-base md:text-lg">
                       {item.description}
                     </p>
                     <div className="bg-red-500/20 border-l-4 border-red-500 p-4 rounded">
-                      <p className="font-semibold">
+                      <p className="font-semibold text-sm md:text-base">
                         Результаты: {item.results}
                       </p>
                     </div>
                   </div>
 
                   {/* Изображение */}
-                  <div className="relative h-full">
+                  <div className="relative h-full flex items-center justify-center p-4 md:p-0">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain max-h-[300px] md:max-h-none"
                     />
                   </div>
                 </div>
@@ -140,7 +141,7 @@ export const CasesSlider = () => {
           </Swiper>
 
           {/* Индикаторы слайдов */}
-          <div className="flex justify-center mt-6 space-x-4 pb-6">
+          <div className="flex justify-center mt-4 pb-6">
             {cases.map((_, index) => (
               <button
                 key={index}
@@ -149,7 +150,7 @@ export const CasesSlider = () => {
                   if (swiperEl) swiperEl.slideToLoop(index);
                 }}
                 aria-label={`Перейти к слайду ${index + 1}`}
-                className={`w-3 h-3 rounded-full transition-colors ${
+                className={`w-3 h-3 rounded-full transition-colors mx-1 ${
                   index === currentSlide ? 'bg-red-500' : 'bg-gray-600'
                 }`}
               />

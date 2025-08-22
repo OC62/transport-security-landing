@@ -3,6 +3,10 @@ import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 
+// Импорт стилей Swiper
+import 'swiper/css';
+import 'swiper/css/autoplay';
+
 // Импортируем изображения команды
 import TeamImage1 from '../../assets/images/team1.webp';
 import TeamImage2 from '../../assets/images/team2.webp';
@@ -132,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* Увеличенная высота: h-96 (или h-[500px]) + object-contain */}
-          <div className="w-full h-96 rounded-lg overflow-hidden">
+          {/* 🔥 Исправлено: адаптивная высота, pb-8, min-h */}
+          <div className="w-full h-[70vw] min-h-[380px] md:min-h-[500px] rounded-lg">
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -143,17 +147,19 @@ export const About = () => {
                 delay: 4000,
                 disableOnInteraction: false,
               }}
-              className="team-swiper"
+              slideShadows={false}
+              className="team-swiper h-full"
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index}>
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full pb-8"> {/* pb-8 здесь — чтобы подпись не обрезалась */}
                     <img
                       src={member.src}
                       alt={`Фото: ${member.position}`}
-                      className="w-full h-full object-contain" // ← ВАЖНО: object-contain вместо object-cover
+                      className="w-full h-full object-contain"
                     />
-                    <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-4 text-white">
+                    {/* Подпись снизу — теперь точно видна */}
+                    <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-4 text-white z-10">
                       <p className="font-semibold text-base">{member.name}</p>
                       <p className="text-sm text-gray-200">{member.position}</p>
                     </div>
