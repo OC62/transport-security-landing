@@ -94,12 +94,9 @@ export const Partners = () => {
               prevEl: '.swiper-button-prev',
             }}
             breakpoints={{
-              // Мобильные
               320: { slidesPerView: 2, spaceBetween: 15 },
               480: { slidesPerView: 3, spaceBetween: 20 },
-              // Планшет
               768: { slidesPerView: 4, spaceBetween: 24 },
-              // Десктоп
               1024: { slidesPerView: 5 },
               1280: { slidesPerView: 6 },
             }}
@@ -119,7 +116,7 @@ export const Partners = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.5 }}
-                    className={`block bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center hover:shadow-md transition-all ${
+                    className={`flex flex-col items-center justify-center bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-all ${
                       isValidUrl 
                         ? 'cursor-pointer transform hover:scale-105' 
                         : 'cursor-default pointer-events-none'
