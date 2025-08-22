@@ -57,7 +57,13 @@ export const Partners = () => {
     name: "АО Донавтовокзал", 
     logo: "/images/LogoDonavto.webp", 
     url: "https://donavto.ru" 
-  },
+    },
+    { 
+    id: 9, 
+    name: "Ассоциация 'Транспортная безопасность'", 
+    logo: "/images/logoAsTb.webp", 
+    url: "https://atb-tsa.ru/#" 
+    },
   ];
 
   return (
