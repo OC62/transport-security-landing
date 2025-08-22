@@ -1,6 +1,14 @@
 // src/components/sections/CasesSlider.jsx
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+
+// Импорт стилей Swiper
+import 'swiper/css';
+import 'swiper/css/autoplay';
+
+// Изображения
 import BusstationsImage from '../../assets/images/Main_Bus_Station.webp';
 import BreadgeImage from '../../assets/images/Rost_Sea.webp';
 import OtiImage from '../../assets/images/bg_Hero.webp';
@@ -34,23 +42,18 @@ export const CasesSlider = () => {
     }
   ];
 
-  // Обработчик начала касания
+  // Обработчик свайпа — только если нужен touch на десктопе
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
 
-  // Обработчик движения пальца
   const handleTouchMove = (e) => {
     if (!sliderRef.current) return;
     const touchX = e.touches[0].clientX;
     const diffX = touchStartX.current - touchX;
-
-    if (Math.abs(diffX) > 10) {
-      e.preventDefault();
-    }
+    if (Math.abs(diffX) > 10) e.preventDefault();
   };
 
-  // Обработчик окончания касания (обёрнут в useCallback)
   const handleTouchEnd = useCallback((e) => {
     if (!sliderRef.current || !e.changedTouches.length) return;
     const touchEndX = e.changedTouches[0].clientX;
@@ -62,9 +65,8 @@ export const CasesSlider = () => {
     } else if (diffX < -minSwipeDistance) {
       setCurrentSlide((prev) => (prev === 0 ? cases.length - 1 : prev - 1));
     }
-  }, [cases.length]); // Зависимость от длины массива
+  }, [cases.length]);
 
-  // Добавление и удаление обработчиков событий
   useEffect(() => {
     const sliderElement = sliderRef.current;
     if (!sliderElement) return;
@@ -78,7 +80,7 @@ export const CasesSlider = () => {
       sliderElement.removeEventListener('touchmove', handleTouchMove);
       sliderElement.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleTouchEnd]); // Теперь handleTouchEnd — зависимость
+  }, [handleTouchEnd]);
 
   return (
     <section id="cases" className="py-20 bg-gray-900 text-white">
@@ -92,53 +94,60 @@ export const CasesSlider = () => {
           </p>
         </div>
 
-        {/* Контейнер слайдера */}
-        <div ref={sliderRef} className="relative max-w-6xl mx-auto">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.5 }}
-            className="bg-gray-800 rounded-xl p-8 md:p-12"
+        {/* Слайдер с текстом и изображением */}
+        <div className="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden">
+          <Swiper
+            modules={[Autoplay]}
+            spaceBetween={0}
+            slidesPerView={1}
+            loop={true}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: false,
+            }}
+            onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
+            className="h-[400px] md:h-[480px]"
           >
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  {cases[currentSlide].title}
-                </h3>
-                <p className="text-gray-300 mb-6 text-lg">
-                  {cases[currentSlide].description}
-                </p>
-                <div className="bg-red-500/20 border-l-4 border-red-500 p-4 rounded">
-                  <p className="font-semibold">
-                    Результаты: {cases[currentSlide].results}
-                  </p>
+            {cases.map((item) => (
+              <SwiperSlide key={item.id}>
+                <div className="grid md:grid-cols-2 h-full">
+                  {/* Текстовая часть */}
+                  <div className="flex flex-col justify-center p-8 md:p-12 text-white">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-300 mb-6 text-lg">
+                      {item.description}
+                    </p>
+                    <div className="bg-red-500/20 border-l-4 border-red-500 p-4 rounded">
+                      <p className="font-semibold">
+                        Результаты: {item.results}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Изображение */}
+                  <div className="relative h-full">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <img
-                  src={cases[currentSlide].image}
-                  alt={cases[currentSlide].title}
-                  className="w-full h-80 object-cover rounded-lg"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    const fallback = document.createElement('div');
-                    fallback.className = 'w-full h-80 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center';
-                    fallback.innerHTML = '<span class="text-6xl">📸</span>';
-                    e.target.parentNode.appendChild(fallback);
-                  }}
-                />
-              </div>
-            </div>
-          </motion.div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
           {/* Индикаторы слайдов */}
-          <div className="flex justify-center mt-8 space-x-4">
+          <div className="flex justify-center mt-6 space-x-4 pb-6">
             {cases.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentSlide(index)}
+                onClick={() => {
+                  const swiperEl = sliderRef.current?.swiper;
+                  if (swiperEl) swiperEl.slideToLoop(index);
+                }}
                 aria-label={`Перейти к слайду ${index + 1}`}
                 className={`w-3 h-3 rounded-full transition-colors ${
                   index === currentSlide ? 'bg-red-500' : 'bg-gray-600'

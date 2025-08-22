@@ -14,7 +14,8 @@ export const CommunitySupport = () => {
           className="w-full h-full bg-cover bg-center"
           style={{ backgroundImage: `url(${footballTeamImage})` }}
         ></div>
-        {/* Убрана градиентная маска */}
+        {/* Градиентная маска для улучшения читаемости текста */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-green-800 opacity-80"></div>
       </div>
 
       {/* Контент */}
