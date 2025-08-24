@@ -136,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* 🔥 Исправлено: добавлена min-h-[380px] для контейнера */}
-          <div className="inline-block mx-auto rounded-lg overflow-hidden min-h-[380px]">
+          {/* 🔥 ГАРАНТИРОВАННОЕ РЕШЕНИЕ: явная высота и фикс для Swiper */}
+          <div className="relative mx-auto" style={{ maxWidth: '100%' }}>
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -148,19 +148,20 @@ export const About = () => {
                 disableOnInteraction: false,
               }}
               slideShadows={false}
-              className="!w-auto !max-w-full h-full"
+              className="h-[400px] md:h-[500px] w-full"
             >
               {teamPhotos.map((member, index) => (
-                <SwiperSlide key={index} className="!flex !items-center !justify-center h-full">
-                  <div className="relative inline-block">
-                    {/* Изображение */}
+                <SwiperSlide key={index} className="flex items-center justify-center h-full">
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    {/* 🔥 КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: явная высота для изображения */}
                     <img
                       src={member.src}
                       alt={`Фото: ${member.position}`}
-                      className="max-h-[350px] md:max-h-[450px] object-contain"
+                      className="max-h-full max-w-full object-contain"
+                      style={{ maxHeight: 'calc(100% - 60px)' }}
                     />
                     {/* Текст поверх изображения */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm">
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm w-full">
                       <p className="font-semibold text-base">{member.name}</p>
                       <p className="text-sm text-gray-200">{member.position}</p>
                     </div>
