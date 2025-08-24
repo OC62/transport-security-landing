@@ -136,7 +136,7 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* 🔥 ГАРАНТИРОВАННОЕ РЕШЕНИЕ: явная высота и фикс для Swiper */}
+          {/* ГАРАНТИРОВАННОЕ РЕШЕНИЕ С БОРДЕР-РАДИУСОМ */}
           <div className="relative mx-auto" style={{ maxWidth: '100%' }}>
             <Swiper
               modules={[Autoplay]}
@@ -152,16 +152,17 @@ export const About = () => {
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center h-full">
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    {/* 🔥 КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: явная высота для изображения */}
+                  {/* 🔥 ДОБАВЛЕН rounded-xl и overflow-hidden для скругления */}
+                  <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden">
+                    {/* 🔥 ДОБАВЛЕН rounded-t-xl для верхних углов фото */}
                     <img
                       src={member.src}
                       alt={`Фото: ${member.position}`}
-                      className="max-h-full max-w-full object-contain"
+                      className="max-h-full max-w-full object-contain rounded-t-xl"
                       style={{ maxHeight: 'calc(100% - 60px)' }}
                     />
-                    {/* Текст поверх изображения */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm w-full">
+                    {/* 🔥 ДОБАВЛЕН rounded-b-xl для нижних углов надписи */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm w-full rounded-b-xl">
                       <p className="font-semibold text-base">{member.name}</p>
                       <p className="text-sm text-gray-200">{member.position}</p>
                     </div>
