@@ -7,19 +7,19 @@ import footballTeamImage from '../../assets/images/team-football.webp';
 
 export const CommunitySupport = () => {
   return (
-    <section id="community" className="relative py-20 bg-gray-50">
+    <section id="community" className="relative py-32 md:py-40 bg-gray-50">
       {/* Фоновое изображение */}
       <div className="absolute inset-0 z-0">
         <div
-          className="w-full h-full bg-cover bg-center"
+          className="w-full h-full min-h-[500px] md:min-h-[600px] bg-cover bg-center"
           style={{ backgroundImage: `url(${footballTeamImage})` }}
         ></div>
         {/* Градиентная маска для улучшения читаемости текста */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-green-800 opacity-80"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-800 to-green-800 opacity-60"></div>
       </div>
 
       {/* Контент */}
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 pt-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -39,7 +39,7 @@ export const CommunitySupport = () => {
             и организации турниров, внося вклад в будущее региона.
           </p>
 
-          {/* Кнопка с тем же стилем, что и в ContactForm.jsx */}
+          {/* Кнопка с белым текстом */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -53,9 +53,9 @@ export const CommunitySupport = () => {
                 const contactSection = document.getElementById('contact');
                 contactSection?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="mt-4"
+              className="mt-4 text-white"
             >
-              Поддержать проект
+              Связаться с нами
             </GlassmorphicButton>
           </motion.div>
         </motion.div>
