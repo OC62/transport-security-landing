@@ -55,6 +55,39 @@ if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+// === ДОБАВЛЕНО: Проверка капчи ===
+$captchaToken = isset($data['smartcaptcha_token']) ? trim($data['smartcaptcha_token']) : '';
+if (empty($captchaToken)) {
+    http_response_code(400);
+    echo json_encode(array('status' => 'error', 'message' => 'Требуется подтвердить, что вы не робот'));
+    exit;
+}
+
+// Проверяем токен через API Яндекс СмартКапчи
+$secretKey = isset($_ENV['CAPTCHA_SECRET']) ? $_ENV['CAPTCHA_SECRET'] : '';
+if (empty($secretKey)) {
+    error_log('CAPTCHA_SECRET не настроен в .env');
+    http_response_code(500);
+    echo json_encode(array('status' => 'error', 'message' => 'Ошибка сервера: CAPTCHA_SECRET не настроен'));
+    exit;
+}
+
+$ip = $_SERVER['REMOTE_ADDR'];
+$url = "https://captcha-api.yandex.ru/validate?secret=" . urlencode($secretKey) . 
+        "&token=" . urlencode($captchaToken) . 
+        "&ip=" . urlencode($ip);
+
+$response = file_get_contents($url);
+$captchaResult = json_decode($response);
+
+if ($captchaResult === null || !isset($captchaResult->status) || !$captchaResult->status) {
+    error_log('Ошибка капчи: ' . ($response ?: 'пустой ответ'));
+    http_response_code(400);
+    echo json_encode(array('status' => 'error', 'message' => 'Неверная капча. Пожалуйста, попробуйте еще раз.'));
+    exit;
+}
+// === КОНЕЦ ПРОВЕРКИ КАПЧИ ===
+
 try {
     $mail = new PHPMailer(true);
 
@@ -79,7 +112,7 @@ try {
 
     // Тема и тело письма
     $mail->isHTML(true);
-    $mail->Subject = 'Новая заявка с сайта ptb-m.ru';
+    $mail->Subject = 'Новая заявка с сайта ПТБ-М.РФ';
     $mail->Body    = "
         <h2>Новая заявка</h2>
         <p><strong>Имя:</strong> " . (isset($data['name']) ? htmlspecialchars($data['name']) : 'Не указано') . "</p>

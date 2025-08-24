@@ -12,7 +12,7 @@ export const Partners = () => {
   const partners = [
     { 
       id: 1, 
-      name: "ООО 'Ростдонавтокозал'", 
+      name: "ООО 'Ростдонавтовокозал'", 
       logo: "/images/logo_rda.webp", 
       url: "https://rostdonavtokozal.ru" 
     },

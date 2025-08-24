@@ -16,7 +16,7 @@ const schema = yup.object({
 
 // ✅ Исправлено: пробел в URL
 const BACKEND_ENDPOINT = "https://xn----9sb8ajp.xn--p1ai/api/send-email.php";
-const CAPTCHA_SITE_KEY = "ysc1_PAeNWQ41EXYOrMHaP4Ge3cA28NZFfQdgDMVGybiS91af00ab";
+const CAPTCHA_SITE_KEY = "ysc1_jJWrxMhkeNXsCcuJRpeZpwsPKWvGm1b8TWJZ9WHD00292a05";
 
 export const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
