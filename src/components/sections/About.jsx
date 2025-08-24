@@ -136,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* 🔥 Исправлено: размер по изображению, нет растягивания */}
-          <div className="inline-block mx-auto rounded-lg overflow-hidden">
+          {/* 🔥 Исправлено: добавлена min-h-[380px] для контейнера */}
+          <div className="inline-block mx-auto rounded-lg overflow-hidden min-h-[380px]">
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -148,16 +148,16 @@ export const About = () => {
                 disableOnInteraction: false,
               }}
               slideShadows={false}
-              className="!w-auto !max-w-full"
+              className="!w-auto !max-w-full h-full"
             >
               {teamPhotos.map((member, index) => (
-                <SwiperSlide key={index} className="!flex !items-center !justify-center">
+                <SwiperSlide key={index} className="!flex !items-center !justify-center h-full">
                   <div className="relative inline-block">
                     {/* Изображение */}
                     <img
                       src={member.src}
                       alt={`Фото: ${member.position}`}
-                      className="max-h-[500px] object-contain"
+                      className="max-h-[350px] md:max-h-[450px] object-contain"
                     />
                     {/* Текст поверх изображения */}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm">
