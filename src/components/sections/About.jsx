@@ -136,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* 🔥 Исправлено: адаптивная высота, pb-8, min-h */}
-          <div className="w-full h-[70vw] min-h-[380px] md:min-h-[500px] rounded-lg">
+          {/* 🔥 Исправлено: размер по изображению, нет растягивания */}
+          <div className="inline-block mx-auto rounded-lg overflow-hidden">
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -148,18 +148,19 @@ export const About = () => {
                 disableOnInteraction: false,
               }}
               slideShadows={false}
-              className="team-swiper h-full"
+              className="!w-auto !max-w-full"
             >
               {teamPhotos.map((member, index) => (
-                <SwiperSlide key={index}>
-                  <div className="relative w-full h-full pb-8"> {/* pb-8 здесь — чтобы подпись не обрезалась */}
+                <SwiperSlide key={index} className="!flex !items-center !justify-center">
+                  <div className="relative inline-block">
+                    {/* Изображение */}
                     <img
                       src={member.src}
                       alt={`Фото: ${member.position}`}
-                      className="w-full h-full object-contain"
+                      className="max-h-[500px] object-contain"
                     />
-                    {/* Подпись снизу — теперь точно видна */}
-                    <div className="absolute inset-0 bg-black/50 flex flex-col justify-end p-4 text-white z-10">
+                    {/* Текст поверх изображения */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm">
                       <p className="font-semibold text-base">{member.name}</p>
                       <p className="text-sm text-gray-200">{member.position}</p>
                     </div>

@@ -42,7 +42,7 @@ export const CasesSlider = () => {
     }
   ];
 
-  // Обработчик свайпа (опционально, если нужно кастомное поведение)
+  // Обработчик свайпа
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -95,7 +95,7 @@ export const CasesSlider = () => {
         </div>
 
         {/* Слайдер с текстом и изображением */}
-        <div className="max-w-6xl mx-auto bg-gray-800 rounded-xl">
+        <div className="max-w-6xl mx-auto bg-gray-800 rounded-xl overflow-hidden">
           <Swiper
             ref={sliderRef}
             modules={[Autoplay]}
@@ -107,13 +107,13 @@ export const CasesSlider = () => {
               disableOnInteraction: false,
             }}
             onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
-            className="h-[60vw] min-h-[380px] md:h-[480px]"
+            className="min-h-[380px]"
           >
             {cases.map((item) => (
               <SwiperSlide key={item.id}>
-                <div className="grid md:grid-cols-2 h-full">
+                <div className="grid md:grid-cols-2 gap-6 p-6 md:p-8">
                   {/* Текстовая часть */}
-                  <div className="flex flex-col justify-center p-6 md:p-12 text-white">
+                  <div className="flex flex-col justify-center">
                     <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 leading-tight">
                       {item.title}
                     </h3>
@@ -128,11 +128,11 @@ export const CasesSlider = () => {
                   </div>
 
                   {/* Изображение */}
-                  <div className="relative h-full flex items-center justify-center p-4 md:p-0">
+                  <div className="flex items-center justify-center md:justify-end">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-contain max-h-[300px] md:max-h-none"
+                      className="max-w-full h-auto max-h-[300px] md:max-h-[400px] object-contain rounded-lg shadow-lg"
                     />
                   </div>
                 </div>
