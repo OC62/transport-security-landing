@@ -136,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* ГАРАНТИРОВАННОЕ РЕШЕНИЕ С БОРДЕР-РАДИУСОМ */}
-          <div className="relative mx-auto" style={{ maxWidth: '100%' }}>
+          {/* Исправлено: устранены все проблемы с отображением */}
+          <div className="relative mx-auto w-full" style={{ maxWidth: '100%' }}>
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -148,31 +148,29 @@ export const About = () => {
                 disableOnInteraction: false,
               }}
               slideShadows={false}
-              className="h-[400px] md:h-[500px] w-full"
+              className="w-full"
+              style={{ height: '400px' }}
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center h-full">
-                  {/* 🔥 Исправлено: восстановлен бордер радиус и устранены проблемы с текстом */}
-                  <div className="relative w-full h-full flex flex-col rounded-xl overflow-hidden">
-                    {/* Контейнер для фото */}
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="relative w-full max-w-full h-auto max-h-[calc(100%-60px)]">
-                        {/* 🔥 Исправлено: восстановлен бордер радиус сверху */}
-                        <img
-                          src={member.src}
-                          alt={`Фото: ${member.position}`}
-                          className="max-h-full max-w-full object-contain mx-auto rounded-t-xl"
-                        />
-                      </div>
+                  {/* Исправлено: устранен пробел на мобильных, текст теперь полностью виден */}
+                  <div className="relative w-full h-full rounded-xl overflow-hidden">
+                    {/* Контейнер для фото - теперь без пробела сверху */}
+                    <div className="w-full h-[calc(100%-70px)]">
+                      <img
+                        src={member.src}
+                        alt={`Фото: ${member.position}`}
+                        className="w-full h-full object-contain rounded-t-xl"
+                      />
                     </div>
                     
-                    {/* 🔥 Исправлено: восстановлен бордер радиус снизу, устранены проблемы с текстом */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl" style={{ height: '60px' }}>
-                      <div className="p-4 text-sm h-full flex flex-col justify-center">
-                        <p className="font-semibold text-base line-clamp-1" style={{ lineHeight: '1.2' }}>
+                    {/* Исправлено: увеличена высота текстового блока, устранены проблемы с перекрытием строк */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl h-[70px]">
+                      <div className="p-3 h-full flex flex-col justify-center">
+                        <p className="font-semibold text-base mb-1 line-clamp-1">
                           {member.name}
                         </p>
-                        <p className="text-sm text-gray-200 line-clamp-1" style={{ lineHeight: '1.2' }}>
+                        <p className="text-sm text-gray-200 line-clamp-1">
                           {member.position}
                         </p>
                       </div>
