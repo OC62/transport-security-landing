@@ -152,25 +152,29 @@ export const About = () => {
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center h-full">
-                  {/* 🔥 Исправлено: контейнер теперь имеет фиксированную структуру */}
-                  <div className="relative w-full h-full flex flex-col">
+                  {/* 🔥 Исправлено: восстановлен бордер радиус и устранены проблемы с текстом */}
+                  <div className="relative w-full h-full flex flex-col rounded-xl overflow-hidden">
                     {/* Контейнер для фото */}
                     <div className="flex-1 flex items-center justify-center">
                       <div className="relative w-full max-w-full h-auto max-h-[calc(100%-60px)]">
-                        {/* 🔥 Исправлено: фото теперь центрируется */}
+                        {/* 🔥 Исправлено: восстановлен бордер радиус сверху */}
                         <img
                           src={member.src}
                           alt={`Фото: ${member.position}`}
-                          className="max-h-full max-w-full object-contain mx-auto"
+                          className="max-h-full max-w-full object-contain mx-auto rounded-t-xl"
                         />
                       </div>
                     </div>
                     
-                    {/* 🔥 Исправлено: фиксированная высота для блока с текстом */}
+                    {/* 🔥 Исправлено: восстановлен бордер радиус снизу, устранены проблемы с текстом */}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl" style={{ height: '60px' }}>
                       <div className="p-4 text-sm h-full flex flex-col justify-center">
-                        <p className="font-semibold text-base line-clamp-1">{member.name}</p>
-                        <p className="text-sm text-gray-200 line-clamp-1">{member.position}</p>
+                        <p className="font-semibold text-base line-clamp-1" style={{ lineHeight: '1.2' }}>
+                          {member.name}
+                        </p>
+                        <p className="text-sm text-gray-200 line-clamp-1" style={{ lineHeight: '1.2' }}>
+                          {member.position}
+                        </p>
                       </div>
                     </div>
                   </div>
