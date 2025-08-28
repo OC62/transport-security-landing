@@ -52,36 +52,38 @@ export const Header = () => {
             <span className="text-xl lg:text-base font-bold text-primary">ООО "ПТБ-М"</span>
           </div>
 
-          {/* Навигация для десктопа - теперь скрывается на lg и меньше */}
-          <nav className="hidden lg:flex space-x-6 xl:space-x-8">
-            {navItems.map((item) => (
-              // Используем button для внутренней навигации
-              <button
-                key={item.name}
-                onClick={(e) => {
-                  e.preventDefault(); // На случай, если останется href
-                  scrollToSection(item.href);
-                }}
-                className="text-gray-700 hover:text-primary font-medium transition-colors text-sm xl:text-base whitespace-nowrap"
-              >
-                {item.name}
-              </button>
-            ))}
+          {/* Навигация для десктопа - исправлено для работы на 1024px */}
+          <nav className="hidden xl-md:flex space-x-2 overflow-x-auto pb-2">
+            <div className="flex space-x-2 min-w-max">
+              {navItems.map((item) => (
+                // Используем button для внутренней навигации
+                <button
+                  key={item.name}
+                  onClick={(e) => {
+                    e.preventDefault(); // На случай, если останется href
+                    scrollToSection(item.href);
+                  }}
+                  className="text-gray-700 hover:text-primary font-medium transition-colors text-xs lg:text-sm whitespace-nowrap py-2 px-2"
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
           </nav>
 
-          {/* Кнопка CTA - теперь GlassmorphicButton */}
+          {/* Кнопка CTA - исправлено для работы на 1024px */}
           <GlassmorphicButton 
             variant="onWhite" 
             size="large"
             onClick={() => scrollToSection('#contact')}
-            className="hidden lg:block text-sm"
+            className="hidden lg:block text-xs lg:text-sm"
           >
             Получить консультацию
           </GlassmorphicButton>
 
-          {/* Мобильное меню кнопка - теперь показывается на lg и меньше */}
+          {/* Мобильное меню кнопка - исправлено для работы на 1024px */}
           <button
-            className="lg:hidden text-gray-700"
+            className="xl-md:hidden text-gray-700"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
           >
@@ -95,7 +97,7 @@ export const Header = () => {
           </button>
         </div>
 
-        {/* Мобильное меню - теперь показывается на lg и меньше */}
+        {/* Мобильное меню - исправлено для работы на 1024px */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
