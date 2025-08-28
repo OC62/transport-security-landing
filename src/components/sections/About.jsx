@@ -152,19 +152,26 @@ export const About = () => {
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center h-full">
-                  {/* 🔥 ДОБАВЛЕН rounded-xl и overflow-hidden для скругления */}
-                  <div className="relative w-full h-full flex items-center justify-center rounded-xl overflow-hidden">
-                    {/* 🔥 ДОБАВЛЕН rounded-t-xl для верхних углов фото */}
-                    <img
-                      src={member.src}
-                      alt={`Фото: ${member.position}`}
-                      className="max-h-full max-w-full object-contain rounded-t-xl"
-                      style={{ maxHeight: 'calc(100% - 60px)' }}
-                    />
-                    {/* 🔥 ДОБАВЛЕН rounded-b-xl для нижних углов надписи */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4 text-sm w-full rounded-b-xl">
-                      <p className="font-semibold text-base">{member.name}</p>
-                      <p className="text-sm text-gray-200">{member.position}</p>
+                  {/* 🔥 Исправлено: контейнер теперь имеет фиксированную структуру */}
+                  <div className="relative w-full h-full flex flex-col">
+                    {/* Контейнер для фото */}
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="relative w-full max-w-full h-auto max-h-[calc(100%-60px)]">
+                        {/* 🔥 Исправлено: фото теперь центрируется */}
+                        <img
+                          src={member.src}
+                          alt={`Фото: ${member.position}`}
+                          className="max-h-full max-w-full object-contain mx-auto"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* 🔥 Исправлено: фиксированная высота для блока с текстом */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl" style={{ height: '60px' }}>
+                      <div className="p-4 text-sm h-full flex flex-col justify-center">
+                        <p className="font-semibold text-base line-clamp-1">{member.name}</p>
+                        <p className="text-sm text-gray-200 line-clamp-1">{member.position}</p>
+                      </div>
                     </div>
                   </div>
                 </SwiperSlide>
