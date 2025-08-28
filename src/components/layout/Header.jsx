@@ -1,31 +1,40 @@
 // src/components/layout/Header.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import logoImage from '../../assets/images/logo.webp';
-// Импортируем новый компонент GlassmorphicButton
 import { GlassmorphicButton } from '../ui/GlassmorphicButton';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
 
-  // Централизованная функция для плавной прокрутки к секции
+  // Определяем тип устройства на основе ширины экрана
+  useEffect(() => {
+    const checkMobileView = () => {
+      // 1024px - граница lg в Tailwind
+      setIsMobileView(window.innerWidth < 1024);
+    };
+    
+    // Проверяем при монтировании
+    checkMobileView();
+    
+    // Добавляем обработчик изменения размера окна
+    window.addEventListener('resize', checkMobileView);
+    
+    return () => window.removeEventListener('resize', checkMobileView);
+  }, []);
+
   const scrollToSection = (sectionId) => {
-    // Закрываем мобильное меню, если оно открыто
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-
-    // Небольшая задержка, чтобы меню успело закрыться перед прокруткой (только для мобильного)
-    const delay = isMenuOpen ? 100 : 0;
+    // Закрываем мобильное меню при переходе
+    setIsMenuOpen(false);
     
     setTimeout(() => {
-      // Убедимся, что sectionId начинается с #
       const id = sectionId.startsWith('#') ? sectionId.slice(1) : sectionId;
       const element = document.getElementById(id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, delay);
+    }, 100);
   };
 
   const navItems = [
@@ -48,19 +57,17 @@ export const Header = () => {
           {/* Логотип */}
           <div className="flex items-center space-x-2">
             <img src={logoImage} alt="Логотип ООО ПТБ-М" className="h-8" />
-            {/* Шрифт уменьшается на lg и выше */}
             <span className="text-xl lg:text-base font-bold text-primary">ООО "ПТБ-М"</span>
           </div>
 
-          {/* Навигация для десктопа - исправлено для работы на 1024px */}
-          <nav className="hidden xl-md:flex space-x-2 overflow-x-auto pb-2">
+          {/* Навигация для десктопа */}
+          <nav className={`${isMobileView ? 'hidden' : 'flex'} space-x-2 overflow-x-auto pb-2`}>
             <div className="flex space-x-2 min-w-max">
               {navItems.map((item) => (
-                // Используем button для внутренней навигации
                 <button
                   key={item.name}
                   onClick={(e) => {
-                    e.preventDefault(); // На случай, если останется href
+                    e.preventDefault();
                     scrollToSection(item.href);
                   }}
                   className="text-gray-700 hover:text-primary font-medium transition-colors text-xs lg:text-sm whitespace-nowrap py-2 px-2"
@@ -71,19 +78,19 @@ export const Header = () => {
             </div>
           </nav>
 
-          {/* Кнопка CTA - исправлено для работы на 1024px */}
+          {/* Кнопка CTA для десктопа */}
           <GlassmorphicButton 
             variant="onWhite" 
             size="large"
             onClick={() => scrollToSection('#contact')}
-            className="hidden lg:block text-xs lg:text-sm"
+            className={`${isMobileView ? 'hidden' : 'block'} text-xs`}
           >
             Получить консультацию
           </GlassmorphicButton>
 
-          {/* Мобильное меню кнопка - исправлено для работы на 1024px */}
+          {/* Кнопка мобильного меню */}
           <button
-            className="xl-md:hidden text-gray-700"
+            className={`${isMobileView ? 'block' : 'hidden'} text-gray-700`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
           >
@@ -97,17 +104,17 @@ export const Header = () => {
           </button>
         </div>
 
-        {/* Мобильное меню - исправлено для работы на 1024px */}
-        {isMenuOpen && (
+        {/* Мобильное меню */}
+        {isMenuOpen && isMobileView && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden py-4 border-t"
+            transition={{ duration: 0.2 }}
+            className="py-4 border-t"
           >
             <div className="space-y-3">
               {navItems.map((item) => (
-                // Используем button для внутренней навигации
                 <button
                   key={item.name}
                   onClick={() => scrollToSection(item.href)}
@@ -116,7 +123,6 @@ export const Header = () => {
                   {item.name}
                 </button>
               ))}
-              {/* Кнопка CTA в мобильном меню - теперь GlassmorphicButton */}
               <GlassmorphicButton
                 variant="onWhite"
                 size="large"
