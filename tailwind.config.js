@@ -21,7 +21,11 @@ export default {
         'green-800': '#065f46',
       },
       screens: {
-        // Добавляем кастомный breakpoint для 1024px
+        // Добавляем кастомные breakpoints для всех разрешений
+        'xs': '425px',
+        'xxs': '375px',
+        'xxxs': '325px',
+        'xxxxs': '320px', // Новая точка останова для 320px
         'lg-md': '1024px',
         'xl-md': '1280px',
       },
@@ -40,6 +44,9 @@ export default {
         '7xl': ['4.5rem', { lineHeight: '1' }],
         '8xl': ['6rem', { lineHeight: '1' }],
         '9xl': ['8rem', { lineHeight: '1' }],
+        // Добавляем очень маленький размер шрифта для xs экранов
+        'xs-sm': ['0.65rem', { lineHeight: '1rem' }],
+        'xxxxs': ['0.45rem', { lineHeight: '1.1rem' }], // Новый размер для 320px
       },
       // Добавляем поддержку шрифта Inter
       fontFamily: {
@@ -54,12 +61,24 @@ export default {
           from: { transform: 'rotate(0deg)' },
           to: { transform: 'rotate(360deg)' }
         }
+      },
+      borderRadius: {
+        // Добавляем кастомные радиусы для бордеров
+        'xs': '0.125rem',
+        'sm': '0.25rem',
+        'DEFAULT': '0.375rem',
+        'md': '0.5rem',
+        'lg': '0.75rem',
+        'xl': '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
+        'full': '9999px',
       }
     },
   },
   plugins: [
-    // Добавляем плагин для line-clamp
-    require('@tailwindcss/line-clamp'),
+    // УДАЛЕН: require('@tailwindcss/line-clamp'),
+    // Начиная с Tailwind CSS v3.3 плагин line-clamp включен по умолчанию
   ],
   // Расширяем safelist для всех необходимых классов
   safelist: [
@@ -78,12 +97,42 @@ export default {
     // Классы для анимаций
     'animate-spin-slow',
     
-    // Классы для line-clamp
+    // Классы для line-clamp (оставляем в safelist, так как они используются)
     'line-clamp-1',
     'line-clamp-2',
     'line-clamp-3',
     
-    // Классы для адаптации под 1024px
+    // Классы для адаптации под разные разрешения
+    'xs:hidden',
+    'xs:flex',
+    'xs:block',
+    'xs:text-xs',
+    'xs:text-sm',
+    'xs:text-base',
+    'xs:text-[0.65rem]',
+    'xxs:hidden',
+    'xxs:flex',
+    'xxs:block',
+    'xxs:text-xs',
+    'xxs:text-sm',
+    'xxs:text-base',
+    'xxs:text-[0.85rem]',
+    'xxxs:hidden',
+    'xxxs:flex',
+    'xxxs:block',
+    'xxxs:text-xs',
+    'xxxs:text-sm',
+    'xxxs:text-base',
+    'xxxs:text-[0.75rem]',
+    'xxxs:text-[0.55rem]',
+    'xxxxs:hidden',
+    'xxxxs:flex',
+    'xxxxs:block',
+    'xxxxs:text-xs',
+    'xxxxs:text-sm',
+    'xxxxs:text-base',
+    'xxxxs:text-[0.65rem]',
+    'xxxxs:text-[0.45rem]',
     'lg-md:hidden',
     'lg-md:flex',
     'lg-md:block',
@@ -103,11 +152,15 @@ export default {
     'rounded-t-xl',
     'rounded-b-xl',
     'rounded-xl',
+    'rounded-lg',
+    'rounded-md',
+    'rounded-sm',
     'overflow-hidden',
     
     // Классы для адаптивной высоты
     'h-[400px]',
     'md:h-[500px]',
+    'min-h-[300px]',
     'min-h-[380px]',
     'md:min-h-[500px]',
     'h-[70vw]',
@@ -128,6 +181,10 @@ export default {
     // Классы для z-index
     'z-0',
     'z-10',
+    'z-20',
+    'z-30',
+    'z-40',
+    'z-50',
     
     // Классы для теней
     'shadow-sm',
@@ -143,7 +200,22 @@ export default {
     
     // Классы для адаптации текста
     'text-xs',
+    'sm:text-xs',
+    'sm:text-sm',
+    'md:text-sm',
     'lg:text-sm',
     'xl:text-base',
+    'xs:text-xs-sm',
+    
+    // Классы для бордер радиуса
+    'rounded',
+    'rounded-t',
+    'rounded-b',
+    'rounded-l',
+    'rounded-r',
+    'rounded-tl',
+    'rounded-tr',
+    'rounded-br',
+    'rounded-bl',
   ],
 }

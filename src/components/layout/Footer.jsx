@@ -10,7 +10,7 @@ export const Footer = () => {
       // Используем предоставленный SVG-код
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M21.579 6.855c.14-.465 0-.806-.662-.806h-2.193c-.558 0-.813.295-.953.619c0 0-1.115 2.719-2.695 4.482c-.51.513-.743.675-1.021.675c-.139 0-.341-.162-.341-.627V6.855c0-.558-.161-.806-.626-.806H9.642c-.348 0-.558.258-.558.504c0 .528.79.65.871 2.138v3.228c0 .707-.127.836-.407.836c-.743 0-2.551-2.729-3.624-5.853c-.209-.607-.42-.852-.98-.852H2.752c-.627 0-.752.295-.752.619c0 .582.743 3.462 3.461 7.271c1.812 2.601 4.363 4.011 6.687 4.011c1.393 0 1.565-.313 1.565-.853v-1.966c0-.626.133-.752.574-.752c.324 0 .882.164 2.183 1.417c1.486 1.486 1.732 2.153 2.567 2.153h2.192c.626 0 .939-.313.759-.931c-.197-.615-.907-1.51-1.849-2.569c-.512-.604-1.277-1.254-1.51-1.579c-.325-.419-.231-.604 0-.976c.001.001 2.672-3.761 2.95-5.04"/>
+          <path fill="currentColor" d="M21.579 6.855c.14-.465 0-.806-.662-.806h-2.193c-.558 0-.813.295-.953.619c0 0-1.115 2.719-2.695 4.482c-.51.513-.743.675-1.021.675c-.139 0-.341-.162-.341-.627V6.855c0-.558-.161-.806-.626-.806H9.642c-.348 0-.558.258-.558.504c0 .528.79.65.871 2.138v3.228c0 .707-.127.836-.407.836c-.743 0-2.551-2.729-3.624-5.853c-.209-.607-.42-.852-.98-.852H2.752c-.627 0-.752.295-.752.619c0 .582.743 3.462 3.461 7.271c1.812 2.601 4.363 4.011 6.687 4.011c1.393 0 1.565-.313 1.565-.853v-1.966c0-.626.133-.752.574-.752c.324 0 .882.164 2.183 1.417c1.486 1.486 1.732 2.153 2.567 2.153h2.192c.626 0 .939-.313.759-.931c-.197-.615-.907-1.51-1.849-2.569c-.512-.604-1.277-1254-1.51-1.579c-.325-.419-.231-.604 0-.976c.001.001 2.672-3.761 2.95-5.04"/>
         </svg>
       )
     },
@@ -34,16 +34,42 @@ export const Footer = () => {
     }
   ];
 
-  const quickLinks = [
-    { name: 'О компании', href: '#about' },
-    { name: 'Услуги', href: '#services' },
-    { name: 'Кейсы', href: '#cases' },
-    { name: 'Наши вакансии', href: '#careers' },
-    { name: 'Лицензии', href: '#licenses' },
-    { name: 'Партнеры', href: '#partners' },
-    { name: 'Растим чемпионов', href: '#community' },
-    { name: 'Вакансии', href: '#careers' },
-    { name: 'Контакты', href: '#contact' }
+  // Логически сгруппированные ссылки
+  const groupedLinks = [
+    {
+      title: 'О компании',
+      links: [
+        { name: 'О нас', href: '#about' },
+        { name: 'Преимущества', href: '#about' },
+        { name: 'Лицензии', href: '#licenses' },
+        { name: 'Партнеры', href: '#partners' }
+      ]
+    },
+    {
+      title: 'Услуги',
+      links: [
+        { name: 'Все услуги', href: '#services' },
+        { name: 'Аудит безопасности', href: '#services' },
+        { name: 'Мониторинг угроз', href: '#services' },
+        { name: 'Обучение персонала', href: '#services' },
+        { name: 'Техническое оснащение', href: '#services' }
+      ]
+    },
+    {
+      title: 'Проекты',
+      links: [
+        { name: 'Наши кейсы', href: '#cases' },
+        { name: 'Реализованные проекты', href: '#cases' },
+        { name: 'Социальная ответственность', href: '#community' }
+      ]
+    },
+    {
+      title: 'Карьера',
+      links: [
+        { name: 'Текущие вакансии', href: '#careers' },
+        { name: 'О компании как работодателе', href: '#careers' }
+      ]
+    }
   ];
 
   // Функция для плавной прокрутки к секции
@@ -76,7 +102,7 @@ export const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-5 gap-8">
           {/* Логотип и описание */}
           <div className="md:col-span-2">
              <div className="flex items-center space-x-2 mb-4">
@@ -100,29 +126,30 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Быстрые ссылки */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Навигация</h3>
-            <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
-                  {/* Используем button для внутренней навигации */}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }}
-                    className="text-gray-400 hover:text-white transition-colors text-left w-full"
-                  >
-                    {link.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Группированные ссылки */}
+          {groupedLinks.map((group, index) => (
+            <div key={index}>
+              <h3 className="text-lg font-semibold mb-4">{group.title}</h3>
+              <ul className="space-y-2">
+                {group.links.map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection(link.href);
+                      }}
+                      className="text-gray-400 hover:text-white transition-colors text-left w-full"
+                    >
+                      {link.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           {/* Контакты */}
-          <div>
+          <div className="md:col-span-1">
             <h3 className="text-lg font-semibold mb-4">Контакты</h3>
             <div className="space-y-3 text-gray-400">
               {/* Адрес с переходом на карту */}
@@ -161,8 +188,12 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-          <p>&copy; 2025 ООО "ПТБ-М". Все права защищены.</p>
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+          <p>© {new Date().getFullYear()} ООО "ПТБ-М". Все права защищены.</p>
+          <p className="mt-2 text-gray-400 max-w-3xl mx-auto">
+            ООО "ПТБ-М" сотрудничает с ведущими организациями России, включая ФКУ Упрдор "Москва-Волгоград", 
+            администрацию Ростовской и Волгоградской областей, ГБУ "Вокзал-Авто", ООО "Т-Транс" и другие
+          </p>
         </div>
       </div>
     </footer>

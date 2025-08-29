@@ -107,29 +107,31 @@ export const ServicesGrid = () => {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+              className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col h-full"
             >
-              <div className="text-5xl mb-6">{service.icon}</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                {service.title}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {service.description}
-              </p>
-              <ul className="space-y-2 mb-6">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center text-gray-600">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></span>
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex-1 flex flex-col">
+                <div className="text-5xl mb-6">{service.icon}</div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                  {service.title}
+                </h3>
+                <p className="text-gray-600 mb-6 flex-1">
+                  {service.description}
+                </p>
+                <ul className="space-y-2 mb-6">
+                  {service.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center text-gray-600">
+                      <span className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></span>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               {/* Заменено GlassButton на GlassmorphicButton */}
               <GlassmorphicButton 
                 variant="onWhite" 
                 size="large"
                 onClick={scrollToContact}
-                className="w-full"
+                className="w-full mt-auto"
               >
                 Узнать больше
               </GlassmorphicButton>

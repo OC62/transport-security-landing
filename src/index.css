@@ -6,6 +6,7 @@
 @layer base {
   body {
     @apply font-sans;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -25,6 +26,15 @@
   .section-padding {
     @apply py-20;
   }
+
+  /* Стили для выпадающих меню */
+  .dropdown-menu {
+    transition: opacity 0.1s ease, transform 0.1s ease;
+  }
+
+  .dropdown-item {
+    transition: background-color 0.1s ease, color 0.1s ease;
+  }
 }
 
 /* Glassmorphic Button Styles */
@@ -42,7 +52,7 @@
     rgba(255, 255, 255, 0.2),
     rgba(255, 255, 255, 0.05)
   );
-  border-radius: 0.5rem; /* Оставляем как в GlassButton */
+  border-radius: 0.5rem;
   box-shadow: 
     inset 0 0.125em 0.125em rgba(0, 0, 0, 0.05),
     inset 0 -0.125em 0.125em rgba(255, 255, 255, 0.5),
@@ -101,7 +111,7 @@
   position: absolute;
   z-index: 1;
   inset: 0;
-  border-radius: 0.5rem; /* Оставляем как в GlassButton */
+  border-radius: 0.5rem;
   width: calc(100% + var(--border-width));
   height: calc(100% + var(--border-width));
   top: calc(0% - var(--border-width) / 2);
@@ -138,4 +148,32 @@
   .glassmorphic-btn:active::after {
     --angle-1: -75deg;
   }
+}
+
+/* Улучшенные стили для header и выпадающих меню */
+.header-container {
+  overflow: visible !important;
+}
+
+.dropdown-transition {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+
+/* Предотвращение скроллинга при открытом мобильном меню */
+.body-no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Плавные переходы для всех интерактивных элементов */
+.transition-fast {
+  transition: all 0.1s ease;
+}
+
+.transition-normal {
+  transition: all 0.2s ease;
+}
+
+.transition-slow {
+  transition: all 0.3s ease;
 }

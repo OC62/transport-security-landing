@@ -136,8 +136,8 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* Исправлено: восстановлены бордер радиус и ширина блока */}
-          <div className="relative mx-auto w-full" style={{ maxWidth: '100%' }}>
+          {/* Исправлено: добавлен бордер радиус на основной контейнер слайдера */}
+          <div className="relative mx-auto w-full max-w-4xl rounded-xl overflow-hidden">
             <Swiper
               modules={[Autoplay]}
               spaceBetween={0}
@@ -149,32 +149,37 @@ export const About = () => {
               }}
               slideShadows={false}
               className="w-full"
-              style={{ height: '400px' }}
+              style={{ 
+                minHeight: '300px'
+              }}
             >
               {teamPhotos.map((member, index) => (
-                <SwiperSlide key={index} className="flex items-center justify-center h-full">
-                  {/* Исправлено: восстановлен бордер радиус и ширина */}
-                  <div className="relative w-full h-full rounded-xl overflow-hidden">
-                    {/* Контейнер для фото */}
-                    <div className="w-full h-[calc(100%-70px)]">
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="relative w-full max-w-full h-auto">
-                          <img
-                            src={member.src}
-                            alt={`Фото: ${member.position}`}
-                            className="max-h-full max-w-full object-contain mx-auto rounded-t-xl"
-                          />
-                        </div>
+                <SwiperSlide key={index} className="flex items-center justify-center">
+                  {/* Исправлено: правильные пропорции и адаптивность */}
+                  <div className="relative w-full rounded-xl overflow-hidden">
+                    {/* Контейнер для фото с правильным соотношением 1200x800 (66.67%) */}
+                    <div className="w-full" style={{ paddingBottom: '66.67%' }}>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <img
+                          src={member.src}
+                          alt={`Фото: ${member.position}`}
+                          className="max-h-full max-w-full object-contain rounded-t-xl"
+                        />
                       </div>
                     </div>
                     
-                    {/* Исправлено: ширина текста соответствует фото, текст не сокращается */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl h-[70px]">
-                      <div className="p-3 h-full flex flex-col justify-center">
-                        <p className="font-semibold text-base mb-0.5">
+                    {/* Исправлено: текст не сокращается на маленьких экранах */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl" style={{ 
+                      minHeight: '75px',
+                      height: '25%'
+                    }}>
+                      <div className="p-2 h-full flex flex-col justify-center">
+                        {/* Уменьшен размер текста на 320px и меньше */}
+                        <p className="font-semibold text-base sm:text-sm md:text-base xs:text-xs xxs:text-[0.85rem] xxxs:text-[0.75rem] xxxxs:text-[0.65rem] mb-0.5" style={{ lineHeight: '1.1' }}>
                           {member.name}
                         </p>
-                        <p className="text-sm text-gray-200">
+                        {/* Уменьшен размер текста на 320px и меньше */}
+                        <p className="text-sm sm:text-xs md:text-sm xs:text-[0.75rem] xxs:text-[0.65rem] xxxs:text-[0.55rem] xxxxs:text-[0.45rem]" style={{ lineHeight: '1.1' }}>
                           {member.position}
                         </p>
                       </div>
