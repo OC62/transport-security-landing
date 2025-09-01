@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/logo.svg">
     
-    <!-- Добавляем фавиконки различных форматов для лучшей совместимости -->
+    <!-- Фавиконки -->
     <link rel="icon" type="image/png" sizes="120x120" href="/favicon-120x120.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -18,8 +18,9 @@
     <meta name="description" content="ООО 'ПТБ-М'. Обеспечение транспортной безопасности объектов дорожного хозяйства. Аудит, мониторинг, оснащение, обучение. Работаем по всей России.">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="ООО 'ПТБ-М' | Профессиональналы в области транспортной безопасности">
+    <meta property="og:title" content="ООО 'ПТБ-М' | Профессионалы в области транспортной безопасности">
     <meta property="og:description" content="Обеспечиваем транспортную безопасность на объектах дорожного хозяйства с 2017 года. Комплексный подход, лицензии, квалифицированные специалисты.">
+    <!-- ✅ Исправлено: убраны пробелы в URL -->
     <meta property="og:image" content="https://xn----9sb8ajp.xn--p1ai/images/og-preview.jpg">
     <meta property="og:url" content="https://xn----9sb8ajp.xn--p1ai">
     <meta property="og:type" content="website">
@@ -55,25 +56,36 @@
 
     <!-- Яндекс.Вебмастер -->
     <meta name="yandex-verification" content="f5bc48680f827787" />
+
+    <!-- ✅ Подключение Smart Captcha с crossorigin и referrerpolicy -->
+    <script
+      src="https://smartcaptcha.yandex.com/smartcaptcha.js"
+      crossorigin
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></script>
   </head>
   <body>
     <div id="root"></div>
 
     <!-- Яндекс.Метрика -->
-    <script type="text/javascript" >
+    <script type="text/javascript">
        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
        m[i].l=1*new Date();
        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
        ym(103534344, "init", {
-            clickmap:true,
-            trackLinks:true,
-            accurateTrackBounce:true,
-            webvisor:true
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
        });
     </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/103534344" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <noscript>
+      <div>
+        <img src="https://mc.yandex.ru/watch/103534344" style="position:absolute; left:-9999px;" alt="" />
+      </div>
+    </noscript>
 
     <script type="module" src="/src/main.jsx"></script>
   </body>
