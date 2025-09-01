@@ -4,6 +4,19 @@
 // Включаем буферизацию вывода в самом начале
 ob_start();
 
+// Устанавливаем заголовки CORS и CORP
+header("Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Cross-Origin-Resource-Policy: same-site");
+header("Content-Type: application/json; charset=UTF-8");
+
+// Обработка OPTIONS-запроса
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 // Функция для возврата JSON-ошибок
 function returnJsonError($message, $code = 500) {
     // Очищаем буфер перед отправкой ответа
@@ -61,20 +74,7 @@ $from_email = $env['FROM_EMAIL'];
 $from_name = $env['FROM_NAME'] ?? 'Форма обратной связи';
 $to_email = $env['TO_EMAIL'];
 $captcha_secret = $env['CAPTCHA_SECRET'];
-$allowed_origin = $env['ALLOWED_ORIGIN'] ?? '*';
-
-// Устанавливаем заголовки
-header("Access-Control-Allow-Origin: $allowed_origin");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
-mb_internal_encoding('UTF-8');
-
-// Обработка OPTIONS-запроса
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+$allowed_origin = $env['ALLOWED_ORIGIN'] ?? 'https://xn----9sb8ajp.xn--p1ai';
 
 // Проверка метода запроса
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -99,55 +99,62 @@ foreach ($required_fields as $field) {
 $captcha_token = $input['smartcaptcha_token'];
 $user_ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 
-// Функция проверки капчи
-function check_captcha($token, $secret, $ip) {
-    $ch = curl_init();
-    $args = http_build_query([
-        "secret" => $secret,
-        "token" => $token,
-        "ip" => $ip,
-    ]);
-    
-    curl_setopt($ch, CURLOPT_URL, "https://smartcaptcha.yandexcloud.net/validate?$args");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Увеличиваем таймаут для надежности
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+// URL для проверки капчи
+$captcha_url = "https://smartcaptcha.yandexcloud.net/validate";
 
-    $server_output = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
-    curl_close($ch);
+// Подготовка данных для POST-запроса
+$captcha_data = [
+    'secret' => $captcha_secret,
+    'token' => $captcha_token,
+    'ip' => $user_ip
+];
 
-    // Логирование для отладки
-    error_log("CAPTCHA_SECRET: " . substr($secret, 0, 5) . "...");
-    error_log("CAPTCHA_TOKEN: " . substr($token, 0, 10) . "...");
-    error_log("Yandex API response: " . $server_output);
+// Используем cURL с POST-запросом
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $captcha_url);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($captcha_data));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/x-www-form-urlencoded',
+    'User-Agent: PTB-M-Server/1.0'
+]);
 
-    if ($curl_error) {
-        error_log("CURL error: " . $curl_error);
-        // В случае ошибки лучше пропустить проверку, чем заблокировать пользователя
-        return true;
-    }
+$captcha_response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curl_error = curl_error($ch);
+curl_close($ch);
 
-    if ($httpcode !== 200) {
-        error_log("Yandex API returned HTTP $httpcode. Response: " . $server_output);
-        // В случае ошибки сервера пропускаем проверку
-        return true;
-    }
+// Логирование для отладки
+error_log("CAPTCHA_SECRET: " . substr($captcha_secret, 0, 5) . "...");
+error_log("CAPTCHA_TOKEN: " . substr($captcha_token, 0, 10) . "...");
+error_log("Yandex API response: " . $captcha_response);
 
-    $resp = json_decode($server_output, true);
-    if (!$resp) {
-        error_log("Invalid JSON response from Yandex: " . $server_output);
-        return true;
-    }
-
-    return isset($resp['status']) && $resp['status'] === "ok";
+if ($curl_error) {
+    error_log("CURL error: " . $curl_error);
+    returnJsonError("Ошибка подключения к сервису капчи", 500);
 }
 
-// Выполняем проверку капчи
-if (!check_captcha($captcha_token, $captcha_secret, $user_ip)) {
-    returnJsonError("Ошибка проверки капчи. Пожалуйста, попробуйте еще раз.", 400);
+if ($http_code !== 200) {
+    error_log("Yandex API returned HTTP $http_code. Response: " . $captcha_response);
+    returnJsonError("Ошибка проверки капчи: сервер вернул код $http_code", 500);
+}
+
+$captcha_data = json_decode($captcha_response, true);
+if (!$captcha_data) {
+    error_log("Invalid JSON response from Yandex: " . $captcha_response);
+    returnJsonError("Неверный ответ от сервера капчи", 500);
+}
+
+// Проверка ответа капчи
+if (isset($captcha_data['status']) && $captcha_data['status'] === 'ok') {
+    // Капча пройдена успешно
+} else {
+    $error_msg = $captcha_data['message'] ?? 'Неизвестная ошибка';
+    returnJsonError("Ошибка капчи: $error_msg", 400);
 }
 
 // Санитизация данных
@@ -157,7 +164,7 @@ $phone = preg_replace('/[^\d+]/', '', trim($input["phone"]));
 $message_content = htmlspecialchars(trim($input["message"]), ENT_QUOTES, 'UTF-8');
 
 // Формирование письма
-$subject = "Новое сообщение с сайта ПТБ-М.РФ от $name";
+$subject = "Новое сообщение с сайта от $name";
 $body = "
 <!DOCTYPE html>
 <html>
@@ -166,7 +173,7 @@ $body = "
     <title>$subject</title>
 </head>
 <body>
-    <h2>Новое сообщение с сайта ПТБ-М.РФ</h2>
+    <h2>Новое сообщение с сайта</h2>
     <p><strong>Имя:</strong> $name</p>
     <p><strong>Email:</strong> <a href='mailto:$email_from'>$email_from</a></p>
     <p><strong>Телефон:</strong> <a href='tel:$phone'>$phone</a></p>

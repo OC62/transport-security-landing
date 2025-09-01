@@ -135,6 +135,7 @@ const ContactForm = () => {
                     <input
                       id="name"
                       {...register('name')}
+                      autoComplete="name"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.name ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -155,6 +156,7 @@ const ContactForm = () => {
                       id="email"
                       type="email"
                       {...register('email')}
+                      autoComplete="email"
                       className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                         errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
@@ -176,6 +178,7 @@ const ContactForm = () => {
                     id="phone"
                     type="tel"
                     {...register('phone')}
+                    autoComplete="tel"
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                       errors.phone ? 'border-red-500' : 'border-gray-300'
                     }`}
@@ -196,6 +199,7 @@ const ContactForm = () => {
                     id="message"
                     {...register('message')}
                     rows={5}
+                    autoComplete="off"
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                       errors.message ? 'border-red-500' : 'border-gray-300'
                     }`}
