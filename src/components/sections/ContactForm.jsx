@@ -5,7 +5,6 @@ import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
 import { SmartCaptcha } from '@yandex/smart-captcha';
 
-// Схема валидации
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -13,7 +12,6 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
-// ✅ Исправлено: пробел в URL
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
 const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
@@ -47,9 +45,14 @@ const ContactForm = () => {
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ошибка ${response.status}: ${errorText}`);
+      }
+
       const result = await response.json();
 
-      if (response.ok && result.status === 'success') {
+      if (result.status === 'success') {
         setSubmitSuccess(true);
         reset();
         setTimeout(() => setSubmitSuccess(false), 5000);
@@ -59,10 +62,10 @@ const ContactForm = () => {
       }
     } catch (error) {
       console.error('Ошибка отправки формы:', error);
-      if (error.message.includes('405')) {
-        setSubmitError('Ошибка 405: Проверьте путь к send-email.php');
-      } else if (error.message.includes('Failed to fetch')) {
+      if (error.message.includes('Failed to fetch')) {
         setSubmitError('Нет соединения с сервером. Проверьте интернет.');
+      } else if (error.message.includes('JSON')) {
+        setSubmitError('Ошибка ответа сервера. Повторите позже.');
       } else {
         setSubmitError(error.message || 'Произошла ошибка');
       }
@@ -233,6 +236,7 @@ const ContactForm = () => {
                     }}
                     onError={handleCaptchaError}
                     onChallengeHidden={() => setCaptchaToken('')}
+                    onExpire={() => setCaptchaToken('')} // Защита от устаревшего токена
                   />
                   
                   {captchaError && (

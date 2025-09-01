@@ -31,22 +31,17 @@
 </IfModule>
 
 <IfModule mod_headers.c>
-  # Отключаем COEP для разрешения загрузки ресурсов Яндекс.Капчи
-  # Header always unset Cross-Origin-Embedder-Policy
-  
-  # Устанавливаем CORP для локальных ресурсов
   <FilesMatch "\.(js|css|png|jpg|jpeg|gif|webp|svg|woff|woff2)$">
     Header always set Cross-Origin-Resource-Policy "same-site"
   </FilesMatch>
   
-  # Заголовки CORS для API
   <FilesMatch "send-email\.php$">
     Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type"
+    Header always set Access-Control-Max-Age "86400"
   </FilesMatch>
   
-  # Безопасность для остальных файлов
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-XSS-Protection "1; mode=block"
@@ -56,20 +51,19 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   
-  # Redirect to HTTPS
+  # HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
   
-  # Redirect www to non-www
+  # www → non-www
   RewriteCond %{HTTP_HOST} ^www\.xn----9sb8ajp\.xn--p1ai [NC]
   RewriteRule ^(.*)$ https://xn----9sb8ajp.xn--p1ai/$1 [L,R=301]
   
-  # Защита от прямого доступа к敏感文件
+  # Защита
   RewriteRule ^\.env$ - [F,L,NC]
   RewriteRule ^phpmailer/ - [F,L,NC]
 </IfModule>
 
-# Запрет выполнения PHP в uploads
 <DirectoryMatch "^.*/uploads/">
   <FilesMatch "\.php$">
     Require all denied
