@@ -1,9 +1,11 @@
-// src/components/sections/Hero.jsx
-import { motion } from 'framer-motion';
-import { GlassmorphicButton } from '../ui/GlassmorphicButton';
-import heroVideo from '../../assets/videos/Bridge.mp4'; // Теперь только MP4
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import GlassmorphicButton from '../ui/GlassmorphicButton';
+import heroVideo from '../../assets/videos/Bridge.mp4';
 
-export const Hero = () => {
+// Встроенный SVG placeholder для видео
+const videoPosterSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080' viewBox='0 0 1920 1080' fill='%23f3f4f6'%3E%3Crect width='1920' height='1080' fill='%233a3a3a'/%3E%3Cpath d='M960 540L1160 380' stroke='%23d1d5db' stroke-width='2'/%3E%3C/svg%3E";
+
+const Hero = () => {
   return (
     <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-16">
       {/* Фоновое видео */}
@@ -13,15 +15,13 @@ export const Hero = () => {
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
+          poster={videoPosterSvg}
           className="w-full h-full object-cover"
         >
-          {/* Основной источник — MP4 (поддерживается везде, включая Safari) */}
           <source src={heroVideo} type="video/mp4" />
-          
-          {/* Резервное изображение, если видео не поддерживается */}
           <img 
-            src="/images/hero-fallback.jpg" 
+            src={videoPosterSvg} 
             alt="Фон: дорожный объект, мост" 
             className="w-full h-full object-cover" 
           />
@@ -41,14 +41,14 @@ export const Hero = () => {
             visible: {
               opacity: 1,
               transition: {
-                staggerChildren: 0.2,   // Задержка между появлением элементов
-                delayChildren: 0.3,     // Задержка перед началом анимации
+                staggerChildren: 0.2,
+                delayChildren: 0.3,
               }
             }
           }}
           className="max-w-3xl"
         >
-          {/* Заголовок с градиентным текстом */}
+          {/* Заголовок с градиентным текста */}
           <motion.h1
             variants={{
               hidden: { opacity: 0, y: -20 },
@@ -93,6 +93,22 @@ export const Hero = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Индикатор прокрутки вниз */}
+      <motion.div 
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        <div className="animate-bounce">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </motion.div>
     </section>
   );
 };
+
+export default Hero;

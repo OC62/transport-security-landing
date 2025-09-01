@@ -1,7 +1,6 @@
-// src/components/Breadcrumbs.jsx
 import { useState, useEffect } from 'react';
 
-// Определяем список секций с их ID и названиями
+// Определяем список секций с их ID и названиями (вынесено за пределы компонента)
 const sections = [
   { id: 'hero', name: 'Главная' },
   { id: 'about', name: 'О нас' },
@@ -12,7 +11,8 @@ const sections = [
   { id: 'contact', name: 'Контакты' },
 ];
 
-export const Breadcrumbs = () => {
+// ✅ Исправлено: убран export const, оставлен только export default
+const Breadcrumbs = () => {
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export const Breadcrumbs = () => {
         // Сортируем по степени видимости (от большей к меньшей)
         visibleSections.sort((a, b) => b.ratio - a.ratio);
         // Если степень видимости одинаковая, выбираем ту, что выше на экране
-        if (Math.abs(visibleSections[0].ratio - visibleSections[1]?.ratio) < 0.01) {
+        if (visibleSections[1] && Math.abs(visibleSections[0].ratio - visibleSections[1].ratio) < 0.01) {
             visibleSections.sort((a, b) => a.top - b.top);
         }
         // Устанавливаем самую "видимую" секцию как активную
@@ -113,3 +113,5 @@ export const Breadcrumbs = () => {
     </nav>
   );
 };
+
+export default Breadcrumbs;

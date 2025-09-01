@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    ".htaccess": "apache"
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "htmlhint.enable": false,
+  "eslint.workingDirectories": [
+    "/src",
+    "/api"
+  ]
+}

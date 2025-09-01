@@ -1,45 +1,48 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Hero } from './components/sections/Hero';
-import { About } from './components/sections/About';
-import { ServicesGrid } from './components/sections/ServicesGrid';
-import { CasesSlider } from './components/sections/CasesSlider';
-import { Careers } from './components/sections/Careers';
-import { ContactForm } from './components/sections/ContactForm';
-import { Partners } from './components/sections/Partners';
-import { Header } from './components/layout/Header';
-import { Footer } from './components/layout/Footer';
-import { Licenses } from './components/sections/Licenses';
-import { CommunitySupport } from './components/sections/CommunitySupport';
-import { Breadcrumbs } from './components/Breadcrumbs';
+import { lazy, Suspense } from 'react';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import Breadcrumbs from './components/Breadcrumbs';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Ленивая загрузка компонентов
+const Hero = lazy(() => import('./components/sections/Hero'));
+const About = lazy(() => import('./components/sections/About'));
+const ServicesGrid = lazy(() => import('./components/sections/ServicesGrid'));
+const CasesSlider = lazy(() => import('./components/sections/CasesSlider'));
+const Careers = lazy(() => import('./components/sections/Careers'));
+const Licenses = lazy(() => import('./components/sections/Licenses'));
+const Partners = lazy(() => import('./components/sections/Partners'));
+const CommunitySupport = lazy(() => import('./components/sections/CommunitySupport'));
+const ContactForm = lazy(() => import('./components/sections/ContactForm'));
+
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  </div>
+);
 
 function App() {
   return (
-    // basename для корня домена
-    <Router basename="/">
+    <ErrorBoundary>
       <div className="min-h-screen bg-white">
         <Header />
         <Breadcrumbs />
         <main>
-          <Routes>
-            <Route path="/" element={
-              <>
-                <Hero />
-                <About />
-                <ServicesGrid />
-                <CasesSlider />
-                <Careers />
-                <Licenses />
-                <Partners />
-                <CommunitySupport />
-                <ContactForm />
-              </>
-            } />
-          </Routes>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Hero />
+            <About />
+            <ServicesGrid />
+            <CasesSlider />
+            <Careers />
+            <Licenses />
+            <Partners />
+            <CommunitySupport />
+            <ContactForm />
+          </Suspense>
         </main>
         <Footer />
       </div>
-    </Router>
+    </ErrorBoundary>
   );
 }
 

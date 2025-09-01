@@ -1,9 +1,8 @@
-// src/components/sections/ContactForm.jsx
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { GlassmorphicButton } from '../ui/GlassmorphicButton';
+import GlassmorphicButton from '../ui/GlassmorphicButton';
 import { SmartCaptcha } from '@yandex/smart-captcha';
 
 // Схема валидации
@@ -15,10 +14,10 @@ const schema = yup.object({
 }).required();
 
 // ✅ Исправлено: пробел в URL
-const BACKEND_ENDPOINT = "https://xn----9sb8ajp.xn--p1ai/api/send-email.php";
-const CAPTCHA_SITE_KEY = "ysc1_jJWrxMhkeNXsCcuJRpeZpwsPKWvGm1b8TWJZ9WHD00292a05";
+const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
+const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
-export const ContactForm = () => {
+const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -272,3 +271,5 @@ export const ContactForm = () => {
     </section>
   );
 };
+
+export default ContactForm;

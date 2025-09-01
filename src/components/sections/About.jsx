@@ -1,7 +1,7 @@
-// src/components/sections/About.jsx
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
+import LazyImage from '../LazyImage';
 
 // Импорт стилей Swiper
 import 'swiper/css';
@@ -17,7 +17,7 @@ import TeamImage6 from '../../assets/images/team6.webp';
 import TeamImage7 from '../../assets/images/team7.webp';
 import TeamImage8 from '../../assets/images/team8.webp';
 
-export const About = () => {
+const About = () => {
   const advantages = [
     {
       title: "Более 8 лет на рынке",
@@ -136,7 +136,6 @@ export const About = () => {
             Фото из архива ООО "ПТБ-М"
           </p>
 
-          {/* Исправлено: добавлен бордер радиус на основной контейнер слайдера */}
           <div className="relative mx-auto w-full max-w-4xl rounded-xl overflow-hidden">
             <Swiper
               modules={[Autoplay]}
@@ -147,7 +146,6 @@ export const About = () => {
                 delay: 4000,
                 disableOnInteraction: false,
               }}
-              slideShadows={false}
               className="w-full"
               style={{ 
                 minHeight: '300px'
@@ -155,12 +153,10 @@ export const About = () => {
             >
               {teamPhotos.map((member, index) => (
                 <SwiperSlide key={index} className="flex items-center justify-center">
-                  {/* Исправлено: правильные пропорции и адаптивность */}
                   <div className="relative w-full rounded-xl overflow-hidden">
-                    {/* Контейнер для фото с правильным соотношением 1200x800 (66.67%) */}
                     <div className="w-full" style={{ paddingBottom: '66.67%' }}>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <img
+                        <LazyImage
                           src={member.src}
                           alt={`Фото: ${member.position}`}
                           className="max-h-full max-w-full object-contain rounded-t-xl"
@@ -168,17 +164,14 @@ export const About = () => {
                       </div>
                     </div>
                     
-                    {/* Исправлено: текст не сокращается на маленьких экранах */}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white rounded-b-xl" style={{ 
                       minHeight: '75px',
                       height: '25%'
                     }}>
                       <div className="p-2 h-full flex flex-col justify-center">
-                        {/* Уменьшен размер текста на 320px и меньше */}
                         <p className="font-semibold text-base sm:text-sm md:text-base xs:text-xs xxs:text-[0.85rem] xxxs:text-[0.75rem] xxxxs:text-[0.65rem] mb-0.5" style={{ lineHeight: '1.1' }}>
                           {member.name}
                         </p>
-                        {/* Уменьшен размер текста на 320px и меньше */}
                         <p className="text-sm sm:text-xs md:text-sm xs:text-[0.75rem] xxs:text-[0.65rem] xxxs:text-[0.55rem] xxxxs:text-[0.45rem]" style={{ lineHeight: '1.1' }}>
                           {member.position}
                         </p>
@@ -194,3 +187,5 @@ export const About = () => {
     </section>
   );
 };
+
+export default About;

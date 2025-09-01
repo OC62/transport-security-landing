@@ -1,6 +1,5 @@
-// src/components/sections/CasesSlider.jsx
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 
@@ -13,7 +12,7 @@ import BusstationsImage from '../../assets/images/Main_Bus_Station.webp';
 import BreadgeImage from '../../assets/images/Rost_Sea.webp';
 import OtiImage from '../../assets/images/bg_Hero.webp';
 
-export const CasesSlider = () => {
+const CasesSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const touchStartX = useRef(0);
   const sliderRef = useRef(null);
@@ -35,7 +34,7 @@ export const CasesSlider = () => {
     },
     {
       id: 3,
-      title: "Реализация комплексной системы транспортной безопасности на действующих объектах транспортной инфраструктуры (ОТИ)",
+      title: "Реализация комплексной системы транспортной безопасности на действующих объектах транспортной инфраструктуры (ОТI)",
       description: "Проведение комплексного аудита системы безопасности ОТИ",
       results: "Выявлено 15 критических уязвимостей, разработан план улучшений",
       image: OtiImage,
@@ -108,6 +107,11 @@ export const CasesSlider = () => {
             }}
             onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
             className="min-h-[380px]"
+            onSwiper={(swiper) => {
+              // Сохраняем ссылку на экземпляр Swiper
+              sliderRef.current = swiper.el;
+              swiper.el.swiper = swiper;
+            }}
           >
             {cases.map((item) => (
               <SwiperSlide key={item.id}>
@@ -161,3 +165,5 @@ export const CasesSlider = () => {
     </section>
   );
 };
+
+export default CasesSlider;

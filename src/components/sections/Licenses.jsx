@@ -1,36 +1,33 @@
-// src/components/sections/Licenses.jsx
 import { motion } from 'framer-motion';
-// Импорты изображений остаются без изменений
 import vypiskaImage from '../../assets/images/vypiska.webp';
 import licensesImage from '../../assets/images/licenses.webp';
-// Импортируем новый компонент GlassmorphicButton
-import { GlassmorphicButton } from '../ui/GlassmorphicButton';
+import GlassmorphicButton from '../ui/GlassmorphicButton';
 
-export const Licenses = () => {
-  // Массив с лицензиями и свидетельствами
-  const licenses = [
-    {
-      id: 1,
-      title: "Свидетельство об аккредитации в качестве подразделения транспортной безопасности",
-      number: "№ 61-2-5-00011-24",
-      issuedBy: "Федеральное дорожное агентство",
-      issueDate: "17.05.2024",
-      expiryDate: "16.05.2029",
-      image: vypiskaImage, // Используем импортированное изображение
-      description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожного хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
-    },
-    {
-      id: 2,
-      title: "Лицензия на осуществление деятельности в области использования источников ионизирующего излучения",
-      number: "№61.Ц.10.002.Л.00009.12.19",
-      issuedBy: "Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области",
-      issueDate: "12.12.2019",
-      expiryDate: "бессрочно",
-      image: licensesImage, // Используем импортированное изображение
-      description: "Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения"
-    },
-  ];
+// Массив с лицензиями и свидетельствами (вынесен за пределы компонента)
+const licenses = [
+  {
+    id: 1,
+    title: "Свидетельство об аккредитации в качестве подразделения транспортной безопасности",
+    number: "№ 61-2-5-00011-24",
+    issuedBy: "Федеральное дорожное агентство",
+    issueDate: "17.05.2024",
+    expiryDate: "16.05.2029",
+    image: vypiskaImage,
+    description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожного хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
+  },
+  {
+    id: 2,
+    title: "Лицензия на осуществление деятельности в области использования источников ионизирующего излучения",
+    number: "№61.Ц.10.002.Л.00009.12.19",
+    issuedBy: "Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области",
+    issueDate: "12.12.2019",
+    expiryDate: "бессрочно",
+    image: licensesImage,
+    description: "Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения"
+  },
+];
 
+const Licenses = () => {
   // Функция для плавной прокрутки к секции контактов
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact');
@@ -66,8 +63,8 @@ export const Licenses = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
             >
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Изображение документа */}
+              <div className="flex flex-col md:flex-row gap-6 h-full">
+                {/* Изображение документа - центрировано по вертикали */}
                 <div className="md:w-1/3 flex items-center justify-center">
                   <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-48 flex items-center justify-center">
                     <img
@@ -87,7 +84,7 @@ export const Licenses = () => {
                 </div>
 
                 {/* Информация о документе */}
-                <div className="md:w-2/3">
+                <div className="md:w-2/3 flex flex-col justify-center">
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
                     {license.title}
                   </h3>
@@ -129,7 +126,6 @@ export const Licenses = () => {
               Мы готовы предоставить полный пакет лицензий и свидетельств по запросу.
               Наши документы регулярно проходят проверку контролирующими органами.
             </p>
-            {/* Заменено GlassButton на GlassmorphicButton */}
             <GlassmorphicButton 
               variant="onWhite"
               size="large"
@@ -147,3 +143,5 @@ export const Licenses = () => {
     </section>
   );
 };
+
+export default Licenses;

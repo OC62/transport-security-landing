@@ -1,8 +1,7 @@
-// src/components/layout/Header.jsx
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import logoImage from '../../assets/images/logo.webp';
-import { GlassmorphicButton } from '../ui/GlassmorphicButton';
+import GlassmorphicButton from '../ui/GlassmorphicButton'; // ✅ Без фигурных скобок
 
 // Компонент выпадающего меню
 const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
@@ -37,20 +36,15 @@ const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
     if (isOpen && dropdownRef.current && buttonRef.current) {
       const dropdownRect = dropdownRef.current.getBoundingClientRect();
       const buttonRect = buttonRef.current.getBoundingClientRect();
-      
       const spaceBelow = window.innerHeight - buttonRect.bottom;
       const spaceAbove = buttonRect.top;
-      
       const verticalPosition = spaceBelow < dropdownRect.height && spaceAbove > dropdownRect.height ? 'top' : 'bottom';
-      
       const spaceRight = window.innerWidth - buttonRect.left;
       const spaceLeft = buttonRect.right;
-      
       let horizontalPosition = 'left';
       if (spaceRight < dropdownRect.width && spaceLeft > dropdownRect.width) {
         horizontalPosition = 'right';
       }
-      
       setPosition({ vertical: verticalPosition, horizontal: horizontalPosition });
     }
   }, [isOpen]);
@@ -74,7 +68,6 @@ const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
           <path d="M6 8.5L2.5 5l.7-.7L6 7.1l2.8-2.8.7.7L6 8.5z"/>
         </svg>
       </button>
-      
       {isOpen && (
         <motion.div
           ref={dropdownRef}
@@ -112,7 +105,7 @@ const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
   );
 };
 
-export const Header = () => {
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const headerRef = useRef(null);
@@ -121,10 +114,8 @@ export const Header = () => {
     const checkMobileView = () => {
       setIsMobileView(window.innerWidth < 1024);
     };
-    
     checkMobileView();
     window.addEventListener('resize', checkMobileView);
-    
     return () => window.removeEventListener('resize', checkMobileView);
   }, []);
 
@@ -134,7 +125,6 @@ export const Header = () => {
     } else {
       document.body.style.overflow = 'unset';
     }
-    
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -142,7 +132,6 @@ export const Header = () => {
 
   const scrollToSection = (sectionId) => {
     setIsMenuOpen(false);
-    
     setTimeout(() => {
       const id = sectionId.startsWith('#') ? sectionId.slice(1) : sectionId;
       const element = document.getElementById(id);
@@ -150,7 +139,6 @@ export const Header = () => {
         const headerHeight = headerRef.current?.offsetHeight || 0;
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
         const offsetPosition = elementPosition - headerHeight;
-        
         window.scrollTo({
           top: offsetPosition,
           behavior: "smooth"
@@ -218,7 +206,6 @@ export const Header = () => {
             <img src={logoImage} alt="Логотип ООО ПТБ-М" className="h-8" />
             <span className="text-xl lg:text-base font-bold text-primary">ООО "ПТБ-М"</span>
           </div>
-
           {/* Навигация для десктопа */}
           <nav className={`${isMobileView ? 'hidden' : 'flex'} items-center space-x-2`}>
             <div className="flex space-x-2">
@@ -245,7 +232,6 @@ export const Header = () => {
               ))}
             </div>
           </nav>
-
           {/* Кнопка CTA для десктопа */}
           <GlassmorphicButton 
             variant="onWhite" 
@@ -255,7 +241,6 @@ export const Header = () => {
           >
             Получить консультацию
           </GlassmorphicButton>
-
           {/* Кнопка мобильного меню */}
           <button
             className={`${isMobileView ? 'block' : 'hidden'} text-gray-700 hover:text-primary transition-colors`}
@@ -271,7 +256,6 @@ export const Header = () => {
             </svg>
           </button>
         </div>
-
         {/* Мобильное меню */}
         {isMenuOpen && isMobileView && (
           <motion.div
@@ -346,3 +330,6 @@ export const Header = () => {
     </header>
   );
 };
+
+// ✅ Исправлено: дефолтный экспорт
+export default Header;

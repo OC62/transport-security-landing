@@ -1,4 +1,3 @@
-// src/components/ui/GlassmorphicButton.jsx
 import { forwardRef } from 'react';
 
 // Используем forwardRef, чтобы можно было передавать ref, как в обычную кнопку
@@ -42,4 +41,4 @@ const GlassmorphicButton = forwardRef(({ children, variant = 'primary', size = '
 // Для отладки в React DevTools
 GlassmorphicButton.displayName = 'GlassmorphicButton';
 
-export { GlassmorphicButton };
+export default GlassmorphicButton;

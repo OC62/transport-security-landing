@@ -3,9 +3,6 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    // Добавляем пути к кастомным CSS файлам
-    "./src/index.css",
-    "./src/App.css"
   ],
   theme: {
     extend: {
@@ -76,10 +73,7 @@ export default {
       }
     },
   },
-  plugins: [
-    // УДАЛЕН: require('@tailwindcss/line-clamp'),
-    // Начиная с Tailwind CSS v3.3 плагин line-clamp включен по умолчанию
-  ],
+  plugins: [],
   // Расширяем safelist для всех необходимых классов
   safelist: [
     // Классы Swiper

@@ -1,11 +1,10 @@
-// src/components/sections/CommunitySupport.jsx
-import { motion } from 'framer-motion';
-import { GlassmorphicButton } from '../ui/GlassmorphicButton'; // Импортируем кнопку
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import GlassmorphicButton from '../ui/GlassmorphicButton';
 
 // Импортируем изображение
 import footballTeamImage from '../../assets/images/team-football.webp';
 
-export const CommunitySupport = () => {
+const CommunitySupport = () => {
   return (
     <section id="community" className="relative py-32 md:py-40 bg-gray-50">
       {/* Фоновое изображение */}
@@ -63,3 +62,5 @@ export const CommunitySupport = () => {
     </section>
   );
 };
+
+export default CommunitySupport;

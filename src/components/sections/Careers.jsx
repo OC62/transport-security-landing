@@ -1,10 +1,8 @@
-// src/components/sections/Careers.jsx
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-// Импортируем новый компонент GlassmorphicButton
-import { GlassmorphicButton } from '../ui/GlassmorphicButton';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import GlassmorphicButton from '../ui/GlassmorphicButton';
 
-export const Careers = () => {
+const Careers = () => {
   const [openJobId, setOpenJobId] = useState(null);
 
   // Функция для плавной прокрутки к секции контактов
@@ -181,7 +179,6 @@ export const Careers = () => {
                   </div>
                   
                   <div className="mt-6">
-                    {/* Заменено GlassButton на GlassmorphicButton */}
                     <GlassmorphicButton 
                       variant="onWhite"
                       size="large"
@@ -208,7 +205,6 @@ export const Careers = () => {
           <p className="text-gray-600 mb-6">
             Присылайте ваше резюме, мы свяжемся с вами при появлении подходящих предложений
           </p>
-          {/* Заменено GlassButton на GlassmorphicButton */}
           <GlassmorphicButton 
             variant="onWhite"
             size="large"
@@ -221,3 +217,5 @@ export const Careers = () => {
     </section>
   );
 };
+
+export default Careers;
