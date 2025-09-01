@@ -1,4 +1,77 @@
-<Files ".env">
-    Order allow,deny
-    Deny from all
-</Files>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/pdf "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType application/x-javascript "access plus 1 month"
+  ExpiresByType application/x-shockwave-flash "access plus 1 month"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresDefault "access plus 2 days"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain
+  AddOutputFilterByType DEFLATE text/html
+  AddOutputFilterByType DEFLATE text/xml
+  AddOutputFilterByType DEFLATE text/css
+  AddOutputFilterByType DEFLATE application/xml
+  AddOutputFilterByType DEFLATE application/xhtml+xml
+  AddOutputFilterByType DEFLATE application/rss+xml
+  AddOutputFilterByType DEFLATE application/javascript
+  AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+  AddOutputFilterByType DEFLATE application/x-font-ttf
+  AddOutputFilterByType DEFLATE font/opentype
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Отключаем COEP для разрешения загрузки ресурсов Яндекс.Капчи
+  # Header always unset Cross-Origin-Embedder-Policy
+  
+  # Устанавливаем CORP для локальных ресурсов
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|webp|svg|woff|woff2)$">
+    Header always set Cross-Origin-Resource-Policy "same-site"
+  </FilesMatch>
+  
+  # Заголовки CORS для API
+  <FilesMatch "send-email\.php$">
+    Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
+    Header always set Access-Control-Allow-Methods "POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type"
+  </FilesMatch>
+  
+  # Безопасность для остальных файлов
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # Redirect to HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  
+  # Redirect www to non-www
+  RewriteCond %{HTTP_HOST} ^www\.xn----9sb8ajp\.xn--p1ai [NC]
+  RewriteRule ^(.*)$ https://xn----9sb8ajp.xn--p1ai/$1 [L,R=301]
+  
+  # Защита от прямого доступа к敏感文件
+  RewriteRule ^\.env$ - [F,L,NC]
+  RewriteRule ^phpmailer/ - [F,L,NC]
+</IfModule>
+
+# Запрет выполнения PHP в uploads
+<DirectoryMatch "^.*/uploads/">
+  <FilesMatch "\.php$">
+    Require all denied
+  </FilesMatch>
+</DirectoryMatch>
