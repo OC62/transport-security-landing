@@ -31,12 +31,19 @@
 </IfModule>
 
 <IfModule mod_headers.c>
+  # Устанавливаем COEP в режим credentialless вместо require-corp
+  Header always set Cross-Origin-Embedder-Policy "credentialless"
+  
+  # Для локальных ресурсов устанавливаем CORP same-site
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|webp|svg|woff|woff2)$">
+    Header always set Cross-Origin-Resource-Policy "same-site"
+  </FilesMatch>
+  
   # Заголовки CORS для API
   <FilesMatch "send-email\.php$">
     Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type"
-    Header always set Cross-Origin-Resource-Policy "same-site"
   </FilesMatch>
   
   # Безопасность для остальных файлов

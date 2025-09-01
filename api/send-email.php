@@ -4,11 +4,10 @@
 // Включаем буферизацию вывода в самом начале
 ob_start();
 
-// Устанавливаем заголовки CORS и CORP
+// Устанавливаем заголовки CORS
 header("Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Cross-Origin-Resource-Policy: same-site");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Обработка OPTIONS-запроса
@@ -74,7 +73,6 @@ $from_email = $env['FROM_EMAIL'];
 $from_name = $env['FROM_NAME'] ?? 'Форма обратной связи';
 $to_email = $env['TO_EMAIL'];
 $captcha_secret = $env['CAPTCHA_SECRET'];
-$allowed_origin = $env['ALLOWED_ORIGIN'] ?? 'https://xn----9sb8ajp.xn--p1ai';
 
 // Проверка метода запроса
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -164,7 +162,7 @@ $phone = preg_replace('/[^\d+]/', '', trim($input["phone"]));
 $message_content = htmlspecialchars(trim($input["message"]), ENT_QUOTES, 'UTF-8');
 
 // Формирование письма
-$subject = "Новое сообщение с сайта от $name";
+$subject = "Новое сообщение с сайта ПТБ-М.РФ от $name";
 $body = "
 <!DOCTYPE html>
 <html>
@@ -173,7 +171,7 @@ $body = "
     <title>$subject</title>
 </head>
 <body>
-    <h2>Новое сообщение с сайта</h2>
+    <h2>Новое сообщение с сайта ПТБ-М.РФ</h2>
     <p><strong>Имя:</strong> $name</p>
     <p><strong>Email:</strong> <a href='mailto:$email_from'>$email_from</a></p>
     <p><strong>Телефон:</strong> <a href='tel:$phone'>$phone</a></p>
