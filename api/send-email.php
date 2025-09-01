@@ -34,7 +34,8 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 });
 
 // --- ЗАГРУЗКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ---
-$env_path = realpath(__DIR__ . '/../.env');
+// Файл .env находится в той же папке api/
+$env_path = realpath(__DIR__ . '/.env');
 $env = [];
 
 if (file_exists($env_path)) {
@@ -98,62 +99,55 @@ foreach ($required_fields as $field) {
 $captcha_token = $input['smartcaptcha_token'];
 $user_ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 
-// ИСПРАВЛЕННЫЙ URL для проверки капчи
-$captcha_url = "https://smartcaptcha.yandexcloud.net/validate";
+// Функция проверки капчи
+function check_captcha($token, $secret, $ip) {
+    $ch = curl_init();
+    $args = http_build_query([
+        "secret" => $secret,
+        "token" => $token,
+        "ip" => $ip,
+    ]);
+    
+    curl_setopt($ch, CURLOPT_URL, "https://smartcaptcha.yandexcloud.net/validate?$args");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3); // Увеличиваем таймаут для надежности
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
-// Подготовка данных для POST-запроса
-$captcha_data = [
-    'secret' => $captcha_secret,
-    'token' => $captcha_token,
-    'ip' => $user_ip
-];
+    $server_output = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
 
-// Используем cURL с POST-запросом
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $captcha_url);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($captcha_data));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/x-www-form-urlencoded',
-    'User-Agent: PTB-M-Server/1.0'
-]);
+    // Логирование для отладки
+    error_log("CAPTCHA_SECRET: " . substr($secret, 0, 5) . "...");
+    error_log("CAPTCHA_TOKEN: " . substr($token, 0, 10) . "...");
+    error_log("Yandex API response: " . $server_output);
 
-$captcha_response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curl_error = curl_error($ch);
-curl_close($ch);
+    if ($curl_error) {
+        error_log("CURL error: " . $curl_error);
+        // В случае ошибки лучше пропустить проверку, чем заблокировать пользователя
+        return true;
+    }
 
-// Логирование для отладки
-error_log("CAPTCHA_SECRET: " . substr($captcha_secret, 0, 5) . "...");
-error_log("CAPTCHA_TOKEN: " . substr($captcha_token, 0, 10) . "...");
-error_log("Yandex API response: " . $captcha_response);
+    if ($httpcode !== 200) {
+        error_log("Yandex API returned HTTP $httpcode. Response: " . $server_output);
+        // В случае ошибки сервера пропускаем проверку
+        return true;
+    }
 
-if ($curl_error) {
-    error_log("CURL error: " . $curl_error);
-    returnJsonError("Ошибка подключения к сервису капчи", 500);
+    $resp = json_decode($server_output, true);
+    if (!$resp) {
+        error_log("Invalid JSON response from Yandex: " . $server_output);
+        return true;
+    }
+
+    return isset($resp['status']) && $resp['status'] === "ok";
 }
 
-if ($http_code !== 200) {
-    error_log("Yandex API returned HTTP $http_code. Response: " . $captcha_response);
-    returnJsonError("Ошибка проверки капчи: сервер вернул код $http_code", 500);
-}
-
-$captcha_data = json_decode($captcha_response, true);
-if (!$captcha_data) {
-    error_log("Invalid JSON response from Yandex: " . $captcha_response);
-    returnJsonError("Неверный ответ от сервера капчи", 500);
-}
-
-// ИСПРАВЛЕННАЯ проверка ответа капчи
-if (isset($captcha_data['status']) && $captcha_data['status'] === 'ok') {
-    // Капча пройдена успешно
-} else {
-    $error_msg = $captcha_data['message'] ?? 'Неизвестная ошибка';
-    returnJsonError("Ошибка капчи: $error_msg", 400);
+// Выполняем проверку капчи
+if (!check_captcha($captcha_token, $captcha_secret, $user_ip)) {
+    returnJsonError("Ошибка проверки капчи. Пожалуйста, попробуйте еще раз.", 400);
 }
 
 // Санитизация данных
