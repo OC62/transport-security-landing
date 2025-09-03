@@ -22,12 +22,10 @@ const ContactForm = () => {
   const [captchaToken, setCaptchaToken] = useState('');
   const [captchaError, setCaptchaError] = useState('');
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
-  const [captchaKey, setCaptchaKey] = useState(0); // Для принудительного пересоздания капчи
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   const {
-    register,
     handleSubmit,
-    formState: { errors },
     reset
   } = useForm({
     resolver: yupResolver(schema)
@@ -149,7 +147,74 @@ const ContactForm = () => {
                   </div>
                 )}
 
-                {/* ... остальные поля формы ... */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+                      Имя *
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      autoComplete="name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Введите ваше имя"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                      Email *
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      name="email"
+                      autoComplete="email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+                    Телефон *
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    autoComplete="tel"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+7 (___) ___-__-__"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+                    Сообщение *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    autoComplete="off"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Расскажите о вашем проекте..."
+                  />
+                </div>
+
+                <div className="flex items-start">
+                  <input
+                    type="checkbox"
+                    id="privacy"
+                    required
+                    className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor="privacy" className="text-gray-600 text-sm">
+                    Согласен с обработкой персональных данных *
+                  </label>
+                </div>
 
                 <div className="mt-4">
                   <SmartCaptcha

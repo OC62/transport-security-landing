@@ -8,11 +8,16 @@
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Настройки CORS - используем переменную из .env
+    # Настройки CORS для API
     Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Origin, X-Requested-With"
+    Header always set Access-Control-Allow-Credentials "true"
 </IfModule>
+
+# Обработка preflight OPTIONS запросов для API
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
 
 # Запретить доступ к .env файлам
 <Files ".env">
