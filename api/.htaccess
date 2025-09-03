@@ -1,3 +1,4 @@
+# Кэширование
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType image/jpg "access plus 1 year"
@@ -14,6 +15,7 @@
   ExpiresDefault "access plus 2 days"
 </IfModule>
 
+# Сжатие
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/plain
   AddOutputFilterByType DEFLATE text/html
@@ -30,40 +32,47 @@
   AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>
 
+# Заголовки безопасности
 <IfModule mod_headers.c>
-  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|webp|svg|woff|woff2)$">
+  # COEP — только для HTML (чтобы капча работала)
+  <FilesMatch "\.html?$">
     Header always set Cross-Origin-Embedder-Policy "credentialless"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
   </FilesMatch>
-  
+
+  # CORS для обработчика формы
   <FilesMatch "send-email\.php$">
     Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type"
     Header always set Access-Control-Max-Age "86400"
   </FilesMatch>
-  
+
+  # Общие заголовки безопасности
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set X-XSS-Protection "1; mode=block"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
+# Редиректы
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  
+
   # HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-  
+
   # www → non-www
   RewriteCond %{HTTP_HOST} ^www\.xn----9sb8ajp\.xn--p1ai [NC]
   RewriteRule ^(.*)$ https://xn----9sb8ajp.xn--p1ai/$1 [L,R=301]
-  
+
   # Защита
   RewriteRule ^\.env$ - [F,L,NC]
   RewriteRule ^phpmailer/ - [F,L,NC]
 </IfModule>
 
+# Защита директории uploads
 <DirectoryMatch "^.*/uploads/">
   <FilesMatch "\.php$">
     Require all denied

@@ -26,6 +26,8 @@ header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Max-Age: 86400');
+header("Cross-Origin-Embedder-Policy: credentialless");
+header("Cross-Origin-Opener-Policy: same-origin");
 
 // Обработка pre-flight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
