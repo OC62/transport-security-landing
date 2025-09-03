@@ -20,14 +20,14 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-// CORS — исправленный домен
+// ✅ Исправлен домен: без пробелов
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Max-Age: 86400');
 
-// Обработка OPTIONS (pre-flight)
+// Обработка pre-flight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
