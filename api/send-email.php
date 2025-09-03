@@ -119,7 +119,7 @@ $captchaResult = json_decode($captchaResponse, true);
 
 if (!$captchaResult || $captchaResult['status'] !== 'ok') {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha validation failed']);
+    echo json_encode(['status' => 'error', 'message' => 'Captcha validation failed: ' . ($captchaResult['message'] ?? 'Unknown error')]);
     exit();
 }
 
