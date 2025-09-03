@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -21,6 +21,7 @@ const ContactForm = () => {
   const [submitError, setSubmitError] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
   const [captchaError, setCaptchaError] = useState('');
+  const [captchaKey, setCaptchaKey] = useState(0);
 
   const {
     register,
@@ -46,11 +47,22 @@ const ContactForm = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = 'Ошибка сервера';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          console.error('Не удалось прочитать ответ сервера:', e);
+        }
+        
         throw new Error(`Ошибка ${response.status}: ${errorText}`);
       }
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch (e) {
+        throw new Error('Неверный формат ответа от сервера');
+      }
 
       if (result.status === 'success') {
         setSubmitSuccess(true);
@@ -85,11 +97,12 @@ const ContactForm = () => {
       return;
     }
 
-    await sendFormData(data);
+    const success = await sendFormData(data);
     setIsSubmitting(false);
-    setCaptchaToken('');
-    if (window.smartCaptcha) {
-      window.smartCaptcha.reset();
+    
+    if (success) {
+      setCaptchaToken('');
+      setCaptchaKey(prev => prev + 1);
     }
   };
 
@@ -229,14 +242,13 @@ const ContactForm = () => {
 
                 <div className="mt-4">
                   <SmartCaptcha
+                    key={captchaKey}
                     sitekey={CAPTCHA_SITE_KEY}
                     onSuccess={(token) => {
                       setCaptchaToken(token);
                       setCaptchaError('');
                     }}
                     onError={handleCaptchaError}
-                    onChallengeHidden={() => setCaptchaToken('')}
-                    onExpire={() => setCaptchaToken('')} // Защита от устаревшего токена
                   />
                   
                   {captchaError && (
