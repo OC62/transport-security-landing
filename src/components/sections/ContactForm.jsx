@@ -4,7 +4,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
 
-// Валидация формы
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -12,7 +11,6 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
-// Переменные из .env
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
 const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
@@ -34,15 +32,10 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Логируем ключ (для отладки)
   useEffect(() => {
     console.log('🔑 CAPTCHA_SITE_KEY:', CAPTCHA_SITE_KEY);
-    if (!CAPTCHA_SITE_KEY || CAPTCHA_SITE_KEY.trim() === '') {
-      setCaptchaError('Ошибка конфигурации: отсутствует sitekey');
-    }
   }, []);
 
-  // Перезагрузка капчи
   const reloadCaptcha = useCallback(() => {
     if (widgetId.current && window.smartCaptcha) {
       try {
@@ -56,10 +49,9 @@ const ContactForm = () => {
     setCaptchaError('');
   }, []);
 
-  // Инициализация капчи
   const initializeCaptcha = useCallback(() => {
     if (!captchaContainerRef.current) {
-      console.warn('Контейнер капчи не найден в DOM');
+      console.warn('Контейнер капчи не найден');
       return;
     }
 
@@ -73,7 +65,6 @@ const ContactForm = () => {
       return;
     }
 
-    // Удаляем предыдущую капчу
     reloadCaptcha();
 
     try {
@@ -86,19 +77,17 @@ const ContactForm = () => {
         },
         'error-callback': (error) => {
           console.error('Yandex SmartCaptcha error:', error);
-          setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
+          setCaptchaError('Ошибка капчи');
         }
       });
     } catch (error) {
       console.error('Ошибка инициализации капчи:', error);
-      setCaptchaError('Не удалось загрузить капчу.');
+      setCaptchaError('Не удалось загрузить капчу');
     }
-  }, [reloadCaptcha]);
+  }, [CAPTCHA_SITE_KEY, reloadCaptcha]);
 
-  // Загрузка капчи после рендеринга
   useEffect(() => {
     const load = () => {
-      // Даём время на рендеринг DOM
       setTimeout(() => {
         if (window.smartCaptcha) {
           initializeCaptcha();
@@ -116,7 +105,6 @@ const ContactForm = () => {
     };
   }, [initializeCaptcha, reloadCaptcha]);
 
-  // Отправка формы
   const sendFormData = async (formData) => {
     try {
       const response = await fetch(BACKEND_ENDPOINT, {
