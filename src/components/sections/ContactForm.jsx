@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
 
+// Валидация формы
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -11,8 +12,9 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
+// Получаем ключи из .env (Vite подставит при сборке)
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
-const CAPTCHA_SITE_KEY = 'ysc1_681R2JVIY5o2ATwA42ZLkMeQdsQFKMu1eVaFX7Zm00b26bf0'
+const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,12 +34,22 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Функция перезагрузки капчи
+  // Логируем ключ (только для отладки)
+  useEffect(() => {
+    console.log('🔑 CAPTCHA_SITE_KEY:', CAPTCHA_SITE_KEY);
+    if (!CAPTCHA_SITE_KEY || CAPTCHA_SITE_KEY.trim() === '') {
+      setCaptchaError('Ошибка конфигурации: отсутствует sitekey');
+    }
+  }, []);
+
+  // Перезагрузка капчи
   const reloadCaptcha = useCallback(() => {
     if (widgetId.current && window.smartCaptcha) {
       try {
         window.smartCaptcha.destroy(widgetId.current);
-      } catch (e) {}
+      } catch (error) {
+        console.warn('Ошибка при уничтожении виджета капчи:', error);
+      }
     }
     widgetId.current = null;
     setCaptchaToken('');
@@ -46,9 +58,22 @@ const ContactForm = () => {
 
   // Инициализация капчи
   const initializeCaptcha = useCallback(() => {
-    if (!captchaContainerRef.current || !window.smartCaptcha) return;
+    if (!captchaContainerRef.current) {
+      setCaptchaError('Контейнер капчи не найден');
+      return;
+    }
 
-    reloadCaptcha(); // очищаем предыдущую
+    if (!window.smartCaptcha) {
+      setCaptchaError('Скрипт капчи не загрузился');
+      return;
+    }
+
+    if (!CAPTCHA_SITE_KEY) {
+      setCaptchaError('Ключ sitekey не задан');
+      return;
+    }
+
+    reloadCaptcha();
 
     try {
       widgetId.current = window.smartCaptcha.render(captchaContainerRef.current, {
@@ -59,15 +84,15 @@ const ContactForm = () => {
           setCaptchaError('');
         },
         'error-callback': (error) => {
-          console.error('Yandex Captcha error:', error);
+          console.error('Yandex SmartCaptcha error:', error);
           setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
         }
       });
     } catch (error) {
-      console.error('Error initializing Yandex SmartCaptcha:', error);
+      console.error('Ошибка инициализации капчи:', error);
       setCaptchaError('Не удалось загрузить капчу.');
     }
-  }, [CAPTCHA_SITE_KEY, reloadCaptcha]);
+  }, [reloadCaptcha]);
 
   // Загрузка капчи
   useEffect(() => {
@@ -76,6 +101,9 @@ const ContactForm = () => {
         initializeCaptcha();
       } else {
         window.addEventListener('smartcaptcha-ready', initializeCaptcha);
+        setTimeout(() => {
+          if (!widgetId.current) initializeCaptcha();
+        }, 1000);
       }
     };
 
@@ -87,17 +115,8 @@ const ContactForm = () => {
     };
   }, [initializeCaptcha, reloadCaptcha]);
 
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    setSubmitError('');
-    setSubmitSuccess(false);
-
-    if (!captchaToken) {
-      setCaptchaError('Подтвердите, что вы не робот');
-      setIsSubmitting(false);
-      return;
-    }
-
+  // Отправка формы
+  const sendFormData = async (formData) => {
     try {
       const response = await fetch(BACKEND_ENDPOINT, {
         method: 'POST',
@@ -106,7 +125,7 @@ const ContactForm = () => {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          ...data,
+          ...formData,
           smartcaptcha_token: captchaToken
         }),
         credentials: 'same-origin'
@@ -123,7 +142,8 @@ const ContactForm = () => {
         setSubmitSuccess(true);
         reset();
         setTimeout(() => setSubmitSuccess(false), 5000);
-        reloadCaptcha(); // сброс капчи
+        reloadCaptcha();
+        return true;
       } else {
         throw new Error(result.message || 'Ошибка сервера');
       }
@@ -136,9 +156,23 @@ const ContactForm = () => {
       } else {
         setSubmitError(error.message || 'Произошла ошибка');
       }
-    } finally {
-      setIsSubmitting(false);
+      return false;
     }
+  };
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    if (!captchaToken) {
+      setCaptchaError('Подтвердите, что вы не робот');
+      setIsSubmitting(false);
+      return;
+    }
+
+    await sendFormData(data);
+    setIsSubmitting(false);
   };
 
   return (

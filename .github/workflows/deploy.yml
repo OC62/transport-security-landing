@@ -33,8 +33,6 @@ jobs:
       run: |
         echo "Содержимое dist/:"
         ls -la dist/
-        echo "Содержимое dist/api/:"
-        ls -la dist/api/
 
     - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
