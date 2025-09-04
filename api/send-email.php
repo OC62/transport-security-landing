@@ -32,7 +32,7 @@ if (file_exists($envFile)) {
     }
 }
 
-// Настройки CORS
+// Настройки CORS - без пробелов в домене
 $allowedOrigin = getenv('ALLOWED_ORIGIN') ?: 'https://xn----9sb8ajp.xn--p1ai';
 header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -90,14 +90,33 @@ $captchaToken = $input['smartcaptcha_token'];
 $captchaSecret = getenv('CAPTCHA_SECRET') ?: '';
 
 if (empty($captchaSecret)) {
+    error_log('CAPTCHA_SECRET is not configured in .env file');
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Captcha secret not configured']);
     exit();
 }
 
-// Подготовка URL для проверки капчи
-$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
-$captchaUrl = "https://smartcaptcha.yandexcloud.net/validate?secret=$captchaSecret&token=$captchaToken&ip=$ip";
+// Получаем IP-адрес пользователя (обрабатываем прокси)
+function getUserIp() {
+    $ip = '';
+    
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        // Берем первый IP из списка (если есть несколько)
+        $ipList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $ip = trim($ipList[0]);
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    
+    return $ip;
+}
+
+$ip = getUserIp();
+
+// Используем ПРАВИЛЬНЫЙ URL для проверки капчи
+$captchaUrl = "https://captcha-api.yandex.ru/validate?secret=$captchaSecret&token=$captchaToken&ip=$ip";
 
 // Отправка запроса к API Яндекс.Капчи
 $ch = curl_init();
@@ -105,11 +124,22 @@ curl_setopt($ch, CURLOPT_URL, $captchaUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+curl_setopt($ch, CURLOPT_CAINFO, __DIR__ . '/cacert.pem'); // Добавляем CA сертификат для проверки SSL
 $captchaResponse = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
 curl_close($ch);
 
+// Логируем полный ответ для диагностики
+error_log("Captcha API request: $captchaUrl");
+error_log("Captcha API response (HTTP $httpCode): $captchaResponse");
+if (!empty($curlError)) {
+    error_log("Curl error: $curlError");
+}
+
 if ($httpCode !== 200) {
+    error_log("Captcha API returned HTTP $httpCode");
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Captcha service unavailable']);
     exit();
@@ -117,9 +147,22 @@ if ($httpCode !== 200) {
 
 $captchaResult = json_decode($captchaResponse, true);
 
-if (!$captchaResult || $captchaResult['status'] !== 'ok') {
+// ПРАВИЛЬНАЯ проверка результата капчи
+if (!$captchaResult || empty($captchaResult['success'])) {
+    $errorMessage = $captchaResult['message'] ?? 'Unknown captcha error';
+    error_log("Captcha validation failed: $errorMessage");
+    
+    // Дополнительная диагностика для ошибки "Некорректный ключ или срок его действия истек"
+    if (strpos($errorMessage, 'expired') !== false || strpos($errorMessage, 'некорректный') !== false) {
+        error_log("Possible cause: token expired or invalid secret key");
+    }
+    
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha validation failed: ' . ($captchaResult['message'] ?? 'Unknown error')]);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Неверная капча. Пожалуйста, пройдите проверку заново.',
+        'captcha_error' => $errorMessage
+    ]);
     exit();
 }
 
@@ -142,7 +185,16 @@ try {
     $mail->SMTPAuth = true;
     $mail->Username = $smtpUser;
     $mail->Password = $smtpPass;
-    $mail->SMTPSecure = $smtpSecure;
+    
+    // Правильная обработка SMTPSecure
+    if ($smtpSecure === 'tls') {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    } elseif ($smtpSecure === 'ssl') {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+    } else {
+        $mail->SMTPSecure = false;
+    }
+    
     $mail->Port = $smtpPort;
     $mail->CharSet = 'UTF-8';
     
@@ -178,11 +230,12 @@ try {
     ]);
     
 } catch (Exception $e) {
+    $errorMessage = "Ошибка при отправке: " . $mail->ErrorInfo;
+    error_log($errorMessage);
     http_response_code(500);
-    error_log("PHPMailer Error: " . $mail->ErrorInfo);
     echo json_encode([
         'status' => 'error', 
-        'message' => "Ошибка при отправке сообщения. Пожалуйста, попробуйте позже или свяжитесь с нами по телефону."
+        'message' => "Ошибка при отправке сообщения. Пожалуйста, попробуйте позже."
     ]);
 }
 ?>

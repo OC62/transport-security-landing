@@ -23,6 +23,7 @@ const ContactForm = () => {
   const [captchaError, setCaptchaError] = useState('');
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
+  const [captchaExpirationTimer, setCaptchaExpirationTimer] = useState(null);
 
   const {
     handleSubmit,
@@ -30,6 +31,33 @@ const ContactForm = () => {
   } = useForm({
     resolver: yupResolver(schema)
   });
+
+  // Сброс капчи при истечении срока жизни (2 минуты)
+  useEffect(() => {
+    if (captchaToken) {
+      // Токен капчи действителен | 2 минуты в миллисекундах
+      const EXPIRATION_TIME = 120000;
+      
+      // Очищаем предыдущий таймер, если он был
+      if (captchaExpirationTimer) {
+        clearTimeout(captchaExpirationTimer);
+      }
+      
+      // Устанавливаем новый таймер
+      const timer = setTimeout(() => {
+        setCaptchaToken('');
+        setCaptchaError('Срок действия капчи истек. Пройдите проверку снова.');
+        if (window.smartCaptcha) {
+          window.smartCaptcha.reset();
+        }
+      }, EXPIRATION_TIME);
+      
+      setCaptchaExpirationTimer(timer);
+      
+      // Очистка таймера при размонтировании компонента
+      return () => clearTimeout(timer);
+    }
+  }, [captchaToken]);
 
   // Проверяем загрузку капчи
   useEffect(() => {
@@ -39,8 +67,13 @@ const ContactForm = () => {
       }
     }, 2000);
 
-    return () => clearTimeout(timer);
-  }, [captchaLoaded]);
+    return () => {
+      clearTimeout(timer);
+      if (captchaExpirationTimer) {
+        clearTimeout(captchaExpirationTimer);
+      }
+    };
+  }, [captchaLoaded, captchaExpirationTimer]);
 
   const sendFormData = async (formData) => {
     try {
@@ -98,21 +131,40 @@ const ContactForm = () => {
 
     await sendFormData(data);
     setIsSubmitting(false);
-    setCaptchaToken('');
+    
     // Сбрасываем капчу после отправки
+    setCaptchaToken('');
+    if (captchaExpirationTimer) {
+      clearTimeout(captchaExpirationTimer);
+      setCaptchaExpirationTimer(null);
+    }
+    
+    // Пересоздаем капчу для новой проверки
     setCaptchaKey(prev => prev + 1);
   };
 
   const handleCaptchaError = (error) => {
     console.error('Ошибка SmartCaptcha:', error);
     setCaptchaError('Ошибка загрузки капчи. Обновите страницу.');
+    
     // Пересоздаем капчу при ошибке
-    setTimeout(() => setCaptchaKey(prev => prev + 1), 1000);
+    setTimeout(() => {
+      setCaptchaKey(prev => prev + 1);
+      setCaptchaError('');
+    }, 1000);
   };
 
   const handleCaptchaLoad = () => {
     setCaptchaLoaded(true);
     setCaptchaError('');
+  };
+
+  const handleCaptchaSuccess = (token) => {
+    setCaptchaToken(token);
+    setCaptchaError('');
+    
+    // Добавляем уведомление о времени жизни капчи
+    console.log('Капча пройдена. Токен будет действителен 2 минуты.');
   };
 
   return (
@@ -220,12 +272,13 @@ const ContactForm = () => {
                   <SmartCaptcha
                     key={captchaKey}
                     sitekey={CAPTCHA_SITE_KEY}
-                    onSuccess={(token) => {
-                      setCaptchaToken(token);
-                      setCaptchaError('');
-                    }}
+                    onSuccess={handleCaptchaSuccess}
                     onError={handleCaptchaError}
                     onLoad={handleCaptchaLoad}
+                    onExpire={() => {
+                      setCaptchaToken('');
+                      setCaptchaError('Срок действия капчи истек. Пройдите проверку снова.');
+                    }}
                   />
                   
                   {captchaError && (
@@ -243,6 +296,12 @@ const ContactForm = () => {
                   {captchaLoaded && !captchaToken && !captchaError && (
                     <p className="text-gray-500 text-sm mt-2">
                       Пожалуйста, подтвердите, что вы не робот
+                    </p>
+                  )}
+                  
+                  {captchaToken && (
+                    <p className="text-gray-500 text-sm mt-2">
+                      Капча действительна 2 минуты. Пожалуйста, отправьте форму сразу.
                     </p>
                   )}
                 </div>
