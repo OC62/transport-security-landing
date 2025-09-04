@@ -4,7 +4,7 @@
 // Создаем директорию для логов, если её нет
 $logDir = __DIR__ . '/logs';
 if (!file_exists($logDir)) {
-    mkdir($logDir, 0755, true);
+    @mkdir($logDir, 0755, true);
 }
 
 // Функция для записи в лог-файл
@@ -17,10 +17,10 @@ function logMessage($message, $level = 'INFO') {
     $formattedMessage = "[$timestamp] [$level] [IP: $ip] $message\n";
     
     // Записываем в файл
-    file_put_contents($logFile, $formattedMessage, FILE_APPEND);
+    @file_put_contents($logFile, $formattedMessage, FILE_APPEND);
     
     // Также выводим в error_log для дополнительной надежности
-    error_log($formattedMessage);
+    @error_log($formattedMessage);
 }
 
 // Начинаем логирование
@@ -58,7 +58,7 @@ logMessage("Устанавливаем CORS заголовки");
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Origin, X-Requested-With');
 header('Access-Control-Max-Age: 86400');
 header("Cross-Origin-Embedder-Policy: credentialless");
 header("Cross-Origin-Opener-Policy: same-origin");
@@ -91,7 +91,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     $inputData = file_get_contents('php://input');
     logMessage("Ошибка JSON: $jsonError. Данные: $inputData", "ERROR");
     
-    // Добавляем отладочную информацию в ответ (временно для диагностики)
     $response = [
         'status' => 'error',
         'message' => 'Некорректные данные формы',
@@ -213,7 +212,7 @@ function getUserIp() {
 $ip = getUserIp();
 logMessage("Определен IP пользователя для капчи: $ip", "CAPTCHA");
 
-// Используем ПРАВИЛЬНЫЙ URL для проверки капчи
+// ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЙ URL для проверки капчи
 $url = "https://captcha-api.yandex.ru/validate?secret=" . urlencode($secretKey) .
        "&token=" . urlencode($captchaToken) .
        "&ip=" . urlencode($ip);
@@ -223,18 +222,7 @@ logMessage("Секретный ключ (первые 10 символов): " . 
 logMessage("Токен капчи (первые 20 символов): " . substr($captchaToken, 0, 20) . "...", "CAPTCHA");
 logMessage("IP пользователя: $ip", "CAPTCHA");
 
-// Проверяем доступность API Яндекса
-logMessage("Проверяем доступность API Яндекс.Капчи...");
-$apiCheck = @fsockopen('captcha-api.yandex.ru', 443, $errno, $errstr, 5);
-if ($apiCheck) {
-    logMessage("API Яндекс.Капчи доступно", "CAPTCHA");
-    fclose($apiCheck);
-} else {
-    $errorMsg = "API Яндекс.Капчи недоступно: [$errno] $errstr";
-    logMessage($errorMsg, "ERROR");
-}
-
-// Добавляем подробное логирование cURL (более надежно, чем file_get_contents)
+// Добавляем подробное логирование cURL
 logMessage("Инициализируем cURL для запроса к API", "CAPTCHA");
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -243,11 +231,6 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_VERBOSE, true);
-
-// Создаем временный файл для логов cURL
-$verboseLog = fopen(__DIR__ . '/logs/curl_verbose.log', 'w+');
-curl_setopt($ch, CURLOPT_STDERR, $verboseLog);
 
 // Выполняем запрос
 logMessage("Отправляем запрос к API Яндекс.Капчи...", "CAPTCHA");
@@ -255,17 +238,12 @@ $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 $curlErrno = curl_errno($ch);
-
-// Закрываем и сохраняем логи cURL
-fclose($verboseLog);
-$verboseLogContent = file_get_contents(__DIR__ . '/logs/curl_verbose.log');
-logMessage("Логи cURL сохранены", "CAPTCHA");
+curl_close($ch);
 
 // Логируем результат запроса
 logMessage("HTTP статус от API: $httpCode", "CAPTCHA");
 logMessage("cURL ошибка (код: $curlErrno): $curlError", "CAPTCHA");
 logMessage("Полный ответ от API: $response", "CAPTCHA");
-logMessage("Логи cURL:\n$verboseLogContent", "CAPTCHA");
 
 // Проверяем, действительно ли это JSON
 $jsonError = null;
@@ -332,12 +310,13 @@ if ($captchaResult === null) {
     exit;
 }
 
-// Детальная проверка ответа от API
-logMessage("Получен ответ от API: " . json_encode($captchaResult), "CAPTCHA");
+// КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: ПРОВЕРЯЕМ ПОЛЕ status СОГЛАСНО ДОКУМЕНТАЦИИ API
+// API Яндекс.Капчи возвращает {"status":"ok"} при успехе, а не {"success":true}
+logMessage("Проверяем статус капчи: " . ($captchaResult['status'] ?? 'undefined'), "CAPTCHA");
 
-if (isset($captchaResult['status']) && $captchaResult['status'] === 'error') {
-    $errorMessage = "Ошибка капчи: " . ($captchaResult['message'] ?? 'unknown');
-    logMessage($errorMessage, "ERROR");
+if (!isset($captchaResult['status']) || $captchaResult['status'] !== 'ok') {
+    $errorMessage = $captchaResult['message'] ?? 'Неизвестная ошибка капчи';
+    logMessage("Ошибка капчи: $errorMessage", "ERROR");
     
     $debugInfo = [
         'captcha_response' => $captchaResult,
@@ -350,43 +329,14 @@ if (isset($captchaResult['status']) && $captchaResult['status'] === 'error') {
     
     logMessage("Детали ошибки капчи: " . json_encode($debugInfo), "ERROR");
     
-    // Добавляем информацию об ошибке в ответ для диагностики
     $response = [
         'status' => 'error',
         'message' => 'Неверная капча. Пожалуйста, пройдите проверку заново.',
-        'captcha_error' => $captchaResult['message'] ?? 'unknown',
+        'captcha_error' => $errorMessage,
         'debug' => $debugInfo
     ];
     
     header('X-Captcha-Debug: captcha_validation_error');
-    http_response_code(400);
-    echo json_encode($response);
-    exit;
-}
-
-// Проверяем успешный ответ
-if (!isset($captchaResult['success']) || $captchaResult['success'] !== true) {
-    $errorMessage = "Капча не пройдена. Ответ API: " . json_encode($captchaResult);
-    logMessage($errorMessage, "ERROR");
-    
-    $debugInfo = [
-        'captcha_response' => $captchaResult,
-        'url' => $url,
-        'http_code' => $httpCode,
-        'token_preview' => substr($captchaToken, 0, 20) . '...',
-        'secret_preview' => substr($secretKey, 0, 10) . '...',
-        'ip' => $ip
-    ];
-    
-    logMessage("Детали ошибки валидации: " . json_encode($debugInfo), "ERROR");
-    
-    $response = [
-        'status' => 'error',
-        'message' => 'Неверная капча. Пожалуйста, пройдите проверку заново.',
-        'debug' => $debugInfo
-    ];
-    
-    header('X-Captcha-Debug: captcha_failed');
     http_response_code(400);
     echo json_encode($response);
     exit;

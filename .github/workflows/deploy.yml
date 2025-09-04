@@ -27,22 +27,12 @@ jobs:
     - name: Build Project
       run: npm run build
 
-    - name: Create set_permissions script
-      run: |
-        cat > set_permissions.sh << 'EOF'
-        #!/bin/bash
-        echo "Setting file permissions..."
-        find . -type d -exec chmod 755 {} \;
-        find . -type f -exec chmod 644 {} \;
-        find . -name ".env" -exec chmod 600 {} \;
-        find . -name ".htaccess" -exec chmod 644 {} \;
-        echo "Permissions set successfully"
-        EOF
-        chmod +x set_permissions.sh
-        mv set_permissions.sh dist/
-
     - name: List dist contents
-      run: ls -la dist/
+      run: |
+        echo "Содержимое dist/:"
+        ls -la dist/
+        echo "Содержимое dist/api/:"
+        ls -la dist/api/
 
     - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -70,8 +60,3 @@ jobs:
           postcss.config.js
           tailwind.config.js
         dangerous-clean-slate: true
-
-    - name: Notify about permissions script
-      run: |
-        echo "A set_permissions.sh script has been uploaded to the server."
-        echo "Please run it manually via SSH or ask your hosting provider to set correct permissions."
