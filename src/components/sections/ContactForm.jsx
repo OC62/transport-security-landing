@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
-import { SmartCaptcha } from '@yandex/smart-captcha';
 
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
@@ -23,6 +22,7 @@ const ContactForm = () => {
   const [captchaError, setCaptchaError] = useState('');
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
+  const captchaContainerRef = useRef(null);
 
   const {
     handleSubmit,
@@ -31,16 +31,83 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Проверяем загрузку капчи
+  // Динамическая загрузка Яндекс Капчи
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!captchaLoaded) {
-        setCaptchaError('Капча не загрузилась. Пожалуйста, обновите страницу.');
+    const loadCaptcha = () => {
+      // Очищаем предыдущую капчу
+      if (captchaContainerRef.current) {
+        captchaContainerRef.current.innerHTML = '';
       }
-    }, 10000);
 
-    return () => clearTimeout(timer);
-  }, [captchaLoaded]);
+      // Проверяем, доступен ли объект smartCaptcha
+      if (window.smartCaptcha) {
+        initCaptcha();
+        return;
+      }
+
+      // Динамически загружаем скрипт Яндекс Капчи
+      const script = document.createElement('script');
+      script.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload';
+      script.async = true;
+      script.defer = true;
+      
+      script.onload = () => {
+        console.log('Yandex Captcha script loaded');
+        setCaptchaLoaded(true);
+        initCaptcha();
+      };
+      
+      script.onerror = (error) => {
+        console.error('Failed to load Yandex Captcha script:', error);
+        setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу или проверьте блокировщики рекламы.');
+      };
+      
+      document.head.appendChild(script);
+    };
+
+    const initCaptcha = () => {
+      if (!window.smartCaptcha || !captchaContainerRef.current) {
+        setTimeout(initCaptcha, 100);
+        return;
+      }
+
+      try {
+        // Создаем контейнер для капчи
+        const container = document.createElement('div');
+        captchaContainerRef.current.appendChild(container);
+
+        // Инициализируем капчу
+        window.smartCaptcha.init(container, {
+          sitekey: CAPTCHA_SITE_KEY,
+          hl: 'ru',
+          callback: (token) => {
+            setCaptchaToken(token);
+            setCaptchaError('');
+          },
+          error-callback: (error) => {
+            console.error('Yandex Captcha error:', error);
+            setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
+          },
+          loaded: () => {
+            setCaptchaLoaded(true);
+            setCaptchaError('');
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing Yandex Captcha:', error);
+        setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
+      }
+    };
+
+    loadCaptcha();
+
+    return () => {
+      // Очистка при размонтировании компонента
+      if (captchaContainerRef.current) {
+        captchaContainerRef.current.innerHTML = '';
+      }
+    };
+  }, [captchaKey, CAPTCHA_SITE_KEY]);
 
   const sendFormData = async (formData) => {
     try {
@@ -99,23 +166,8 @@ const ContactForm = () => {
     await sendFormData(data);
     setIsSubmitting(false);
     setCaptchaToken('');
-    // Сбрасываем капчу после отправки
-    setCaptchaKey(prev => prev + 1);
   };
 
-  const handleCaptchaError = (error) => {
-    console.error('Ошибка SmartCaptcha:', error);
-    setCaptchaError('Ошибка загрузки капчи. Обновите страницу.');
-    // Пересоздаем капчу при ошибке
-    setTimeout(() => setCaptchaKey(prev => prev + 1), 1000);
-  };
-
-  const handleCaptchaLoad = () => {
-    setCaptchaLoaded(true);
-    setCaptchaError('');
-  };
-
-  // Функция для принудительной перезагрузки капчи
   const reloadCaptcha = () => {
     setCaptchaKey(prev => prev + 1);
     setCaptchaLoaded(false);
@@ -225,16 +277,7 @@ const ContactForm = () => {
                 </div>
 
                 <div className="mt-4">
-                  <SmartCaptcha
-                    key={captchaKey}
-                    sitekey={CAPTCHA_SITE_KEY}
-                    onSuccess={(token) => {
-                      setCaptchaToken(token);
-                      setCaptchaError('');
-                    }}
-                    onError={handleCaptchaError}
-                    onLoad={handleCaptchaLoad}
-                  />
+                  <div ref={captchaContainerRef} className="captcha-container"></div>
                   
                   {captchaError && (
                     <div className="mt-2">

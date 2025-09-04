@@ -177,3 +177,24 @@
 .transition-slow {
   transition: all 0.3s ease;
 }
+.captcha-container {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+}
+
+.captcha-container iframe {
+  width: 100% !important;
+}
+
+/* Стили для адаптивности капчи */
+@media (max-width: 640px) {
+  .captcha-container {
+    min-height: 80px;
+  }
+}
