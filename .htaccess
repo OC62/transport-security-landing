@@ -7,21 +7,21 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteRule ^ index.html [L]
 
-# Настройки CORS для Яндекс Метрики и Капчи
+# Настройки CORS для Яндекс сервисов
 <IfModule mod_headers.c>
     # Разрешаем запросы с доменов Яндекс
-    SetEnvIf Origin "^(https?://([^/]+\.)?(smartcaptcha\.yandexcloud\.net|mc\.yandex\.ru))" allowed_origin=$0
+    SetEnvIf Origin "^https?://([^/]+\.)?(yandex\.(ru|net|com)|yastatic\.net|yandexcloud\.net|mc\.yandex\.ru|smartcaptcha\.yandexcloud\.net)" allowed_origin=$0
     Header always set Access-Control-Allow-Origin "%{allowed_origin}e" env=allowed_origin
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, HEAD"
+    Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
     Header always set Access-Control-Allow-Credentials "true"
     Header always set Access-Control-Max-Age "1728000"
     Header always set Cross-Origin-Resource-Policy "cross-origin"
+    
+    # Для preflight запросов
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
 </IfModule>
-
-# Обработка preflight OPTIONS запросов
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=200,L]
 
 # Запретить доступ к .env файлам
 <Files ".env">

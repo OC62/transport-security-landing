@@ -59,16 +59,15 @@
   <body>
     <div id="root"></div>
 
-    <!-- Яндекс.Метрика (исправленная версия) -->
+        <!-- Яндекс.Метрика -->
     <script>
-      // Альтернативный способ загрузки Яндекс Метрики для избежания CORS ошибок
       (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,k.crossOrigin="anonymous",a.parentNode.insertBefore(k,a)
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,k.crossOrigin="use-credentials",a.parentNode.insertBefore(k,a)
       })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
       
-      // Отложенная инициализация после загрузки скрипта
+      // Задержка для инициализации после загрузки скрипта
       setTimeout(function() {
         if (typeof ym !== 'undefined') {
           ym(103534344, "init", {
@@ -76,12 +75,10 @@
             trackLinks: true,
             accurateTrackBounce: true,
             webvisor: true,
-            ecommerce: "dataLayer",
-            triggerEvent: true,
-            trackHash: true
+            ecommerce: "dataLayer"
           });
         }
-      }, 1000);
+      }, 1500);
     </script>
     <noscript>
       <div>
