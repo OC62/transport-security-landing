@@ -84,7 +84,7 @@ const ContactForm = () => {
             setCaptchaToken(token);
             setCaptchaError('');
           },
-          error-callback: (error) => {
+          'error-callback': (error) => {  // Исправлено: свойство в кавычках
             console.error('Yandex Captcha error:', error);
             setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
           },
