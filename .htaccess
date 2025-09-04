@@ -7,16 +7,14 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteRule ^ index.html [L]
 
-# Настройки CORS для Яндекс сервисов
+# Настройки CORS
 <IfModule mod_headers.c>
-    # Разрешаем запросы с доменов Яндекс
-    SetEnvIf Origin "^(https?://([^/]+\.)?(yandex\.(ru|net|com)|yastatic\.net|yandexcloud\.net|mc\.yandex\.ru|smartcaptcha\.yandexcloud\.net))" allowed_origin=$0
+    # Разрешаем запросы с нашего домена и поддомена www
+    SetEnvIf Origin "^(https?://(www\.)?xn----9sb8ajp\.xn--p1ai)$" allowed_origin=$0
     Header always set Access-Control-Allow-Origin "%{allowed_origin}e" env=allowed_origin
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, HEAD"
-    Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
     Header always set Access-Control-Allow-Credentials "true"
-    Header always set Access-Control-Max-Age "1728000"
-    Header always set Cross-Origin-Resource-Policy "cross-origin"
     
     # Для preflight запросов
     RewriteCond %{REQUEST_METHOD} OPTIONS
@@ -24,7 +22,7 @@ RewriteRule ^ index.html [L]
 </IfModule>
 
 # Правильное обслуживание статических файлов
-<FilesMatch "\.(webmanifest|svg|png|jpg|jpeg|gif|ico|webp)$">
+<FilesMatch "\.(webmanifest|svg|png|jpg|jpeg|gif|ico|webp|js|css)$">
     Header set Cache-Control "max-age=2592000, public"
 </FilesMatch>
 
@@ -71,10 +69,10 @@ AddDefaultCharset UTF-8
     ExpiresByType image/jpeg "access plus 1 month"
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
     ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
     ExpiresByType application/pdf "access plus 1 month"
-    ExpiresByType text/x-javascript "access plus 1 month"
-    ExpiresByType application/x-shockwave-flash "access plus 1 month"
     ExpiresByType image/x-icon "access plus 1 year"
     ExpiresDefault "access plus 2 days"
 </IfModule>
@@ -90,16 +88,4 @@ AddDefaultCharset UTF-8
     AddOutputFilterByType DEFLATE application/rss+xml
     AddOutputFilterByType DEFLATE application/javascript
     AddOutputFilterByType DEFLATE application/x-javascript
-</IfModule>
-
-# Разрешаем загрузку скриптов Яндекс Капчи
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
-    Header always set Access-Control-Allow-Credentials "true"
-    
-    # Разрешаем загрузку скриптов с доменов Яндекс
-    SetEnvIf Origin "^(https?://(?:[^/]+\.)?(yandex\.ru|yandex\.net|yandex\.com|yastatic\.net|yandexcloud\.net))" allowed_origin=$0
-    Header always set Access-Control-Allow-Origin "%{allowed_origin}e" env=allowed_origin
 </IfModule>

@@ -9,7 +9,8 @@
 
 <IfModule mod_headers.c>
     # Настройки CORS для API
-    Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
+    SetEnvIf Origin "^(https?://(www\.)?xn----9sb8ajp\.xn--p1ai)$" allowed_origin=$0
+    Header always set Access-Control-Allow-Origin "%{allowed_origin}e" env=allowed_origin
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Origin, X-Requested-With"
     Header always set Access-Control-Allow-Credentials "true"

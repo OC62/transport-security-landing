@@ -59,50 +59,20 @@
   <!-- Предзагрузка для Яндекс Капчи -->
   <link rel="preconnect" href="https://smartcaptcha.yandexcloud.net">
   <link rel="dns-prefetch" href="https://smartcaptcha.yandexcloud.net">
-  
-  <script>
-    // Глобальная функция для обработки загрузки Яндекс Капчи
-    window.onYandexCaptchaLoad = function() {
-      console.log('Yandex Captcha script loaded successfully');
-      window.yandexCaptchaLoaded = true;
-      
-      // Сохраняем время загрузки для последующих проверок
-      if (window.captchaLoadCallbacks) {
-        window.captchaLoadCallbacks.forEach(callback => callback());
-      }
-    };
-    
-    // Глобальная функция для обработки ошибок загрузки Яндекс Капчи
-    window.onYandexCaptchaError = function() {
-      console.error('Failed to load Yandex Captcha script');
-      window.yandexCaptchaLoaded = false;
-      
-      if (window.captchaErrorCallbacks) {
-        window.captchaErrorCallbacks.forEach(callback => callback());
-      }
-    };
-  </script>
 </head>
 <body>
   <!-- Контент страницы будет здесь -->
   <div id="root"></div> <!-- Контейнер для React приложения -->
 
-  <!-- Загрузка скрипта Яндекс Капчи (перенесено в body для оптимизации) -->
-  <script src="https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onYandexCaptchaLoad" async defer></script>
+  <!-- Загрузка скрипта Яндекс Капчи -->
+  <script 
+    src="https://smartcaptcha.yandexcloud.net/captcha.js" 
+    async 
+    defer
+    onload="window.yandexCaptchaLoaded = true;"
+    onerror="console.error('Failed to load Yandex Captcha script');">
+  </script>
 
   <script type="module" src="/src/main.jsx"></script>
-  <script>
-    // Резервная загрузка, если основной скрипт не сработал
-    setTimeout(function() {
-      if (typeof window.smartCaptcha === 'undefined') {
-        console.log('Loading Yandex Captcha fallback');
-        var script = document.createElement('script');
-        script.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload';
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      }
-    }, 3000);
-  </script>
 </body>
 </html>

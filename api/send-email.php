@@ -1,40 +1,26 @@
 <?php
-// Включаем автозагрузчик Composer
 require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Загружаем переменные окружения из .env файла
-$envFile = dirname(__DIR__) . '/.env';
-if (file_exists($envFile)) {
-    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) {
-            continue;
-        }
-        
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value);
-            
-            // Удаляем кавычки если есть
-            if (preg_match('/^"(.*)"$/', $value, $matches)) {
-                $value = $matches[1];
-            } elseif (preg_match('/^\'(.*)\'$/', $value, $matches)) {
-                $value = $matches[1];
-            }
-            
-            putenv("$name=$value");
-            $_ENV[$name] = $value;
-        }
-    }
-}
+// Загрузка .env файла
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
+
+// Разрешенные домены для CORS
+$allowedOrigins = [
+    'https://xn----9sb8ajp.xn--p1ai',
+    'https://www.xn----9sb8ajp.xn--p1ai'
+];
 
 // Настройки CORS
-$allowedOrigin = getenv('ALLOWED_ORIGIN') ?: 'https://xn----9sb8ajp.xn--p1ai';
-header('Access-Control-Allow-Origin: ' . $allowedOrigin);
+$requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($requestOrigin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $requestOrigin");
+} else {
+    header("Access-Control-Allow-Origin: " . $allowedOrigins[0]);
+}
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Origin, X-Requested-With');
 header('Content-Type: application/json; charset=utf-8');
@@ -49,14 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
-    exit();
-}
-
-// Проверка происхождения запроса
-$requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($requestOrigin && $requestOrigin !== $allowedOrigin) {
-    http_response_code(403);
-    echo json_encode(['status' => 'error', 'message' => 'Origin not allowed']);
     exit();
 }
 
@@ -87,7 +65,7 @@ foreach ($requiredFields as $field) {
 
 // Валидация капчи
 $captchaToken = $input['smartcaptcha_token'];
-$captchaSecret = getenv('CAPTCHA_SECRET') ?: '';
+$captchaSecret = $_ENV['CAPTCHA_SECRET'] ?? '';
 
 if (empty($captchaSecret)) {
     http_response_code(500);
@@ -95,40 +73,43 @@ if (empty($captchaSecret)) {
     exit();
 }
 
-// Дополнительная проверка формата ключа
+// Проверка формата ключа
 if (!preg_match('/^ysc2_[a-zA-Z0-9]{40}$/', $captchaSecret)) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Invalid captcha secret format']);
     exit();
 }
 
-// Проверка доступности API Яндекс Капчи
-$apiCheck = @file_get_contents('https://smartcaptcha.yandexcloud.net/', false, stream_context_create([
-    'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
-    'http' => ['timeout' => 5]
-]));
-
-if ($apiCheck === false) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha service unavailable. Please try again later.']);
-    exit();
-}
-
-// Подготовка URL для проверки капчи
+// Подготовка данных для проверки капчи
 $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
-$captchaUrl = "https://smartcaptcha.yandexcloud.net/validate?secret=$captchaSecret&token=$captchaToken&ip=$ip";
+$captchaData = [
+    'secret' => $captchaSecret,
+    'token' => $captchaToken,
+    'ip' => $ip
+];
 
-// Отправка запроса к API Яндекс.Капчи
+// Отправка POST-запроса к API Яндекс.Капчи
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $captchaUrl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt_array($ch, [
+    CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => json_encode($captchaData),
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 10,
+    CURLOPT_SSL_VERIFYPEER => true,
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]
+]);
+
 $captchaResponse = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
 curl_close($ch);
 
 if ($httpCode !== 200) {
+    error_log("Yandex Captcha API error: HTTP $httpCode - $curlError");
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Captcha service unavailable']);
     exit();
@@ -136,20 +117,28 @@ if ($httpCode !== 200) {
 
 $captchaResult = json_decode($captchaResponse, true);
 
-if (!$captchaResult || $captchaResult['status'] !== 'ok') {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha validation failed: ' . ($captchaResult['message'] ?? 'Unknown error')]);
+if (!$captchaResult) {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid response from captcha service']);
     exit();
 }
 
-// Настройки SMTP из .env
-$smtpHost = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
-$smtpPort = getenv('SMTP_PORT') ?: 587;
-$smtpSecure = getenv('SMTP_SECURE') ?: 'tls';
-$smtpUser = getenv('SMTP_USER') ?: '';
-$smtpPass = getenv('SMTP_PASS') ?: '';
-$fromName = getenv('FROM_NAME') ?: 'Форма обратной связи ПТБ-М';
-$toEmail = getenv('TO_EMAIL') ?: '';
+if ($captchaResult['status'] !== 'ok') {
+    $errorMessage = $captchaResult['message'] ?? 'Unknown error';
+    error_log("Yandex Captcha validation failed: $errorMessage");
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => "Captcha validation failed: $errorMessage"]);
+    exit();
+}
+
+// Настройки SMTP
+$smtpHost = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
+$smtpPort = (int) ($_ENV['SMTP_PORT'] ?? 587);
+$smtpSecure = $_ENV['SMTP_SECURE'] ?? 'tls';
+$smtpUser = $_ENV['SMTP_USER'] ?? '';
+$smtpPass = $_ENV['SMTP_PASS'] ?? '';
+$fromName = $_ENV['FROM_NAME'] ?? 'Форма обратной связи ПТБ-М';
+$toEmail = $_ENV['TO_EMAIL'] ?? '';
 
 try {
     // Создание экземпляра PHPMailer

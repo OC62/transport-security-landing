@@ -23,7 +23,6 @@ const ContactForm = () => {
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const captchaContainerRef = useRef(null);
   const captchaWidgetId = useRef(null);
-  const initializationAttempts = useRef(0);
 
   const {
     register,
@@ -36,31 +35,16 @@ const ContactForm = () => {
 
   // Функция инициализации капчи
   const initializeCaptcha = useCallback(() => {
-    if (!captchaContainerRef.current) return;
-    
-    // Очищаем предыдущую капчу
-    captchaContainerRef.current.innerHTML = '';
-    
-    // Проверяем, доступен ли объект smartCaptcha
-    if (typeof window.smartCaptcha === 'undefined') {
-      console.log('smartCaptcha not available, waiting...');
-      
-      if (initializationAttempts.current < 5) {
-        initializationAttempts.current += 1;
-        setTimeout(initializeCaptcha, 1000);
-      } else {
-        setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу.');
-      }
+    if (!captchaContainerRef.current || !window.smartCaptcha) {
       return;
     }
 
-    try {
-      // Создаем контейнер для капчи
-      const container = document.createElement('div');
-      captchaContainerRef.current.appendChild(container);
+    // Очищаем предыдущую капчу
+    captchaContainerRef.current.innerHTML = '';
 
+    try {
       // Инициализируем капчу
-      captchaWidgetId.current = window.smartCaptcha.init(container, {
+      captchaWidgetId.current = window.smartCaptcha.init(captchaContainerRef.current, {
         sitekey: CAPTCHA_SITE_KEY,
         hl: 'ru',
         callback: (token) => {
@@ -75,65 +59,25 @@ const ContactForm = () => {
 
       setCaptchaLoaded(true);
       setCaptchaError('');
-      initializationAttempts.current = 0;
     } catch (error) {
       console.error('Error initializing Yandex Captcha:', error);
       setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
-      
-      if (initializationAttempts.current < 3) {
-        initializationAttempts.current += 1;
-        setTimeout(initializeCaptcha, 2000);
-      }
     }
-  }, []); // Убрана зависимость CAPTCHA_SITE_KEY
+  }, [CAPTCHA_SITE_KEY]);
 
   // Эффект для инициализации капчи
   useEffect(() => {
-    // Добавляем глобальные колбэки для обработки загрузки скрипта
-    if (!window.captchaLoadCallbacks) {
-      window.captchaLoadCallbacks = [];
-    }
-    if (!window.captchaErrorCallbacks) {
-      window.captchaErrorCallbacks = [];
-    }
-    
-    const onCaptchaLoad = () => {
-      console.log('Captcha script loaded, initializing...');
+    // Если скрипт уже загружен, инициализируем капчу
+    if (window.smartCaptcha) {
       initializeCaptcha();
-    };
-    
-    const onCaptchaError = () => {
-      console.error('Captcha script failed to load');
-      setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу.');
-    };
-    
-    window.captchaLoadCallbacks.push(onCaptchaLoad);
-    window.captchaErrorCallbacks.push(onCaptchaError);
-    
-    // Если скрипт уже загружен, инициализируем сразу
-    if (window.yandexCaptchaLoaded) {
-      initializeCaptcha();
-    }
-    
-    // Таймаут для инициализации на случай, если скрипт не загрузился
-    const timeoutId = setTimeout(() => {
-      if (!captchaLoaded && initializationAttempts.current === 0) {
+    } else {
+      // Иначе ждем загрузки скрипта
+      window.onYandexCaptchaLoad = function() {
         initializeCaptcha();
-      }
-    }, 3000);
-    
+      };
+    }
+
     return () => {
-      // Очистка
-      clearTimeout(timeoutId);
-      
-      if (window.captchaLoadCallbacks) {
-        window.captchaLoadCallbacks = window.captchaLoadCallbacks.filter(cb => cb !== onCaptchaLoad);
-      }
-      
-      if (window.captchaErrorCallbacks) {
-        window.captchaErrorCallbacks = window.captchaErrorCallbacks.filter(cb => cb !== onCaptchaError);
-      }
-      
       // Уничтожаем виджет капчи при размонтировании
       if (captchaWidgetId.current && window.smartCaptcha) {
         try {
@@ -143,7 +87,7 @@ const ContactForm = () => {
         }
       }
     };
-  }, [initializeCaptcha, captchaLoaded]);
+  }, [initializeCaptcha]);
 
   const sendFormData = async (formData) => {
     try {
@@ -208,7 +152,6 @@ const ContactForm = () => {
     setCaptchaLoaded(false);
     setCaptchaError('');
     setCaptchaToken('');
-    initializationAttempts.current = 0;
     
     // Даем время для обновления DOM перед повторной инициализацией
     setTimeout(initializeCaptcha, 100);
