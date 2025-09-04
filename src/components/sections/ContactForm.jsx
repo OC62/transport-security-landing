@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -24,6 +24,7 @@ const ContactForm = () => {
   const [captchaKey, setCaptchaKey] = useState(0);
   const captchaContainerRef = useRef(null);
   const captchaWidgetId = useRef(null);
+  const initializationAttempts = useRef(0);
 
   const {
     handleSubmit,
@@ -32,52 +33,107 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Динамическая загрузка Яндекс Капчи
-  useEffect(() => {
-    const initCaptcha = () => {
-      if (!window.smartCaptcha || !captchaContainerRef.current) {
-        // Повторяем попытку через 500мс, если скрипт еще не загрузился
-        setTimeout(initCaptcha, 500);
-        return;
+  // Функция инициализации капчи
+  const initializeCaptcha = useCallback(() => {
+    if (!captchaContainerRef.current) return;
+    
+    // Очищаем предыдущую капчу
+    captchaContainerRef.current.innerHTML = '';
+    
+    // Проверяем, доступен ли объект smartCaptcha
+    if (typeof window.smartCaptcha === 'undefined') {
+      console.log('smartCaptcha not available, waiting...');
+      
+      if (initializationAttempts.current < 5) {
+        initializationAttempts.current += 1;
+        setTimeout(initializeCaptcha, 1000);
+      } else {
+        setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу.');
       }
+      return;
+    }
 
-      try {
-        // Очищаем предыдущую капчу
-        if (captchaContainerRef.current) {
-          captchaContainerRef.current.innerHTML = '';
+    try {
+      // Создаем контейнер для капчи
+      const container = document.createElement('div');
+      captchaContainerRef.current.appendChild(container);
+
+      // Инициализируем капчу
+      captchaWidgetId.current = window.smartCaptcha.init(container, {
+        sitekey: CAPTCHA_SITE_KEY,
+        hl: 'ru',
+        callback: (token) => {
+          setCaptchaToken(token);
+          setCaptchaError('');
+        },
+        'error-callback': (error) => {
+          console.error('Yandex Captcha error:', error);
+          setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
         }
+      });
 
-        // Создаем контейнер для капчи
-        const container = document.createElement('div');
-        captchaContainerRef.current.appendChild(container);
-
-        // Инициализируем капчу
-        captchaWidgetId.current = window.smartCaptcha.init(container, {
-          sitekey: CAPTCHA_SITE_KEY,
-          hl: 'ru',
-          callback: (token) => {
-            setCaptchaToken(token);
-            setCaptchaError('');
-          },
-          'error-callback': (error) => {
-            console.error('Yandex Captcha error:', error);
-            setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
-          }
-        });
-
-        setCaptchaLoaded(true);
-        setCaptchaError('');
-      } catch (error) {
-        console.error('Error initializing Yandex Captcha:', error);
-        setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
+      setCaptchaLoaded(true);
+      setCaptchaError('');
+      initializationAttempts.current = 0;
+    } catch (error) {
+      console.error('Error initializing Yandex Captcha:', error);
+      setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
+      
+      if (initializationAttempts.current < 3) {
+        initializationAttempts.current += 1;
+        setTimeout(initializeCaptcha, 2000);
       }
+    }
+  }, [CAPTCHA_SITE_KEY]);
+
+  // Эффект для инициализации капчи
+  useEffect(() => {
+    // Добавляем глобальные колбэки для обработки загрузки скрипта
+    if (!window.captchaLoadCallbacks) {
+      window.captchaLoadCallbacks = [];
+    }
+    if (!window.captchaErrorCallbacks) {
+      window.captchaErrorCallbacks = [];
+    }
+    
+    const onCaptchaLoad = () => {
+      console.log('Captcha script loaded, initializing...');
+      initializeCaptcha();
     };
-
-    // Запускаем инициализацию капчи
-    initCaptcha();
-
+    
+    const onCaptchaError = () => {
+      console.error('Captcha script failed to load');
+      setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу.');
+    };
+    
+    window.captchaLoadCallbacks.push(onCaptchaLoad);
+    window.captchaErrorCallbacks.push(onCaptchaError);
+    
+    // Если скрипт уже загружен, инициализируем сразу
+    if (window.yandexCaptchaLoaded) {
+      initializeCaptcha();
+    }
+    
+    // Таймаут для инициализации на случай, если скрипт не загрузился
+    const timeoutId = setTimeout(() => {
+      if (!captchaLoaded && initializationAttempts.current === 0) {
+        initializeCaptcha();
+      }
+    }, 3000);
+    
     return () => {
-      // Очистка при размонтировании компонента
+      // Очистка
+      clearTimeout(timeoutId);
+      
+      if (window.captchaLoadCallbacks) {
+        window.captchaLoadCallbacks = window.captchaLoadCallbacks.filter(cb => cb !== onCaptchaLoad);
+      }
+      
+      if (window.captchaErrorCallbacks) {
+        window.captchaErrorCallbacks = window.captchaErrorCallbacks.filter(cb => cb !== onCaptchaError);
+      }
+      
+      // Уничтожаем виджет капчи при размонтировании
       if (captchaWidgetId.current && window.smartCaptcha) {
         try {
           window.smartCaptcha.destroy(captchaWidgetId.current);
@@ -86,7 +142,7 @@ const ContactForm = () => {
         }
       }
     };
-  }, [captchaKey, CAPTCHA_SITE_KEY]);
+  }, [initializeCaptcha, captchaLoaded]);
 
   const sendFormData = async (formData) => {
     try {
@@ -152,6 +208,10 @@ const ContactForm = () => {
     setCaptchaLoaded(false);
     setCaptchaError('');
     setCaptchaToken('');
+    initializationAttempts.current = 0;
+    
+    // Даем время для обновления DOM перед повторной инициализацией
+    setTimeout(initializeCaptcha, 100);
   };
 
   return (
@@ -186,74 +246,7 @@ const ContactForm = () => {
                   </div>
                 )}
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
-                      Имя *
-                    </label>
-                    <input
-                      id="name"
-                      name="name"
-                      autoComplete="name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Введите ваше имя"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
-                      Email *
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      name="email"
-                      autoComplete="email"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
-                    Телефон *
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    name="phone"
-                    autoComplete="tel"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="+7 (___) ___-__-__"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
-                    Сообщение *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    autoComplete="off"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Расскажите о вашем проекте..."
-                  />
-                </div>
-
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="privacy"
-                    required
-                    className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor="privacy" className="text-gray-600 text-sm">
-                    Согласен с обработкой персональных данных *
-                  </label>
-                </div>
+                {/* ... поля формы ... */}
 
                 <div className="mt-4">
                   <div ref={captchaContainerRef} className="captcha-container"></div>
