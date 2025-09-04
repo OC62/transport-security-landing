@@ -1,4 +1,3 @@
-# .github/workflows/deploy.yml
 name: Deploy to Reg.ru via FTP
 
 on:
@@ -25,6 +24,9 @@ jobs:
       run: npm ci
 
     - name: Build Project
+      env:
+        VITE_CAPTCHA_SITE_KEY: ${{ secrets.VITE_CAPTCHA_SITE_KEY }}
+        VITE_BACKEND_ENDPOINT: ${{ secrets.VITE_BACKEND_ENDPOINT }}
       run: npm run build
 
     - name: List dist contents
