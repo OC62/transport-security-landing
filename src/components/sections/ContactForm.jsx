@@ -115,6 +115,14 @@ const ContactForm = () => {
     setCaptchaError('');
   };
 
+  // Функция для принудительной перезагрузки капчи
+  const reloadCaptcha = () => {
+    setCaptchaKey(prev => prev + 1);
+    setCaptchaLoaded(false);
+    setCaptchaError('');
+    setCaptchaToken('');
+  };
+
   return (
     <section id="contact" className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -229,9 +237,18 @@ const ContactForm = () => {
                   />
                   
                   {captchaError && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {captchaError}
-                    </p>
+                    <div className="mt-2">
+                      <p className="text-red-500 text-sm mb-2">
+                        {captchaError}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={reloadCaptcha}
+                        className="text-blue-500 text-sm underline hover:text-blue-700"
+                      >
+                        Обновить капчу
+                      </button>
+                    </div>
                   )}
                   
                   {!captchaLoaded && !captchaError && (

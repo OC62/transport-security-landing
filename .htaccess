@@ -10,7 +10,7 @@ RewriteRule ^ index.html [L]
 # Настройки CORS для Яндекс сервисов
 <IfModule mod_headers.c>
     # Разрешаем запросы с доменов Яндекс
-    SetEnvIf Origin "^https?://([^/]+\.)?(yandex\.(ru|net|com)|yastatic\.net|yandexcloud\.net|mc\.yandex\.ru|smartcaptcha\.yandexcloud\.net)" allowed_origin=$0
+    SetEnvIf Origin "^(https?://([^/]+\.)?(yandex\.(ru|net|com)|yastatic\.net|yandexcloud\.net|mc\.yandex\.ru|smartcaptcha\.yandexcloud\.net))" allowed_origin=$0
     Header always set Access-Control-Allow-Origin "%{allowed_origin}e" env=allowed_origin
     Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, HEAD"
     Header always set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
@@ -22,6 +22,23 @@ RewriteRule ^ index.html [L]
     RewriteCond %{REQUEST_METHOD} OPTIONS
     RewriteRule ^(.*)$ $1 [R=200,L]
 </IfModule>
+
+# Правильное обслуживание статических файлов
+<FilesMatch "\.(webmanifest|svg|png|jpg|jpeg|gif|ico|webp)$">
+    Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+
+# Правильное обслуживание .webmanifest файлов
+<Files "site.webmanifest">
+    ForceType application/manifest+json
+    Header set Content-Type application/manifest+json
+</Files>
+
+# Правильное обслуживание SVG файлов
+<Files "*.svg">
+    ForceType image/svg+xml
+    Header set Content-Type image/svg+xml
+</Files>
 
 # Запретить доступ к .env файлам
 <Files ".env">

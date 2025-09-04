@@ -95,6 +95,13 @@ if (empty($captchaSecret)) {
     exit();
 }
 
+// Дополнительная проверка формата ключа
+if (!preg_match('/^ysc2_[a-zA-Z0-9]{40}$/', $captchaSecret)) {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid captcha secret format']);
+    exit();
+}
+
 // Проверка доступности API Яндекс Капчи
 $apiCheck = @file_get_contents('https://smartcaptcha.yandexcloud.net/', false, stream_context_create([
     'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
