@@ -12,7 +12,7 @@ const schema = yup.object({
 }).required();
 
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
-const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
+const CAPTCHA_SITE_KEY = 'ysc1_681R2JVIY5o2ATwA42ZLkMeQdsQFKMu1eVaFX7Zm00b26bf0'
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
