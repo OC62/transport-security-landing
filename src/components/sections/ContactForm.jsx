@@ -21,7 +21,6 @@ const ContactForm = () => {
   const [captchaToken, setCaptchaToken] = useState('');
   const [captchaError, setCaptchaError] = useState('');
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
-  const [captchaKey, setCaptchaKey] = useState(0);
   const captchaContainerRef = useRef(null);
   const captchaWidgetId = useRef(null);
   const initializationAttempts = useRef(0);
@@ -86,7 +85,7 @@ const ContactForm = () => {
         setTimeout(initializeCaptcha, 2000);
       }
     }
-  }, [CAPTCHA_SITE_KEY]);
+  }, []); // Убрана зависимость CAPTCHA_SITE_KEY
 
   // Эффект для инициализации капчи
   useEffect(() => {
@@ -206,7 +205,6 @@ const ContactForm = () => {
   };
 
   const reloadCaptcha = () => {
-    setCaptchaKey(prev => prev + 1);
     setCaptchaLoaded(false);
     setCaptchaError('');
     setCaptchaToken('');
