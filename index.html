@@ -55,11 +55,15 @@
 
     <!-- Яндекс.Вебмастер -->
     <meta name="yandex-verification" content="f5bc48680f827787" />
+
+    <!-- Предзагрузка скрипта Яндекс Капчи -->
+    <link rel="preconnect" href="https://smartcaptcha.yandexcloud.net">
+    <link rel="dns-prefetch" href="https://smartcaptcha.yandexcloud.net">
   </head>
   <body>
     <div id="root"></div>
 
-    <!-- Яндекс.Метрика (исправленная версия) -->
+    <!-- Яндекс.Метрика -->
     <script>
       (function(m,e,t,r,i,k,a){
         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -96,6 +100,9 @@
         <img src="https://mc.yandex.ru/watch/103534344" style="position:absolute; left:-9999px;" alt="" />
       </div>
     </noscript>
+
+    <!-- Скрипт Яндекс Капчи -->
+    <script src="https://smartcaptcha.yandexcloud.net/captcha.js?render=onload" async defer></script>
 
     <script type="module" src="/src/main.jsx"></script>
   </body>

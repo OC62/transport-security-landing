@@ -23,6 +23,7 @@ const ContactForm = () => {
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const [captchaKey, setCaptchaKey] = useState(0);
   const captchaContainerRef = useRef(null);
+  const captchaWidgetId = useRef(null);
 
   const {
     handleSubmit,
@@ -33,78 +34,56 @@ const ContactForm = () => {
 
   // Динамическая загрузка Яндекс Капчи
   useEffect(() => {
-    const loadCaptcha = () => {
-      // Очищаем предыдущую капчу
-      if (captchaContainerRef.current) {
-        captchaContainerRef.current.innerHTML = '';
-      }
-
-      // Проверяем, доступен ли объект smartCaptcha
-      if (window.smartCaptcha) {
-        initCaptcha();
-        return;
-      }
-
-      // Динамически загружаем скрипт Яндекс Капчи
-      const script = document.createElement('script');
-      script.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload';
-      script.async = true;
-      script.defer = true;
-      
-      script.onload = () => {
-        console.log('Yandex Captcha script loaded');
-        setCaptchaLoaded(true);
-        initCaptcha();
-      };
-      
-      script.onerror = (error) => {
-        console.error('Failed to load Yandex Captcha script:', error);
-        setCaptchaError('Не удалось загрузить капчу. Пожалуйста, обновите страницу или проверьте блокировщики рекламы.');
-      };
-      
-      document.head.appendChild(script);
-    };
-
     const initCaptcha = () => {
       if (!window.smartCaptcha || !captchaContainerRef.current) {
-        setTimeout(initCaptcha, 100);
+        // Повторяем попытку через 500мс, если скрипт еще не загрузился
+        setTimeout(initCaptcha, 500);
         return;
       }
 
       try {
+        // Очищаем предыдущую капчу
+        if (captchaContainerRef.current) {
+          captchaContainerRef.current.innerHTML = '';
+        }
+
         // Создаем контейнер для капчи
         const container = document.createElement('div');
         captchaContainerRef.current.appendChild(container);
 
         // Инициализируем капчу
-        window.smartCaptcha.init(container, {
+        captchaWidgetId.current = window.smartCaptcha.init(container, {
           sitekey: CAPTCHA_SITE_KEY,
           hl: 'ru',
           callback: (token) => {
             setCaptchaToken(token);
             setCaptchaError('');
           },
-          'error-callback': (error) => {  // Исправлено: свойство в кавычках
+          'error-callback': (error) => {
             console.error('Yandex Captcha error:', error);
             setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
-          },
-          loaded: () => {
-            setCaptchaLoaded(true);
-            setCaptchaError('');
           }
         });
+
+        setCaptchaLoaded(true);
+        setCaptchaError('');
       } catch (error) {
         console.error('Error initializing Yandex Captcha:', error);
         setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
       }
     };
 
-    loadCaptcha();
+    // Запускаем инициализацию капчи
+    initCaptcha();
 
     return () => {
       // Очистка при размонтировании компонента
-      if (captchaContainerRef.current) {
-        captchaContainerRef.current.innerHTML = '';
+      if (captchaWidgetId.current && window.smartCaptcha) {
+        try {
+          window.smartCaptcha.destroy(captchaWidgetId.current);
+        } catch (error) {
+          console.error('Error destroying captcha:', error);
+        }
       }
     };
   }, [captchaKey, CAPTCHA_SITE_KEY]);
