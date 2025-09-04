@@ -32,10 +32,6 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  useEffect(() => {
-    console.log('🔑 CAPTCHA_SITE_KEY:', CAPTCHA_SITE_KEY);
-  }, []);
-
   const reloadCaptcha = useCallback(() => {
     if (widgetId.current && window.smartCaptcha) {
       try {
