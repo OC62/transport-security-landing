@@ -12,7 +12,7 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
-// Получаем ключи из .env (Vite подставит при сборке)
+// Переменные из .env
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
 const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
@@ -34,7 +34,7 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Логируем ключ (только для отладки)
+  // Логируем ключ (для отладки)
   useEffect(() => {
     console.log('🔑 CAPTCHA_SITE_KEY:', CAPTCHA_SITE_KEY);
     if (!CAPTCHA_SITE_KEY || CAPTCHA_SITE_KEY.trim() === '') {
@@ -48,7 +48,7 @@ const ContactForm = () => {
       try {
         window.smartCaptcha.destroy(widgetId.current);
       } catch (error) {
-        console.warn('Ошибка при уничтожении виджета капчи:', error);
+        console.warn('Ошибка при уничтожении капчи:', error);
       }
     }
     widgetId.current = null;
@@ -59,7 +59,7 @@ const ContactForm = () => {
   // Инициализация капчи
   const initializeCaptcha = useCallback(() => {
     if (!captchaContainerRef.current) {
-      setCaptchaError('Контейнер капчи не найден');
+      console.warn('Контейнер капчи не найден в DOM');
       return;
     }
 
@@ -73,6 +73,7 @@ const ContactForm = () => {
       return;
     }
 
+    // Удаляем предыдущую капчу
     reloadCaptcha();
 
     try {
@@ -94,17 +95,17 @@ const ContactForm = () => {
     }
   }, [reloadCaptcha]);
 
-  // Загрузка капчи
+  // Загрузка капчи после рендеринга
   useEffect(() => {
     const load = () => {
-      if (window.smartCaptcha) {
-        initializeCaptcha();
-      } else {
-        window.addEventListener('smartcaptcha-ready', initializeCaptcha);
-        setTimeout(() => {
-          if (!widgetId.current) initializeCaptcha();
-        }, 1000);
-      }
+      // Даём время на рендеринг DOM
+      setTimeout(() => {
+        if (window.smartCaptcha) {
+          initializeCaptcha();
+        } else {
+          window.addEventListener('smartcaptcha-ready', initializeCaptcha);
+        }
+      }, 50);
     };
 
     load();
