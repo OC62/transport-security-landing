@@ -27,7 +27,9 @@ const ContactForm = () => {
   const initializationAttempts = useRef(0);
 
   const {
+    register,
     handleSubmit,
+    formState: { errors },
     reset
   } = useForm({
     resolver: yupResolver(schema)
@@ -246,7 +248,86 @@ const ContactForm = () => {
                   </div>
                 )}
 
-                {/* ... поля формы ... */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+                      Имя *
+                    </label>
+                    <input
+                      id="name"
+                      {...register('name')}
+                      autoComplete="name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Введите ваше имя"
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-red-500 text-sm">{errors.name.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                      Email *
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      {...register('email')}
+                      autoComplete="email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="your@email.com"
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+                    Телефон *
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    {...register('phone')}
+                    autoComplete="tel"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+7 (___) ___-__-__"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-red-500 text-sm">{errors.phone.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+                    Сообщение *
+                  </label>
+                  <textarea
+                    id="message"
+                    {...register('message')}
+                    rows={5}
+                    autoComplete="off"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Расскажите о вашем проекте..."
+                  />
+                  {errors.message && (
+                    <p className="mt-1 text-red-500 text-sm">{errors.message.message}</p>
+                  )}
+                </div>
+
+                <div className="flex items-start">
+                  <input
+                    type="checkbox"
+                    id="privacy"
+                    required
+                    className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                  />
+                  <label htmlFor="privacy" className="text-gray-600 text-sm">
+                    Согласен с обработкой персональных данных *
+                  </label>
+                </div>
 
                 <div className="mt-4">
                   <div ref={captchaContainerRef} className="captcha-container"></div>
