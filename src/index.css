@@ -177,57 +177,24 @@
 .transition-slow {
   transition: all 0.3s ease;
 }
-
-/* === СТИЛИ ДЛЯ КАПЧИ === */
-
-/* Основной контейнер капчи — предотвращает обрезку */
 .captcha-container {
-  @apply min-h-[100px] flex flex-col items-center justify-center bg-gray-50 border border-gray-200 rounded-lg p-4;
-  overflow: visible !important;
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
 }
 
-/* Защита от обрезки iframe */
 .captcha-container iframe {
   width: 100% !important;
-  height: auto !important;
-  min-height: 80px;
-  border: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-shrink: 0;
 }
 
-/* Адаптация под мобильные устройства */
+/* Стили для адаптивности капчи */
 @media (max-width: 640px) {
   .captcha-container {
-    @apply min-h-[80px] p-3;
+    min-height: 80px;
   }
-
-  .captcha-container iframe {
-    min-height: 70px;
-  }
-}
-
-/* Дополнительная защита — на случай, если капча использует вложенные контейнеры */
-.captcha-container > div,
-.captcha-container > span {
-  width: 100% !important;
-  min-height: 80px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Убираем возможные стили, мешающие отображению */
-.captcha-container * {
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-/* Для случая, если капча в режиме "чекбокс" */
-.smartcaptcha {
-  width: 100% !important;
 }
