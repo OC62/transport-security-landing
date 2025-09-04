@@ -1,5 +1,5 @@
 <?php
-// Убедитесь, что вывод JSON
+// Убедитесь, что ответ — JSON
 header('Content-Type: application/json; charset=utf-8');
 
 // Подключаем автозагрузчик Composer

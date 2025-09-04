@@ -80,7 +80,7 @@ const ContactForm = () => {
       console.error('Ошибка инициализации капчи:', error);
       setCaptchaError('Не удалось загрузить капчу');
     }
-  }, [CAPTCHA_SITE_KEY, reloadCaptcha]);
+  }, [ reloadCaptcha]);
 
   useEffect(() => {
     const load = () => {
