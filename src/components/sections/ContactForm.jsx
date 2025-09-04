@@ -20,9 +20,8 @@ const ContactForm = () => {
   const [submitError, setSubmitError] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
   const [captchaError, setCaptchaError] = useState('');
-  const [captchaLoaded, setCaptchaLoaded] = useState(false);
   const captchaContainerRef = useRef(null);
-  const captchaWidgetId = useRef(null);
+  const widgetId = useRef(null);
 
   const {
     register,
@@ -33,18 +32,26 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
-  // Функция инициализации капчи
-  const initializeCaptcha = useCallback(() => {
-    if (!captchaContainerRef.current || !window.smartCaptcha) {
-      return;
+  // Функция перезагрузки капчи
+  const reloadCaptcha = useCallback(() => {
+    if (widgetId.current && window.smartCaptcha) {
+      try {
+        window.smartCaptcha.destroy(widgetId.current);
+      } catch (e) {}
     }
+    widgetId.current = null;
+    setCaptchaToken('');
+    setCaptchaError('');
+  }, []);
 
-    // Очищаем предыдущую капчу
-    captchaContainerRef.current.innerHTML = '';
+  // Инициализация капчи
+  const initializeCaptcha = useCallback(() => {
+    if (!captchaContainerRef.current || !window.smartCaptcha) return;
+
+    reloadCaptcha(); // очищаем предыдущую
 
     try {
-      // Инициализируем капчу
-      captchaWidgetId.current = window.smartCaptcha.init(captchaContainerRef.current, {
+      widgetId.current = window.smartCaptcha.render(captchaContainerRef.current, {
         sitekey: CAPTCHA_SITE_KEY,
         hl: 'ru',
         callback: (token) => {
@@ -56,40 +63,41 @@ const ContactForm = () => {
           setCaptchaError('Ошибка капчи. Пожалуйста, обновите страницу.');
         }
       });
-
-      setCaptchaLoaded(true);
-      setCaptchaError('');
     } catch (error) {
-      console.error('Error initializing Yandex Captcha:', error);
-      setCaptchaError('Ошибка инициализации капчи. Пожалуйста, обновите страницу.');
+      console.error('Error initializing Yandex SmartCaptcha:', error);
+      setCaptchaError('Не удалось загрузить капчу.');
     }
-  }, [CAPTCHA_SITE_KEY]);
+  }, [CAPTCHA_SITE_KEY, reloadCaptcha]);
 
-  // Эффект для инициализации капчи
+  // Загрузка капчи
   useEffect(() => {
-    // Если скрипт уже загружен, инициализируем капчу
-    if (window.smartCaptcha) {
-      initializeCaptcha();
-    } else {
-      // Иначе ждем загрузки скрипта
-      window.onYandexCaptchaLoad = function() {
+    const load = () => {
+      if (window.smartCaptcha) {
         initializeCaptcha();
-      };
-    }
-
-    return () => {
-      // Уничтожаем виджет капчи при размонтировании
-      if (captchaWidgetId.current && window.smartCaptcha) {
-        try {
-          window.smartCaptcha.destroy(captchaWidgetId.current);
-        } catch (error) {
-          console.error('Error destroying captcha:', error);
-        }
+      } else {
+        window.addEventListener('smartcaptcha-ready', initializeCaptcha);
       }
     };
-  }, [initializeCaptcha]);
 
-  const sendFormData = async (formData) => {
+    load();
+
+    return () => {
+      window.removeEventListener('smartcaptcha-ready', initializeCaptcha);
+      reloadCaptcha();
+    };
+  }, [initializeCaptcha, reloadCaptcha]);
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    if (!captchaToken) {
+      setCaptchaError('Подтвердите, что вы не робот');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch(BACKEND_ENDPOINT, {
         method: 'POST',
@@ -98,9 +106,10 @@ const ContactForm = () => {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          ...formData,
+          ...data,
           smartcaptcha_token: captchaToken
         }),
+        credentials: 'same-origin'
       });
 
       if (!response.ok) {
@@ -114,7 +123,7 @@ const ContactForm = () => {
         setSubmitSuccess(true);
         reset();
         setTimeout(() => setSubmitSuccess(false), 5000);
-        return true;
+        reloadCaptcha(); // сброс капчи
       } else {
         throw new Error(result.message || 'Ошибка сервера');
       }
@@ -127,34 +136,9 @@ const ContactForm = () => {
       } else {
         setSubmitError(error.message || 'Произошла ошибка');
       }
-      return false;
-    }
-  };
-
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    setSubmitError('');
-    setSubmitSuccess(false);
-    setCaptchaError('');
-
-    if (!captchaToken) {
-      setCaptchaError('Подтвердите, что вы не робот');
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    await sendFormData(data);
-    setIsSubmitting(false);
-    setCaptchaToken('');
-  };
-
-  const reloadCaptcha = () => {
-    setCaptchaLoaded(false);
-    setCaptchaError('');
-    setCaptchaToken('');
-    
-    // Даем время для обновления DOM перед повторной инициализацией
-    setTimeout(initializeCaptcha, 100);
   };
 
   return (
@@ -272,12 +256,10 @@ const ContactForm = () => {
 
                 <div className="mt-4">
                   <div ref={captchaContainerRef} className="captcha-container"></div>
-                  
+
                   {captchaError && (
                     <div className="mt-2">
-                      <p className="text-red-500 text-sm mb-2">
-                        {captchaError}
-                      </p>
+                      <p className="text-red-500 text-sm mb-2">{captchaError}</p>
                       <button
                         type="button"
                         onClick={reloadCaptcha}
@@ -286,18 +268,6 @@ const ContactForm = () => {
                         Обновить капчу
                       </button>
                     </div>
-                  )}
-                  
-                  {!captchaLoaded && !captchaError && (
-                    <p className="text-gray-500 text-sm mt-2">
-                      Загрузка капчи...
-                    </p>
-                  )}
-                  
-                  {captchaLoaded && !captchaToken && !captchaError && (
-                    <p className="text-gray-500 text-sm mt-2">
-                      Пожалуйста, подтвердите, что вы не робот
-                    </p>
                   )}
                 </div>
 
