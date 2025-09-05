@@ -1,157 +1,116 @@
 <?php
-// Убедитесь, что ответ — JSON
-header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json');
 
-// Подключаем автозагрузчик Composer
+// Обработка preflight запросов
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Загрузка автолоадера Composer и Dotenv
 require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;
 
-// Загружаем .env
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+// Загрузка переменных окружения
+$dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// Настройки CORS
-$allowedOrigins = [
-    'https://xn----9sb8ajp.xn--p1ai',
-    'https://www.xn----9sb8ajp.xn--p1ai'
-];
+// Получение данных из переменных окружения
+$SMTP_HOST = $_ENV['SMTP_HOST'];
+$SMTP_PORT = $_ENV['SMTP_PORT'];
+$SMTP_USER = $_ENV['SMTP_USER'];
+$SMTP_PASS = $_ENV['SMTP_PASS'];
+$FROM_NAME = $_ENV['FROM_NAME'];
+$TO_EMAIL = $_ENV['TO_EMAIL'];
+$CAPTCHA_SECRET = $_ENV['CAPTCHA_SECRET'];
 
-$requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($requestOrigin, $allowedOrigins)) {
-    header("Access-Control-Allow-Origin: $requestOrigin");
-} else {
-    header("Access-Control-Allow-Origin: " . $allowedOrigins[0]);
-}
-
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Origin, X-Requested-With');
-header('Access-Control-Allow-Credentials: true');
-
-// Обработка preflight
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// Проверка метода
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
-    exit();
-}
-
-// Получаем данные
+// Получение данных из запроса
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (json_last_error() !== JSON_ERROR_NONE) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
-    exit();
-}
-
+// Валидация входных данных
 if (!$input) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'No data']);
-    exit();
+    echo json_encode(['status' => 'error', 'message' => 'Неверный формат данных']);
+    exit;
 }
 
-// Проверка обязательных полей
-$required = ['name', 'email', 'phone', 'message', 'smartcaptcha_token'];
-foreach ($required as $field) {
+// Валидация капчи
+$captcha_token = $input['smartcaptcha_token'] ?? '';
+if (empty($captcha_token)) {
+    echo json_encode(['status' => 'error', 'message' => 'Токен капчи отсутствует']);
+    exit;
+}
+
+$captcha_url = "https://smartcaptcha.yandexcloud.net/validate?secret=$CAPTCHA_SECRET&token=$captcha_token&ip=".$_SERVER['REMOTE_ADDR'];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $captcha_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+$captcha_response = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($http_code !== 200) {
+    echo json_encode(['status' => 'error', 'message' => 'Ошибка подключения к сервису капчи']);
+    exit;
+}
+
+$captcha_data = json_decode($captcha_response, true);
+
+if (!$captcha_data || $captcha_data['status'] !== 'ok') {
+    echo json_encode(['status' => 'error', 'message' => 'Ошибка проверки капчи']);
+    exit;
+}
+
+// Валидация обязательных полей
+$required_fields = ['name', 'email', 'phone', 'message'];
+foreach ($required_fields as $field) {
     if (empty($input[$field])) {
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => "Field $field is required"]);
-        exit();
+        echo json_encode(['status' => 'error', 'message' => "Поле $field обязательно для заполнения"]);
+        exit;
     }
 }
 
-// Проверка капчи
-$captchaToken = $input['smartcaptcha_token'];
-$captchaSecret = $_ENV['CAPTCHA_SECRET'] ?? '';
-
-if (empty($captchaSecret)) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha secret not configured']);
-    exit();
-}
-
-$ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
-$data = [
-    'secret' => $captchaSecret,
-    'token' => $captchaToken,
-    'ip' => $ip
-];
-
-$ch = curl_init();
-curl_setopt_array($ch, [
-    CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => json_encode($data),
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 10,
-    CURLOPT_SSL_VERIFYPEER => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Accept: application/json'
-    ]
-]);
-
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpCode !== 200) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha service unavailable']);
-    exit();
-}
-
-$result = json_decode($response, true);
-
-if (!$result || $result['status'] !== 'ok') {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Captcha validation failed']);
-    exit();
-}
-
-// Настройка PHPMailer
+// Отправка письма
 $mail = new PHPMailer(true);
-$mail->isSMTP();
-$mail->Host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
-$mail->SMTPAuth = true;
-$mail->Username = $_ENV['SMTP_USER'] ?? '';
-$mail->Password = $_ENV['SMTP_PASS'] ?? '';
-$mail->SMTPSecure = $_ENV['SMTP_SECURE'] ?? 'tls';
-$mail->Port = (int)($_ENV['SMTP_PORT'] ?? 587);
-$mail->CharSet = 'UTF-8';
-
-$mail->setFrom($_ENV['SMTP_USER'], $_ENV['FROM_NAME']);
-$mail->addAddress($_ENV['TO_EMAIL']);
-$mail->addReplyTo($input['email'], $input['name']);
-
-$mail->isHTML(true);
-$mail->Subject = 'Новая заявка с сайта ПТБ-М';
-
-$body = "
-    <h2>Новая заявка</h2>
-    <p><strong>Имя:</strong> {$input['name']}</p>
-    <p><strong>Email:</strong> {$input['email']}</p>
-    <p><strong>Телефон:</strong> {$input['phone']}</p>
-    <p><strong>Сообщение:</strong><br>" . nl2br(htmlspecialchars($input['message'])) . "</p>
-    <p><strong>Время:</strong> " . date('Y-m-d H:i:s') . "</p>
-    <p><strong>IP:</strong> $ip</p>
-";
-
-$mail->Body = $body;
-$mail->AltBody = strip_tags($body);
 
 try {
+    // Настройки SMTP
+    $mail->isSMTP();
+    $mail->Host = $SMTP_HOST;
+    $mail->SMTPAuth = true;
+    $mail->Username = $SMTP_USER;
+    $mail->Password = $SMTP_PASS;
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = $SMTP_PORT;
+    $mail->CharSet = 'UTF-8';
+
+    // Отправитель и получатель
+    $mail->setFrom($SMTP_USER, $FROM_NAME);
+    $mail->addAddress($TO_EMAIL);
+    
+    // Содержание письма
+    $mail->isHTML(true);
+    $mail->Subject = 'Новое сообщение с сайта ПТБ-М';
+    $mail->Body = "
+        <h2>Новое сообщение с формы обратной связи</h2>
+        <p><strong>Имя:</strong> " . htmlspecialchars($input['name']) . "</p>
+        <p><strong>Email:</strong> " . htmlspecialchars($input['email']) . "</p>
+        <p><strong>Телефон:</strong> " . htmlspecialchars($input['phone']) . "</p>
+        <p><strong>Сообщение:</strong> " . nl2br(htmlspecialchars($input['message'])) . "</p>
+        <p><strong>Время отправки:</strong> " . date('d.m.Y H:i') . "</p>
+    ";
+
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'Сообщение отправлено']);
 } catch (Exception $e) {
-    error_log("Mail error: " . $mail->ErrorInfo);
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Ошибка отправки']);
+    error_log("PHPMailer Error: " . $mail->ErrorInfo);
+    echo json_encode(['status' => 'error', 'message' => 'Ошибка отправки сообщения']);
 }

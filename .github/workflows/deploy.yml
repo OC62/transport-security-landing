@@ -34,6 +34,26 @@ jobs:
         echo "Содержимое dist/:"
         ls -la dist/
 
+    - name: Copy API files
+      run: |
+        mkdir -p dist/api
+        cp -r api/vendor dist/api/
+        cp api/send-email.php dist/api/
+        cp api/.env dist/api/
+        cp api/composer.json dist/api/
+        cp api/composer.lock dist/api/ 2>/dev/null || true
+        # Копируем .htaccess для папки api
+        cp api/.htaccess dist/api/ 2>/dev/null || echo ".htaccess для api не найден, будет использован стандартный"
+
+    - name: Copy root .htaccess
+      run: |
+        cp .htaccess dist/
+
+    - name: Set correct permissions
+      run: |
+        find dist -type f -exec chmod 644 {} \;
+        find dist -type d -exec chmod 755 {} \;
+
     - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
@@ -46,7 +66,6 @@ jobs:
         protocol: ftp
         exclude: |
           .git*
-          .env*
           node_modules/
           *.md
           README*
