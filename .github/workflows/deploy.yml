@@ -34,20 +34,39 @@ jobs:
         echo "Содержимое dist/:"
         ls -la dist/
 
-    - name: Copy API files
+    - name: Create API directory structure
       run: |
         mkdir -p dist/api
-        cp -r api/vendor dist/api/
+        mkdir -p dist/api/vendor
+
+    - name: Copy PHP files
+      run: |
         cp api/send-email.php dist/api/
-        cp api/.env dist/api/
         cp api/composer.json dist/api/
         cp api/composer.lock dist/api/ 2>/dev/null || true
-        # Копируем .htaccess для папки api
-        cp api/.htaccess dist/api/ 2>/dev/null || echo ".htaccess для api не найден, будет использован стандартный"
 
-    - name: Copy root .htaccess
+    - name: Copy vendor dependencies
+      run: |
+        cp -r api/vendor/ dist/api/vendor/
+
+    - name: Create .env file from secrets
+      run: |
+        cat > dist/api/.env << 'EOF'
+        SMTP_HOST=${{ secrets.SMTP_HOST }}
+        SMTP_PORT=${{ secrets.SMTP_PORT }}
+        SMTP_USER=${{ secrets.SMTP_USER }}
+        SMTP_PASS=${{ secrets.SMTP_PASS }}
+        FROM_NAME=${{ secrets.FROM_NAME }}
+        TO_EMAIL=${{ secrets.TO_EMAIL }}
+        CAPTCHA_SECRET=${{ secrets.CAPTCHA_SECRET }}
+        APP_ENV=production
+        APP_DEBUG=false
+        EOF
+
+    - name: Copy .htaccess files
       run: |
         cp .htaccess dist/
+        cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
 
     - name: Set correct permissions
       run: |
