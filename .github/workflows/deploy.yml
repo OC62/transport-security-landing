@@ -44,6 +44,7 @@ jobs:
         cp api/send-email.php dist/api/
         cp api/composer.json dist/api/
         cp api/composer.lock dist/api/ 2>/dev/null || true
+        cp api/test.php dist/api/ 2>/dev/null || echo "test.php not found, skipping"
 
     - name: Copy vendor dependencies
       run: |
