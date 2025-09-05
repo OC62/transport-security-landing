@@ -19,6 +19,18 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [L]
 
+# Блокировка доступа к WordPress файлам
+RewriteRule ^wp-login\.php$ - [R=404,L]
+RewriteRule ^wp-admin/?$ - [R=404,L]
+RewriteRule ^wp-content/?$ - [R=404,L]
+RewriteRule ^wp-includes/?$ - [R=404,L]
+
+# Блокировка common WordPress files
+<Files ~ "^(wp-config\.php|license\.txt|readme\.html)">
+    Order allow,deny
+    Deny from all
+</Files>
+
 # Безопасность - запрет доступа к敏感文件
 <Files ~ "^\.(env|git)">
     Order allow,deny
