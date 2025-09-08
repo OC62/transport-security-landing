@@ -1,142 +1,167 @@
 <?php
+// Убедитесь, что НИЧЕГО нет перед этим (никаких пробелов, BOM, вывода)
+
+// Разрешение CORS
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-// Включение отображения ошибок для диагностики
+// Включаем отображение ошибок (только для разработки!)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Обработка preflight запросов
+// Обработка preflight-запросов (OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Проверка доступности vendor/autoload.php
+// Проверка метода запроса
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Метод не разрешён']);
+    exit;
+}
+
+// Путь к autoload.php
 $autoloadPath = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoloadPath)) {
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Server configuration error: Autoload not found'
+        'message' => 'Ошибка сервера: автозагрузчик Composer не найден. Убедитесь, что вы выполнили "composer install".'
     ]);
     exit;
 }
 
-try {
-    require_once $autoloadPath;
-    
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\Exception;
-    use Dotenv\Dotenv;
+// Подключаем Composer
+require_once $autoloadPath;
 
-    // Загрузка переменных окружения
+// Импортируем классы (должны быть сразу после require, без вывода)
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;
+
+try {
+    // Загружаем переменные окружения
     $dotenv = Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
-    // Получение данных из переменных окружения
+    // Получаем переменные из .env
     $SMTP_HOST = $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST');
-    $SMTP_PORT = $_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT');
+    $SMTP_PORT = (int)($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT'));
     $SMTP_USER = $_ENV['SMTP_USER'] ?? getenv('SMTP_USER');
     $SMTP_PASS = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS');
-    $FROM_NAME = $_ENV['FROM_NAME'] ?? getenv('FROM_NAME');
-    $TO_EMAIL = $_ENV['TO_EMAIL'] ?? getenv('TO_EMAIL');
+    $FROM_NAME = $_ENV['FROM_NAME'] ?? 'Сайт ПТБ-М';
+    $TO_EMAIL = $_ENV['TO_EMAIL'] ?? $_ENV['SMTP_USER'];
     $CAPTCHA_SECRET = $_ENV['CAPTCHA_SECRET'] ?? getenv('CAPTCHA_SECRET');
 
-    // Проверка наличия обязательных переменных
-    $requiredEnvVars = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS', 'CAPTCHA_SECRET'];
-    foreach ($requiredEnvVars as $var) {
-        if (empty($$var)) {
-            throw new Exception("Missing required environment variable: $var");
+    // Проверка обязательных переменных
+    $requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'CAPTCHA_SECRET'];
+    foreach ($requiredEnv as $key) {
+        if (empty($$key)) {
+            throw new Exception("Отсутствует обязательная переменная окружения: $key");
         }
     }
 
-    // Получение данных из запроса
+    // Получаем тело запроса
     $input = json_decode(file_get_contents('php://input'), true);
-
-    if (!$input) {
-        throw new Exception('Invalid JSON input');
+    if (!is_array($input)) {
+        throw new Exception('Неверные данные: ожидается JSON');
     }
 
-    // Валидация капчи
-    $captcha_token = $input['smartcaptcha_token'] ?? '';
-    if (empty($captcha_token)) {
-        throw new Exception('Captcha token is required');
+    // Проверка капчи (Яндекс SmartCaptcha)
+    $captchaToken = $input['smartcaptcha_token'] ?? '';
+    if (empty($captchaToken)) {
+        throw new Exception('Токен капчи не передан');
     }
-
-    $captcha_url = "https://smartcaptcha.yandexcloud.net/validate?secret=$CAPTCHA_SECRET&token=$captcha_token&ip=".$_SERVER['REMOTE_ADDR'];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $captcha_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-    $captcha_response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_setopt_array($ch, [
+        CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query([
+            'secret' => $CAPTCHA_SECRET,
+            'token' => $captchaToken,
+            'ip' => $_SERVER['REMOTE_ADDR']
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($http_code !== 200) {
-        throw new Exception("Captcha service error: HTTP code $http_code");
+    if ($httpCode !== 200) {
+        throw new Exception("Ошибка капчи: HTTP $httpCode");
     }
 
-    $captcha_data = json_decode($captcha_response, true);
-
-    if (!$captcha_data || $captcha_data['status'] !== 'ok') {
-        throw new Exception('Captcha validation failed');
+    $result = json_decode($response, true);
+    if (!isset($result['status']) || $result['status'] !== 'ok') {
+        throw new Exception('Проверка капчи не пройдена');
     }
 
-    // Валидация обязательных полей
-    $required_fields = ['name', 'email', 'phone', 'message'];
-    foreach ($required_fields as $field) {
-        if (empty($input[$field])) {
-            throw new Exception("Field $field is required");
+    // Валидация полей формы
+    $requiredFields = ['name', 'email', 'phone', 'message'];
+    foreach ($requiredFields as $field) {
+        if (empty($input[$field]) || !is_string($input[$field])) {
+            throw new Exception("Поле '$field' обязательно для заполнения");
         }
+        $input[$field] = trim(strip_tags($input[$field]));
     }
 
-    // Отправка письма
+    // Проверка email
+    if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
+        throw new Exception('Некорректный email');
+    }
+
+    // Отправка письма через PHPMailer
     $mail = new PHPMailer(true);
-
-    // Настройки SMTP
     $mail->isSMTP();
-    $mail->Host = $SMTP_HOST;
-    $mail->SMTPAuth = true;
-    $mail->Username = $SMTP_USER;
-    $mail->Password = $SMTP_PASS;
-    $mail->SMTPSecure = 'tls';
-    $mail->Port = $SMTP_PORT;
-    $mail->CharSet = 'UTF-8';
+    $mail->Host       = $SMTP_HOST;
+    $mail->SMTPAuth   = true;
+    $mail->Username   = $SMTP_USER;
+    $mail->Password   = $SMTP_PASS;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = $SMTP_PORT;
+    $mail->CharSet    = 'UTF-8';
 
-    // Отправитель и получатель
     $mail->setFrom($SMTP_USER, $FROM_NAME);
     $mail->addAddress($TO_EMAIL);
-    
-    // Содержание письма
+
     $mail->isHTML(true);
-    $mail->Subject = 'Новое сообщение с сайта ПТБ-М';
+    $mail->Subject = '📩 Новое сообщение с сайта ПТБ-М';
     $mail->Body = "
-        <h2>Новое сообщение с формы обратной связи</h2>
+        <h2>📬 Новое сообщение</h2>
         <p><strong>Имя:</strong> " . htmlspecialchars($input['name']) . "</p>
         <p><strong>Email:</strong> " . htmlspecialchars($input['email']) . "</p>
         <p><strong>Телефон:</strong> " . htmlspecialchars($input['phone']) . "</p>
-        <p><strong>Сообщение:</strong> " . nl2br(htmlspecialchars($input['message'])) . "</p>
-        <p><strong>Время отправки:</strong> " . date('d.m.Y H:i') . "</p>
+        <p><strong>Сообщение:</strong><br>" . nl2br(htmlspecialchars($input['message'])) . "</p>
+        <hr>
+        <p><small><strong>IP:</strong> {$_SERVER['REMOTE_ADDR']}</small></p>
+        <p><small><strong>Время:</strong> " . date('d.m.Y H:i:s') . "</small></p>
     ";
 
     $mail->send();
-    echo json_encode(['status' => 'success', 'message' => 'Сообщение отправлено']);
+
+    // Успешный ответ
+    http_response_code(200);
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Сообщение успешно отправлено'
+    ]);
 
 } catch (Exception $e) {
+    error_log("Ошибка отправки письма: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
-        'status' => 'error', 
-        'message' => 'Ошибка сервера: ' . $e->getMessage()
+        'status' => 'error',
+        'message' => 'Ошибка сервера. Пожалуйста, попробуйте позже.'
+        // В продакшене НЕ отправляйте $e->getMessage() клиенту
     ]);
-    
-    // Логирование ошибки
-    error_log("Send-email error: " . $e->getMessage());
 }

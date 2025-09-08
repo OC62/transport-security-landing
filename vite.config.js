@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   base: '/',
@@ -18,9 +18,6 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3000,
-    headers: {
-      'Cache-Control': 'public, max-age=3600'
-    }
+    port: 3000
   }
-})
+});

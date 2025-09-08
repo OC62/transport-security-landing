@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
 
+// --- Схема валидации ---
 const schema = yup.object({
   name: yup.string().required('Имя обязательно'),
   email: yup.string().email('Неверный формат email').required('Email обязателен'),
@@ -11,9 +12,11 @@ const schema = yup.object({
   message: yup.string().required('Сообщение обязательно')
 }).required();
 
+// --- Конфигурация ---
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
 const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
 
+// --- Основной компонент ---
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -32,6 +35,7 @@ const ContactForm = () => {
     resolver: yupResolver(schema)
   });
 
+  // --- Перезагрузка капчи ---
   const reloadCaptcha = useCallback(() => {
     if (widgetId.current && window.smartCaptcha) {
       try {
@@ -45,9 +49,11 @@ const ContactForm = () => {
     setCaptchaError('');
   }, []);
 
+  // --- Инициализация капчи ---
   const initializeCaptcha = useCallback(() => {
     if (!captchaContainerRef.current) {
       console.warn('Контейнер капчи не найден');
+      setCaptchaError('Контейнер капчи не найден');
       return;
     }
 
@@ -73,7 +79,7 @@ const ContactForm = () => {
         },
         'error-callback': (error) => {
           console.error('Yandex SmartCaptcha error:', error);
-          setCaptchaError('Ошибка капчи');
+          setCaptchaError('Ошибка капчи. Попробуйте ещё раз.');
         }
       });
     } catch (error) {
@@ -82,15 +88,20 @@ const ContactForm = () => {
     }
   }, [reloadCaptcha]);
 
+  // --- Загрузка капчи ---
   useEffect(() => {
     const load = () => {
       setTimeout(() => {
         if (window.smartCaptcha) {
           initializeCaptcha();
         } else {
-          window.addEventListener('smartcaptcha-ready', initializeCaptcha);
+          const onReady = () => {
+            window.removeEventListener('smartcaptcha-ready', onReady);
+            initializeCaptcha();
+          };
+          window.addEventListener('smartcaptcha-ready', onReady);
         }
-      }, 50);
+      }, 100); // Увеличена задержка для стабильности
     };
 
     load();
@@ -101,6 +112,7 @@ const ContactForm = () => {
     };
   }, [initializeCaptcha, reloadCaptcha]);
 
+  // --- Отправка формы ---
   const sendFormData = async (formData) => {
     try {
       const response = await fetch(BACKEND_ENDPOINT, {
@@ -145,6 +157,7 @@ const ContactForm = () => {
     }
   };
 
+  // --- Обработчик отправки ---
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitError('');
@@ -199,6 +212,7 @@ const ContactForm = () => {
                     </label>
                     <input
                       id="name"
+                      type="text"
                       {...register('name')}
                       autoComplete="name"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -252,10 +266,9 @@ const ContactForm = () => {
                     id="message"
                     {...register('message')}
                     rows={5}
-                    autoComplete="off"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Расскажите о вашем проекте..."
-                  />
+                  ></textarea>
                   {errors.message && (
                     <p className="mt-1 text-red-500 text-sm">{errors.message.message}</p>
                   )}
@@ -273,11 +286,13 @@ const ContactForm = () => {
                   </label>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 w-full">
                   <div
                     ref={captchaContainerRef}
                     className="captcha-container"
-                    style={{ minHeight: '100px' }}
+                    style={{ minHeight: '100px'}}
+                    role="region"
+                    aria-label="Проверка: я не робот"
                   ></div>
 
                   {captchaError && (

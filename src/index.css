@@ -143,42 +143,64 @@
   }
 }
 
-/* Стили для капчи */
+/* === АДАПТИВНАЯ ЯНДЕКС.СМАРТКАПЧА: РАСТЯГИВАЕТСЯ НА ВЕСЬ КОНТЕЙНЕР === */
+
 .captcha-container {
+  width: 100%;
   min-height: 100px;
+  max-height: 100px;
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  padding: 1rem;
   background-color: #f9fafb;
   overflow: hidden;
-  position: relative;
-  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
+/* Внутренний контейнер от СмартКапчи — растягивается на 100% */
 .captcha-container > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 80px !important;
+  min-height: 80px !important;
   display: flex !important;
   justify-content: center !important;
-  width: 100% !important;
-  height: 100% !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
+/* iframe — заполняет весь доступный контейнер */
 .captcha-container iframe {
   width: 100% !important;
   height: 100% !important;
-  min-height: 80px;
+  min-height: 80px !important;
   border: none !important;
-  margin: 0 auto !important;
-  transform: none !important;
-  transform-origin: center center !important;
+  margin: 0 !important;
+  padding: 0 !important;
   display: block;
+  transform: none !important;
+  transform-origin: center !important;
+  object-fit: cover;
+  scale: 1 !important;
 }
 
-@media (max-width: 640px) {
+/* Адаптивность: на узких экранах убираем фиксацию, делаем резиновыми */
+@media (max-width: 360px) {
   .captcha-container {
     min-height: 80px;
-    padding: 0.75rem;
+    padding: 0;
+  }
+
+  .captcha-container > div,
+  .captcha-container iframe {
+    height: 70px !important;
+    min-height: 70px !important;
   }
 }

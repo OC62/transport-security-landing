@@ -1,3 +1,4 @@
+import React from 'react'; 
 import { useLazyLoading } from '../hooks/useLazyLoading';
 
 // ✅ Исправлено: убран export const
