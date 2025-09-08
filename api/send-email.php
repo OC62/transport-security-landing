@@ -1,79 +1,78 @@
 <?php
-// Убедитесь, что НИЧЕГО нет перед этим (никаких пробелов, BOM, вывода)
+// send-email.php — безопасный обработчик формы
+// НИЧЕГО НЕ ДОЛЖНО БЫТЬ ПЕРЕД ЭТИМ (ни пробелов, ни BOM!)
 
-// Разрешение CORS
+// ✅ Исправленный CORS (Punycode, без пробелов)
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 
-// Включаем отображение ошибок (только для разработки!)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// 🔽 Отключаем вывод ошибок в продакшене
+ini_set('display_errors', 0);
+error_reporting(0);
 
-// Обработка preflight-запросов (OPTIONS)
+// Preflight (OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Проверка метода запроса
+// Только POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Метод не разрешён']);
     exit;
 }
 
-// Путь к autoload.php
+// Путь к автозагрузчику
 $autoloadPath = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoloadPath)) {
+    error_log('FATAL: autoload.php not found at ' . $autoloadPath);
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Ошибка сервера: автозагрузчик Composer не найден. Убедитесь, что вы выполнили "composer install".'
+        'message' => 'Ошибка сервера: выполните composer install'
     ]);
     exit;
 }
 
-// Подключаем Composer
 require_once $autoloadPath;
 
-// Импортируем классы (должны быть сразу после require, без вывода)
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 
 try {
-    // Загружаем переменные окружения
+    // Загружаем .env из текущей папки
     $dotenv = Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
-    // Получаем переменные из .env
+    // Переменные из .env
     $SMTP_HOST = $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST');
     $SMTP_PORT = (int)($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT'));
     $SMTP_USER = $_ENV['SMTP_USER'] ?? getenv('SMTP_USER');
     $SMTP_PASS = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS');
     $FROM_NAME = $_ENV['FROM_NAME'] ?? 'Сайт ПТБ-М';
-    $TO_EMAIL = $_ENV['TO_EMAIL'] ?? $_ENV['SMTP_USER'];
+    $TO_EMAIL = $_ENV['TO_EMAIL'] ?? $SMTP_USER;
     $CAPTCHA_SECRET = $_ENV['CAPTCHA_SECRET'] ?? getenv('CAPTCHA_SECRET');
 
     // Проверка обязательных переменных
     $requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'CAPTCHA_SECRET'];
     foreach ($requiredEnv as $key) {
         if (empty($$key)) {
-            throw new Exception("Отсутствует обязательная переменная окружения: $key");
+            throw new Exception("Отсутствует переменная: $key");
         }
     }
 
-    // Получаем тело запроса
+    // Получение данных
     $input = json_decode(file_get_contents('php://input'), true);
     if (!is_array($input)) {
-        throw new Exception('Неверные данные: ожидается JSON');
+        throw new Exception('Ожидается JSON');
     }
 
-    // Проверка капчи (Яндекс SmartCaptcha)
+    // Капча
     $captchaToken = $input['smartcaptcha_token'] ?? '';
     if (empty($captchaToken)) {
         throw new Exception('Токен капчи не передан');
@@ -81,7 +80,7 @@ try {
 
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
+        CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate', // ✅ Без пробелов
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => http_build_query([
             'secret' => $CAPTCHA_SECRET,
@@ -92,13 +91,22 @@ try {
         CURLOPT_TIMEOUT => 10,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_USERAGENT => 'PTB-M-Site/1.0'
     ]);
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
+    if ($curlError) {
+        error_log("cURL error: $curlError");
+        throw new Exception("Ошибка подключения к капче");
+    }
+
     if ($httpCode !== 200) {
-        throw new Exception("Ошибка капчи: HTTP $httpCode");
+        error_log("Captcha API error $httpCode: $response");
+        throw new Exception("Ошибка капчи: $httpCode");
     }
 
     $result = json_decode($response, true);
@@ -106,21 +114,20 @@ try {
         throw new Exception('Проверка капчи не пройдена');
     }
 
-    // Валидация полей формы
+    // Валидация формы
     $requiredFields = ['name', 'email', 'phone', 'message'];
     foreach ($requiredFields as $field) {
         if (empty($input[$field]) || !is_string($input[$field])) {
-            throw new Exception("Поле '$field' обязательно для заполнения");
+            throw new Exception("Поле '$field' обязательно");
         }
         $input[$field] = trim(strip_tags($input[$field]));
     }
 
-    // Проверка email
     if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
         throw new Exception('Некорректный email');
     }
 
-    // Отправка письма через PHPMailer
+    // Отправка через PHPMailer
     $mail = new PHPMailer(true);
     $mail->isSMTP();
     $mail->Host       = $SMTP_HOST;
@@ -133,6 +140,7 @@ try {
 
     $mail->setFrom($SMTP_USER, $FROM_NAME);
     $mail->addAddress($TO_EMAIL);
+    $mail->addReplyTo($input['email'], $input['name']);
 
     $mail->isHTML(true);
     $mail->Subject = '📩 Новое сообщение с сайта ПТБ-М';
@@ -149,7 +157,7 @@ try {
 
     $mail->send();
 
-    // Успешный ответ
+    // ✅ Успех
     http_response_code(200);
     echo json_encode([
         'status' => 'success',
@@ -157,11 +165,10 @@ try {
     ]);
 
 } catch (Exception $e) {
-    error_log("Ошибка отправки письма: " . $e->getMessage());
+    error_log("Email error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
         'message' => 'Ошибка сервера. Пожалуйста, попробуйте позже.'
-        // В продакшене НЕ отправляйте $e->getMessage() клиенту
     ]);
 }

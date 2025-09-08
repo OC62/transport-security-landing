@@ -29,6 +29,17 @@ jobs:
         VITE_BACKEND_ENDPOINT: ${{ secrets.VITE_BACKEND_ENDPOINT }}
       run: npm run build
 
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, curl, openssl, zip
+
+    - name: Install Composer dependencies in API
+      run: |
+        cd api
+        composer install --no-dev --optimize-autoloader
+
     - name: List dist contents
       run: |
         echo "Содержимое dist/:"
@@ -39,15 +50,10 @@ jobs:
         mkdir -p dist/api
         mkdir -p dist/api/vendor
 
-    - name: Copy PHP files
+    - name: Copy built API files
       run: |
         cp api/send-email.php dist/api/
-        cp api/composer.json dist/api/
-        cp api/composer.lock dist/api/ 2>/dev/null || true
-        cp api/test.php dist/api/ 2>/dev/null || echo "test.php not found, skipping"
-
-    - name: Copy vendor dependencies
-      run: |
+        cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
         cp -r api/vendor/ dist/api/vendor/
 
     - name: Create .env file from secrets
@@ -64,10 +70,9 @@ jobs:
         APP_DEBUG=false
         EOF
 
-    - name: Copy .htaccess files
+    - name: Copy .htaccess to root
       run: |
         cp .htaccess dist/
-        cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
 
     - name: Set correct permissions
       run: |
