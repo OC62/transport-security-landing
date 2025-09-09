@@ -2,7 +2,7 @@ name: Deploy to Reg.ru via FTP
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -10,97 +10,97 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-    - name: Use Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-        cache: 'npm'
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Build Project
-      env:
-        VITE_CAPTCHA_SITE_KEY: ${{ secrets.VITE_CAPTCHA_SITE_KEY }}
-        VITE_BACKEND_ENDPOINT: ${{ secrets.VITE_BACKEND_ENDPOINT }}
-      run: npm run build
+      - name: Build Project
+        env:
+          VITE_CAPTCHA_SITE_KEY: ${{ secrets.VITE_CAPTCHA_SITE_KEY }}
+          VITE_BACKEND_ENDPOINT: ${{ secrets.VITE_BACKEND_ENDPOINT }}
+        run: npm run build
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, curl, openssl, zip
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, curl, openssl, zip
 
-    - name: Install Composer dependencies in API
-      run: |
-        cd api
-        composer install --no-dev --optimize-autoloader
+      - name: Install Composer dependencies in API
+        run: |
+          cd api
+          composer install --no-dev --optimize-autoloader
 
-    - name: List dist contents
-      run: |
-        echo "Содержимое dist/:"
-        ls -la dist/
+      - name: List dist contents
+        run: |
+          echo "Содержимое dist/:"
+          ls -la dist/
 
-    - name: Create API directory structure
-      run: |
-        mkdir -p dist/api
-        mkdir -p dist/api/vendor
+      - name: Create API directory structure
+        run: mkdir -p dist/api
 
-    - name: Copy built API files
-      run: |
-        cp api/send-email.php dist/api/
-        cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
-        cp -r api/vendor/ dist/api/vendor/
+      - name: Copy PHP files
+        run: |
+          cp api/send-email.php dist/api/
+          cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
 
-    - name: Create .env file from secrets
-      run: |
-        cat > dist/api/.env << 'EOF'
-        SMTP_HOST=${{ secrets.SMTP_HOST }}
-        SMTP_PORT=${{ secrets.SMTP_PORT }}
-        SMTP_USER=${{ secrets.SMTP_USER }}
-        SMTP_PASS=${{ secrets.SMTP_PASS }}
-        FROM_NAME=${{ secrets.FROM_NAME }}
-        TO_EMAIL=${{ secrets.TO_EMAIL }}
-        CAPTCHA_SECRET=${{ secrets.CAPTCHA_SECRET }}
-        APP_ENV=production
-        APP_DEBUG=false
-        EOF
+      - name: Copy vendor folder
+        run: cp -r api/vendor/ dist/api/vendor/
 
-    - name: Copy .htaccess to root
-      run: |
-        cp .htaccess dist/
+      - name: Create .env file from secrets
+        run: |
+          cat > dist/api/.env << 'EOF'
+SMTP_HOST=${{ secrets.SMTP_HOST }}
+SMTP_PORT=${{ secrets.SMTP_PORT }}
+SMTP_USER=${{ secrets.SMTP_USER }}
+SMTP_PASS=${{ secrets.SMTP_PASS }}
+FROM_NAME=${{ secrets.FROM_NAME }}
+TO_EMAIL=${{ secrets.TO_EMAIL }}
+CAPTCHA_SECRET=${{ secrets.CAPTCHA_SECRET }}
+APP_ENV=production
+APP_DEBUG=false
+EOF
 
-    - name: Set correct permissions
-      run: |
-        find dist -type f -exec chmod 644 {} \;
-        find dist -type d -exec chmod 755 {} \;
+      - name: Copy .htaccess to root
+        run: |
+          cp .htaccess dist/ 2>/dev/null || echo "No root .htaccess found"
 
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.REGRU_FTP_HOST }}
-        username: ${{ secrets.REGRU_FTP_USER }}
-        password: ${{ secrets.REGRU_FTP_PASSWORD }}
-        server-dir: ${{ secrets.REGRU_FTP_REMOTE_PATH }}
-        local-dir: ./dist/
-        port: ${{ secrets.REGRU_FTP_PORT }}
-        protocol: ftp
-        exclude: |
-          .git*
-          node_modules/
-          *.md
-          README*
-          LICENSE*
-          .editorconfig
-          .gitattributes
-          .github/
-          .gitignore
-          .vite/
-          vite.config.js
-          postcss.config.js
-          tailwind.config.js
-        dangerous-clean-slate: true
+      - name: Set correct permissions
+        run: |
+          find dist -type f -exec chmod 644 {} \;
+          find dist -type d -exec chmod 755 {} \;
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.REGRU_FTP_HOST }}
+          username: ${{ secrets.REGRU_FTP_USER }}
+          password: ${{ secrets.REGRU_FTP_PASSWORD }}
+          server-dir: ${{ secrets.REGRU_FTP_REMOTE_PATH }}
+          local-dir: ./dist/
+          port: ${{ secrets.REGRU_FTP_PORT }}
+          protocol: ftp
+          exclude: |
+            .git*
+            node_modules/
+            *.md
+            README*
+            LICENSE*
+            .editorconfig
+            .gitattributes
+            .github/
+            .gitignore
+            .vite/
+            vite.config.js
+            postcss.config.js
+            tailwind.config.js
+          dangerous-clean-slate: true

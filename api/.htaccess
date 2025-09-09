@@ -22,32 +22,28 @@ RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
 RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
 RewriteRule ^(.*)$ - [F,L]
 
-# Безопасность - запрет доступа к敏感文件
+# Безопасность - запрет доступа к sensitive файлам
 <Files ~ "^\.(env|git)">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
 
 <Files composer.json>
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
 
 <Files composer.lock>
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
 
-<Files test.php>
-    Order allow,deny
-    Deny from all
-</Files>
+# Удалите запрет на test.php, если нужно для отладки
+# <Files test.php>
+#     Require all denied
+# </Files>
 
-# Запрет прямого доступа к папке vendor
-<DirectoryMatch "^.*/vendor/">
-    Order deny,allow
-    Deny from all
-</DirectoryMatch>
+# ❌ УДАЛИТЬ: vendor должен быть доступен для PHP
+# <DirectoryMatch "^.*/vendor/">
+#     Require all denied
+# </DirectoryMatch>
 
 # Настройки PHP
 <IfModule mod_php7.c>
