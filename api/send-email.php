@@ -1,19 +1,34 @@
 <?php
 // send-email.php — безопасный обработчик формы
-// НИЧЕГО НЕ ДОЛЖНО БЫТЬ ПЕРЕД ЭТИМ (ни пробелов, ни BOM!)
 
-// ✅ Исправленный CORS (Punycode, без пробелов)
+// ✅ Исправленный CORS (без пробелов!)
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json; charset=UTF-8');
 
-// 🔽 Отключаем вывод ошибок в продакшене
+// 🔽 Отключаем вывод ошибок
 ini_set('display_errors', 0);
 error_reporting(0);
 
-// Preflight (OPTIONS)
+// Лог-файл
+define('LOG_FILE', __DIR__ . '/email_errors.log');
+
+// Проверка расширений
+$requiredExtensions = ['curl', 'openssl', 'json'];
+foreach ($requiredExtensions as $ext) {
+    if (!extension_loaded($ext)) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Расширение ' . $ext . ' не загружено'
+        ]);
+        exit;
+    }
+}
+
+// Preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -26,14 +41,26 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Проверка размера
+$inputData = file_get_contents('php://input');
+if (strlen($inputData) > 10000) {
+    http_response_code(413);
+    echo json_encode(['status' => 'error', 'message' => 'Слишком большой объем данных']);
+    exit;
+}
+
 // Путь к автозагрузчику
 $autoloadPath = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoloadPath)) {
-    error_log('FATAL: autoload.php not found at ' . $autoloadPath);
+    $autoloadPath = __DIR__ . '/../vendor/autoload.php';
+}
+
+if (!file_exists($autoloadPath)) {
+    error_log('FATAL: autoload.php not found', 3, LOG_FILE);
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Ошибка сервера: выполните composer install'
+        'message' => 'Выполните composer install'
     ]);
     exit;
 }
@@ -45,7 +72,13 @@ use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 
 try {
-    // Загружаем .env из текущей папки
+    // Проверка .env
+    $envPath = __DIR__ . '/.env';
+    if (!is_readable($envPath)) {
+        throw new Exception('Файл .env недоступен');
+    }
+
+    // Загружаем переменные
     $dotenv = Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
@@ -62,12 +95,12 @@ try {
     $requiredEnv = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'CAPTCHA_SECRET'];
     foreach ($requiredEnv as $key) {
         if (empty($$key)) {
-            throw new Exception("Отсутствует переменная: $key");
+            throw new Exception("Отсутствует: $key");
         }
     }
 
-    // Получение данных
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Данные
+    $input = json_decode($inputData, true);
     if (!is_array($input)) {
         throw new Exception('Ожидается JSON');
     }
@@ -80,7 +113,7 @@ try {
 
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate', // ✅ Без пробелов
+        CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => http_build_query([
             'secret' => $CAPTCHA_SECRET,
@@ -91,21 +124,17 @@ try {
         CURLOPT_TIMEOUT => 10,
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_SSL_VERIFYHOST => 2,
-        CURLOPT_USERAGENT => 'PTB-M-Site/1.0'
     ]);
-
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     curl_close($ch);
 
     if ($curlError) {
-        error_log("cURL error: $curlError");
-        throw new Exception("Ошибка подключения к капче");
+        throw new Exception("Ошибка cURL: $curlError");
     }
 
     if ($httpCode !== 200) {
-        error_log("Captcha API error $httpCode: $response");
         throw new Exception("Ошибка капчи: $httpCode");
     }
 
@@ -127,7 +156,7 @@ try {
         throw new Exception('Некорректный email');
     }
 
-    // Отправка через PHPMailer
+    // Отправка
     $mail = new PHPMailer(true);
     $mail->isSMTP();
     $mail->Host       = $SMTP_HOST;
@@ -157,15 +186,15 @@ try {
 
     $mail->send();
 
-    // ✅ Успех
+    // Успех
     http_response_code(200);
     echo json_encode([
         'status' => 'success',
-        'message' => 'Сообщение успешно отправлено'
+        'message' => 'Сообщение отправлено'
     ]);
 
 } catch (Exception $e) {
-    error_log("Email error: " . $e->getMessage());
+    error_log("Email error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine(), 3, LOG_FILE);
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
