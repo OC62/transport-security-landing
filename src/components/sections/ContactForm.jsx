@@ -5,16 +5,24 @@ import * as yup from 'yup';
 import GlassmorphicButton from '../ui/GlassmorphicButton';
 
 // --- Схема валидации ---
-const schema = yup.object({
-  name: yup.string().required('Имя обязательно'),
-  email: yup.string().email('Неверный формат email').required('Email обязателен'),
-  phone: yup.string().required('Телефон обязателен'),
-  message: yup.string().required('Сообщение обязательно')
-}).required();
+const schema = yup
+  .object({
+    name: yup.string().required('Имя обязательно'),
+    email: yup
+      .string()
+      .email('Неверный формат email')
+      .required('Email обязателен'),
+    phone: yup.string().required('Телефон обязателен'),
+    message: yup.string().required('Сообщение обязательно'),
+  })
+  .required();
 
 // --- Конфигурация ---
 const BACKEND_ENDPOINT = import.meta.env.VITE_BACKEND_ENDPOINT;
 const CAPTCHA_SITE_KEY = import.meta.env.VITE_CAPTCHA_SITE_KEY;
+
+// --- Номер счётчика Яндекс.Метрики ---
+const YANDEX_METRIKA_COUNTER = 103534344;
 
 // --- Основной компонент ---
 const ContactForm = () => {
@@ -30,9 +38,9 @@ const ContactForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   // --- Перезагрузка капчи ---
@@ -52,8 +60,8 @@ const ContactForm = () => {
   // --- Инициализация капчи ---
   const initializeCaptcha = useCallback(() => {
     if (!captchaContainerRef.current) {
-      console.warn('Контейнер капчи не найден');
-      setCaptchaError('Контейнер капчи не найден');
+      console.warn('Контейнер капчи не найден. Повторная попытка...');
+      setTimeout(initializeCaptcha, 100);
       return;
     }
 
@@ -70,41 +78,66 @@ const ContactForm = () => {
     reloadCaptcha();
 
     try {
-      widgetId.current = window.smartCaptcha.render(captchaContainerRef.current, {
-        sitekey: CAPTCHA_SITE_KEY,
-        hl: 'ru',
-        callback: (token) => {
-          setCaptchaToken(token);
-          setCaptchaError('');
-        },
-        'error-callback': (error) => {
-          console.error('Yandex SmartCaptcha error:', error);
-          setCaptchaError('Ошибка капчи. Попробуйте ещё раз.');
+      widgetId.current = window.smartCaptcha.render(
+        captchaContainerRef.current,
+        {
+          sitekey: CAPTCHA_SITE_KEY,
+          hl: 'ru',
+          callback: (token) => {
+            setCaptchaToken(token);
+            setCaptchaError('');
+          },
+          'error-callback': (error) => {
+            console.error('Yandex SmartCaptcha error:', error);
+            setCaptchaError('Ошибка капчи. Попробуйте ещё раз.');
+          },
         }
-      });
+      );
     } catch (error) {
       console.error('Ошибка инициализации капчи:', error);
       setCaptchaError('Не удалось загрузить капчу');
     }
   }, [reloadCaptcha]);
 
-  // --- Загрузка капчи ---
+  // --- Улучшенная инициализация с повторными попытками ---
   useEffect(() => {
-    const load = () => {
-      setTimeout(() => {
+    let attempts = 0;
+    const maxAttempts = 15;
+
+    const init = () => {
+      if (captchaContainerRef.current) {
         if (window.smartCaptcha) {
           initializeCaptcha();
         } else {
+          // Ждём события от Yandex
           const onReady = () => {
             window.removeEventListener('smartcaptcha-ready', onReady);
             initializeCaptcha();
           };
           window.addEventListener('smartcaptcha-ready', onReady);
+
+          // Дополнительная проверка
+          const interval = setInterval(() => {
+            if (window.smartCaptcha || attempts >= maxAttempts) {
+              clearInterval(interval);
+              if (window.smartCaptcha) {
+                initializeCaptcha();
+              } else {
+                setCaptchaError('Не удалось загрузить скрипт капчи');
+              }
+            }
+            attempts++;
+          }, 100);
         }
-      }, 200);
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        setTimeout(init, 100); // Повтор через 100 мс
+      } else {
+        setCaptchaError('Контейнер капчи не найден');
+      }
     };
 
-    load();
+    init();
 
     return () => {
       window.removeEventListener('smartcaptcha-ready', initializeCaptcha);
@@ -119,13 +152,13 @@ const ContactForm = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          smartcaptcha_token: captchaToken
+          smartcaptcha_token: captchaToken,
         }),
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       });
 
       if (!response.ok) {
@@ -136,10 +169,23 @@ const ContactForm = () => {
       const result = await response.json();
 
       if (result.status === 'success') {
+        // Отправка события в Яндекс.Метрику
+        if (window.ym) {
+          try {
+            window.ym(YANDEX_METRIKA_COUNTER, 'reachGoal', 'FORM_SUBMIT');
+          } catch (e) {
+            console.warn('Ошибка отправки в Яндекс.Метрику:', e);
+          }
+        }
+
         setSubmitSuccess(true);
         reset();
         setTimeout(() => setSubmitSuccess(false), 5000);
+
+        // Перезагрузка капчи
         reloadCaptcha();
+        setTimeout(initializeCaptcha, 150);
+
         return true;
       } else {
         throw new Error(result.message || 'Ошибка сервера');
@@ -207,11 +253,15 @@ const ContactForm = () => {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
                       Имя *
                     </label>
                     <input
                       id="name"
+                      name="name"
                       type="text"
                       {...register('name')}
                       autoComplete="name"
@@ -219,16 +269,22 @@ const ContactForm = () => {
                       placeholder="Введите ваше имя"
                     />
                     {errors.name && (
-                      <p className="mt-1 text-red-500 text-sm">{errors.name.message}</p>
+                      <p className="mt-1 text-red-500 text-sm">
+                        {errors.name.message}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
                       Email *
                     </label>
                     <input
                       id="email"
+                      name="email"
                       type="email"
                       {...register('email')}
                       autoComplete="email"
@@ -236,17 +292,23 @@ const ContactForm = () => {
                       placeholder="your@email.com"
                     />
                     {errors.email && (
-                      <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
+                      <p className="mt-1 text-red-500 text-sm">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="phone"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Телефон *
                   </label>
                   <input
                     id="phone"
+                    name="phone"
                     type="tel"
                     {...register('phone')}
                     autoComplete="tel"
@@ -254,43 +316,53 @@ const ContactForm = () => {
                     placeholder="+7 (___) ___-__-__"
                   />
                   {errors.phone && (
-                    <p className="mt-1 text-red-500 text-sm">{errors.phone.message}</p>
+                    <p className="mt-1 text-red-500 text-sm">
+                      {errors.phone.message}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-gray-700 font-medium mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-gray-700 font-medium mb-2"
+                  >
                     Сообщение *
                   </label>
                   <textarea
                     id="message"
+                    name="message"
                     {...register('message')}
                     rows={5}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Расскажите о вашем проекте..."
                   ></textarea>
                   {errors.message && (
-                    <p className="mt-1 text-red-500 text-sm">{errors.message.message}</p>
+                    <p className="mt-1 text-red-500 text-sm">
+                      {errors.message.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="privacy"
-                    required
-                    className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor="privacy" className="text-gray-600 text-sm">
+                {/* ✅ Исправлено: input вложен в label + id и name */}
+                <div className="flex items-start mt-4">
+                  <label className="flex items-start text-gray-600 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      name="privacy"
+                      required
+                      className="mt-1 mr-2 h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                    />
                     Согласен с обработкой персональных данных *
                   </label>
                 </div>
 
-                {/* Контейнер капчи — ширина как у кнопки */}
+                {/* Контейнер капчи */}
                 <div className="mt-4 w-full">
                   <div
                     ref={captchaContainerRef}
-                    className="captcha-container w-full h-20 relative bg-transparent"
+                    className="captcha-container w-full h-20 relative bg-transparent flex items-center justify-center"
                     style={{ minHeight: '80px' }}
                     role="region"
                     aria-label="Проверка: я не робот"
@@ -298,10 +370,15 @@ const ContactForm = () => {
 
                   {captchaError && (
                     <div className="mt-2 text-center">
-                      <p className="text-red-500 text-sm mb-2">{captchaError}</p>
+                      <p className="text-red-500 text-sm mb-2">
+                        {captchaError}
+                      </p>
                       <button
                         type="button"
-                        onClick={reloadCaptcha}
+                        onClick={() => {
+                          reloadCaptcha();
+                          setTimeout(initializeCaptcha, 150);
+                        }}
                         className="text-blue-500 text-sm underline hover:text-blue-700"
                       >
                         Обновить капчу

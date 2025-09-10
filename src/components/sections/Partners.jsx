@@ -10,59 +10,59 @@ import 'swiper/css/navigation';
 
 // Массив с партнерами (вынесен за пределы компонента)
 const partners = [
-  { 
-    id: 1, 
-    name: "ООО 'Ростдонавтовокзал'", 
-    logo: "/images/logo_rda.webp", 
-    url: "https://rostdonavtokozal.ru" 
+  {
+    id: 1,
+    name: "ООО 'Ростдонавтовокзал'",
+    logo: '/images/logo_rda.webp',
+    url: 'https://rostdonavtokozal.ru',
   },
-  { 
-    id: 2, 
-    name: "ФКУ УПРДОР МОСКВА-ВОЛГОГРАД", 
-    logo: "/images/fkuLogo.svg", 
-    url: "https://mv.rosavtodor.gov.ru" 
+  {
+    id: 2,
+    name: 'ФКУ УПРДОР МОСКВА-ВОЛГОГРАД',
+    logo: '/images/fkuLogo.svg',
+    url: 'https://mv.rosavtodor.gov.ru',
   },
-  { 
-    id: 3, 
-    name: "ГБУ Вокзал-Авто", 
-    logo: "/images/GBUVolgograd.webp", 
-    url: "https://vokzal-avto.ru" 
+  {
+    id: 3,
+    name: 'ГБУ Вокзал-Авто',
+    logo: '/images/GBUVolgograd.webp',
+    url: 'https://vokzal-avto.ru',
   },
-  { 
-    id: 4, 
-    name: "ООО Т-Транс", 
-    logo: "/images/Ttrans.webp", 
-    url: "https://t-trans61.ru" 
+  {
+    id: 4,
+    name: 'ООО Т-Транс',
+    logo: '/images/Ttrans.webp',
+    url: 'https://t-trans61.ru',
   },
-  { 
-    id: 5, 
-    name: "ГКУ Транспортная дирекция РБ", 
-    logo: "/images/logoBashkiria.webp", 
-    url: "https://tdrb.bashkortostan.ru" 
+  {
+    id: 5,
+    name: 'ГКУ Транспортная дирекция РБ',
+    logo: '/images/logoBashkiria.webp',
+    url: 'https://tdrb.bashkortostan.ru',
   },
-  { 
-    id: 6, 
-    name: "МКУ 'Комитет внешнего благоустройства Казани'", 
-    logo: "/images/logoKazan.webp", 
-    url: "https://kzn.ru/meriya/ispolnitelnyy-komitet/komitet-vneshnego-blagoustroystva" 
+  {
+    id: 6,
+    name: "МКУ 'Комитет внешнего благоустройства Казани'",
+    logo: '/images/logoKazan.webp',
+    url: 'https://kzn.ru/meriya/ispolnitelnyy-komitet/komitet-vneshnego-blagoustroystva',
   },
-  { 
-    id: 7, 
-    name: "СК Автодор-Казань", 
-    logo: "/images/logoAvtodor.webp", 
-    url: "https://skavtodor.ru" 
+  {
+    id: 7,
+    name: 'СК Автодор-Казань',
+    logo: '/images/logoAvtodor.webp',
+    url: 'https://skavtodor.ru',
   },
-  { 
-    id: 8, 
-    name: "АО Донавтовокзал", 
-    logo: "/images/LogoDonavto.webp", 
-    url: "https://donavto.ru" 
+  {
+    id: 8,
+    name: 'АО Донавтовокзал',
+    logo: '/images/LogoDonavto.webp',
+    url: 'https://donavto.ru',
   },
-  { 
-    id: 9, 
-    name: "Ассоциация 'Транспортная безопасность'", 
-    logo: "/images/logoAsTb.webp", 
-    url: "https://atb-tsa.ru/#" 
+  {
+    id: 9,
+    name: "Ассоциация 'Транспортная безопасность'",
+    logo: '/images/logoAsTb.webp',
+    url: 'https://atb-tsa.ru/#',
   },
 ];
 
@@ -75,7 +75,7 @@ const Partners = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.5 }}
           className="text-center mb-10 md:mb-16"
         >
@@ -88,7 +88,7 @@ const Partners = () => {
         </motion.div>
 
         {/* Контейнер с уменьшенной на 20% высотой */}
-        <div 
+        <div
           className="relative h-[256px] md:h-[288px]"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -110,28 +110,28 @@ const Partners = () => {
                 prevEl: '.swiper-button-prev',
               }}
               breakpoints={{
-                320: { 
-                  slidesPerView: 2, 
+                320: {
+                  slidesPerView: 2,
                   spaceBetween: 15,
-                  navigation: { enabled: false }
+                  navigation: { enabled: false },
                 },
-                480: { 
-                  slidesPerView: 3, 
+                480: {
+                  slidesPerView: 3,
                   spaceBetween: 20,
-                  navigation: { enabled: false }
+                  navigation: { enabled: false },
                 },
-                768: { 
-                  slidesPerView: 4, 
+                768: {
+                  slidesPerView: 4,
                   spaceBetween: 24,
-                  navigation: { enabled: false }
+                  navigation: { enabled: false },
                 },
-                1024: { 
+                1024: {
                   slidesPerView: 5,
-                  navigation: { enabled: true }
+                  navigation: { enabled: true },
                 },
-                1280: { 
+                1280: {
                   slidesPerView: 6,
-                  navigation: { enabled: true }
+                  navigation: { enabled: true },
                 },
               }}
               className="h-full"
@@ -147,25 +147,25 @@ const Partners = () => {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-100px" }}
+                      viewport={{ once: true, margin: '-100px' }}
                       transition={{ duration: 0.3 }}
                       className="h-full"
-                      whileHover={{ 
+                      whileHover={{
                         scale: 1.03,
-                        transition: { 
-                          type: "spring", 
-                          stiffness: 300, 
-                          damping: 15 
-                        } 
+                        transition: {
+                          type: 'spring',
+                          stiffness: 300,
+                          damping: 15,
+                        },
                       }}
                     >
                       <a
                         href={isValidUrl ? cleanUrl : undefined}
-                        target={isValidUrl ? "_blank" : undefined}
-                        rel={isValidUrl ? "noopener noreferrer" : undefined}
+                        target={isValidUrl ? '_blank' : undefined}
+                        rel={isValidUrl ? 'noopener noreferrer' : undefined}
                         className={`h-full w-full flex flex-col justify-center items-center bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 text-center transition-all duration-300 ${
-                          isValidUrl 
-                            ? 'cursor-pointer' 
+                          isValidUrl
+                            ? 'cursor-pointer'
                             : 'cursor-default pointer-events-none'
                         }`}
                         title={partner.name}
@@ -197,10 +197,14 @@ const Partners = () => {
               })}
             </Swiper>
           </div>
-          
+
           {/* Кнопки-стрелки с glass-эффектом - опущены на 10px ниже */}
-          <div className={`swiper-button-prev hidden lg:flex absolute top-[calc(50%+10px)] -translate-y-1/2 left-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-lg shadow-lg z-10 border border-white/20 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
-          <div className={`swiper-button-next hidden lg:flex absolute top-[calc(50%+10px)] -translate-y-1/2 right-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-lg shadow-lg z-10 border border-white/20 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
+          <div
+            className={`swiper-button-prev hidden lg:flex absolute top-[calc(50%+10px)] -translate-y-1/2 left-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-lg shadow-lg z-10 border border-white/20 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+          ></div>
+          <div
+            className={`swiper-button-next hidden lg:flex absolute top-[calc(50%+10px)] -translate-y-1/2 right-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-lg shadow-lg z-10 border border-white/20 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+          ></div>
 
           {/* Кастомные стили для стрелок */}
           <style>{`

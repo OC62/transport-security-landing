@@ -13,7 +13,8 @@
     "deploy": "gh-pages -d dist -r https://github.com/OC62/transport-security-landing.git",
     "deploy-reg": "npm run build && node scripts/deploy-reg.cjs",
     "deploy-lftp": "npm run build && bash scripts/deploy-lftp.sh",
-    "optimize-images": "node scripts/optimize-images.js"
+    "optimize-images": "node scripts/optimize-images.js",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,html}\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -21,7 +22,6 @@
     "framer-motion": "^12.23.9",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-hook-form": "^7.61.1",
     "react-router-dom": "^7.7.1",
     "swiper": "^11.2.10",
     "yup": "^1.6.1"
@@ -44,6 +44,7 @@
     "globals": "^16.3.0",
     "gulp": "^5.0.1",
     "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
     "sharp": "^0.33.2",
     "tailwindcss": "^3.4.17",
     "vite": "^7.0.6"

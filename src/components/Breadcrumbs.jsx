@@ -22,27 +22,32 @@ const Breadcrumbs = () => {
     const handleIntersection = (entries) => {
       // Находим все секции, которые пересекаются более чем на 40%
       const visibleSections = entries
-        .filter(entry => entry.isIntersecting && entry.intersectionRatio >= 0.4)
-        .map(entry => ({
+        .filter(
+          (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.4
+        )
+        .map((entry) => ({
           id: entry.target.id,
           ratio: entry.intersectionRatio,
-          top: entry.boundingClientRect.top
+          top: entry.boundingClientRect.top,
         }));
 
       if (visibleSections.length > 0) {
         // Сортируем по степени видимости (от большей к меньшей)
         visibleSections.sort((a, b) => b.ratio - a.ratio);
         // Если степень видимости одинаковая, выбираем ту, что выше на экране
-        if (visibleSections[1] && Math.abs(visibleSections[0].ratio - visibleSections[1].ratio) < 0.01) {
-            visibleSections.sort((a, b) => a.top - b.top);
+        if (
+          visibleSections[1] &&
+          Math.abs(visibleSections[0].ratio - visibleSections[1].ratio) < 0.01
+        ) {
+          visibleSections.sort((a, b) => a.top - b.top);
         }
         // Устанавливаем самую "видимую" секцию как активную
         setActiveSection(visibleSections[0].id);
       } else if (entries.length > 0) {
         // Если нет секций с >40% видимости, найдем ту, которая ближе всего к верху экрана
-        const allEntries = entries.map(entry => ({
+        const allEntries = entries.map((entry) => ({
           id: entry.target.id,
-          top: entry.boundingClientRect.top
+          top: entry.boundingClientRect.top,
         }));
         allEntries.sort((a, b) => Math.abs(a.top) - Math.abs(b.top));
         setActiveSection(allEntries[0].id);
@@ -89,7 +94,12 @@ const Breadcrumbs = () => {
   };
 
   return (
-    <nav aria-label="Навигационная цепочка" className="bg-gray-100 py-2 px-4 text-sm hidden md:block border-b"> {/* Скрыто на мобильных */}
+    <nav
+      aria-label="Навигационная цепочка"
+      className="bg-gray-100 py-2 px-4 text-sm hidden md:block border-b"
+    >
+      {' '}
+      {/* Скрыто на мобильных */}
       <ol className="list-none p-0 inline-flex flex-wrap">
         {sections.map((section, index) => (
           <li key={section.id} className="flex items-center">

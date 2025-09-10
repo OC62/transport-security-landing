@@ -7,23 +7,28 @@ import GlassmorphicButton from '../ui/GlassmorphicButton';
 const licenses = [
   {
     id: 1,
-    title: "Свидетельство об аккредитации в качестве подразделения транспортной безопасности",
-    number: "№ 61-2-5-00011-24",
-    issuedBy: "Федеральное дорожное агентство",
-    issueDate: "17.05.2024",
-    expiryDate: "16.05.2029",
+    title:
+      'Свидетельство об аккредитации в качестве подразделения транспортной безопасности',
+    number: '№ 61-2-5-00011-24',
+    issuedBy: 'Федеральное дорожное агентство',
+    issueDate: '17.05.2024',
+    expiryDate: '16.05.2029',
     image: vypiskaImage,
-    description: "Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожного хозяйства, автомобильного транспорта и городского наземного электрического транспорта"
+    description:
+      'Дает право на оказание услуг по обеспечению транспортной безопасности в сфере дорожного хозяйства, автомобильного транспорта и городского наземного электрического транспорта',
   },
   {
     id: 2,
-    title: "Лицензия на осуществление деятельности в области использования источников ионизирующего излучения",
-    number: "№61.Ц.10.002.Л.00009.12.19",
-    issuedBy: "Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области",
-    issueDate: "12.12.2019",
-    expiryDate: "бессрочно",
+    title:
+      'Лицензия на осуществление деятельности в области использования источников ионизирующего излучения',
+    number: '№61.Ц.10.002.Л.00009.12.19',
+    issuedBy:
+      'Федеральная служба по надзору в сфере защиты прав потребителей и благополучия человека. Управление Федеральной службы о надзору в сфере защиты прав потребителей и благополучия человека по Ростовской области',
+    issueDate: '12.12.2019',
+    expiryDate: 'бессрочно',
     image: licensesImage,
-    description: "Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения"
+    description:
+      'Дает право на оказание услуг (выполнение работ) связанных с эксплуатацией источников ионизирующего излучения',
   },
 ];
 
@@ -42,14 +47,15 @@ const Licenses = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Лицензии и свидетельства
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Наличие всех необходимых разрешений и сертификатов подтверждает наш профессионализм и надежность
+            Наличие всех необходимых разрешений и сертификатов подтверждает наш
+            профессионализм и надежность
           </p>
         </motion.div>
 
@@ -59,7 +65,7 @@ const Licenses = () => {
               key={license.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: '-50px' }}
               transition={{ delay: index * 0.1 }}
               className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
             >
@@ -90,21 +96,23 @@ const Licenses = () => {
                   </h3>
                   <div className="space-y-2 mb-4">
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Номер:</span> {license.number}
+                      <span className="font-medium">Номер:</span>{' '}
+                      {license.number}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Выдано:</span> {license.issuedBy}
+                      <span className="font-medium">Выдано:</span>{' '}
+                      {license.issuedBy}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Дата выдачи:</span> {license.issueDate}
+                      <span className="font-medium">Дата выдачи:</span>{' '}
+                      {license.issueDate}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Действует до:</span> {license.expiryDate}
+                      <span className="font-medium">Действует до:</span>{' '}
+                      {license.expiryDate}
                     </p>
                   </div>
-                  <p className="text-gray-700 text-sm">
-                    {license.description}
-                  </p>
+                  <p className="text-gray-700 text-sm">{license.description}</p>
                 </div>
               </div>
             </motion.div>
@@ -115,7 +123,7 @@ const Licenses = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: true, margin: '-50px' }}
           className="mt-16 text-center"
         >
           <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-8 border border-green-100">
@@ -123,18 +131,29 @@ const Licenses = () => {
               Хотите увидеть оригиналы документов?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Мы готовы предоставить полный пакет лицензий и свидетельств по запросу.
-              Наши документы регулярно проходят проверку контролирующими органами.
+              Мы готовы предоставить полный пакет лицензий и свидетельств по
+              запросу. Наши документы регулярно проходят проверку
+              контролирующими органами.
             </p>
-            <GlassmorphicButton 
+            <GlassmorphicButton
               variant="onWhite"
               size="large"
               onClick={scrollToContact}
               className="inline-flex items-center"
             >
               Запросить документы
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
               </svg>
             </GlassmorphicButton>
           </div>

@@ -12,7 +12,9 @@ const CasesSlider = lazy(() => import('./components/sections/CasesSlider'));
 const Careers = lazy(() => import('./components/sections/Careers'));
 const Licenses = lazy(() => import('./components/sections/Licenses'));
 const Partners = lazy(() => import('./components/sections/Partners'));
-const CommunitySupport = lazy(() => import('./components/sections/CommunitySupport'));
+const CommunitySupport = lazy(
+  () => import('./components/sections/CommunitySupport')
+);
 const ContactForm = lazy(() => import('./components/sections/ContactForm'));
 
 const LoadingSpinner = () => (

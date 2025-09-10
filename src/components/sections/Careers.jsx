@@ -20,68 +20,75 @@ const Careers = () => {
   const jobs = [
     {
       id: 1,
-      title: "Специалист по транспортной безопасности",
-      department: "ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование",
-      location: "Ростов-на-Дону",
-      type: "Полная занятость",
-      description: "Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры",
+      title: 'Специалист по транспортной безопасности',
+      department:
+        'ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование',
+      location: 'Ростов-на-Дону',
+      type: 'Полная занятость',
+      description:
+        'Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры',
       requirements: [
-        "Опыт работы - не требуется",
-        "Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)",
+        'Опыт работы - не требуется',
+        'Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)',
       ],
       responsibilities: [
-        "Работа на объектах транспортной инфраструктуры",
-        "Недопущение АНВ",
-      ]
+        'Работа на объектах транспортной инфраструктуры',
+        'Недопущение АНВ',
+      ],
     },
     {
       id: 2,
-      title: "Специалист по транспортной безопасности",
-      department: "ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование",
-      location: "Волгоград",
-      type: "Полная занятость",
-      description: "Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры",
+      title: 'Специалист по транспортной безопасности',
+      department:
+        'ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование',
+      location: 'Волгоград',
+      type: 'Полная занятость',
+      description:
+        'Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры',
       requirements: [
-        "Опыт работы - не требуется",
-        "Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)",
+        'Опыт работы - не требуется',
+        'Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)',
       ],
       responsibilities: [
-        "Работа на объектах транспортной инфраструктуры",
-        "Недопущение АНВ",
-      ]
+        'Работа на объектах транспортной инфраструктуры',
+        'Недопущение АНВ',
+      ],
     },
     {
       id: 3,
-      title: "Специалист по транспортной безопасности",
-      department: "ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование",
-      location: "Уфа",
-      type: "Полная занятость",
-      description: "Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры",
+      title: 'Специалист по транспортной безопасности',
+      department:
+        'ГБР, Досмотр и дополнительный досмотр, ТСО, Наблюдение и собеседование',
+      location: 'Уфа',
+      type: 'Полная занятость',
+      description:
+        'Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры',
       requirements: [
-        "Опыт работы - не требуется",
-        "Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)",
+        'Опыт работы - не требуется',
+        'Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)',
       ],
       responsibilities: [
-        "Работа на объектах транспортной инфраструктуры",
-        "Недопущение АНВ",
-      ]
+        'Работа на объектах транспортной инфраструктуры',
+        'Недопущение АНВ',
+      ],
     },
     {
       id: 4,
-      title: "Специалист по транспортной безопасности",
-      department: "ГБР, ТСО, Наблюдение и собеседование",
-      location: "Казань",
-      type: "Полная занятость",
-      description: "Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры",
+      title: 'Специалист по транспортной безопасности',
+      department: 'ГБР, ТСО, Наблюдение и собеседование',
+      location: 'Казань',
+      type: 'Полная занятость',
+      description:
+        'Недопущение актов незаконного вмешательства на объектах транспортной инфраструктуры',
       requirements: [
-        "Опыт работы - не требуется",
-        "Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)",
+        'Опыт работы - не требуется',
+        'Наличие свидетельства об аттестации в качестве специалиста по транспортной безопасности (не обязательно)',
       ],
       responsibilities: [
-        "Работа на объектах транспортной инфраструктуры",
-        "Недопущение АНВ",
-      ]
-    }
+        'Работа на объектах транспортной инфраструктуры',
+        'Недопущение АНВ',
+      ],
+    },
   ];
 
   return (
@@ -90,14 +97,15 @@ const Careers = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Наши вакансии
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Присоединяйтесь к команде профессионалов в сфере транспортной безопасности
+            Присоединяйтесь к команде профессионалов в сфере транспортной
+            безопасности
           </p>
         </motion.div>
 
@@ -107,7 +115,7 @@ const Careers = () => {
               key={job.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: '-50px' }}
               transition={{ delay: index * 0.1 }}
               className="mb-6 border border-gray-200 rounded-xl overflow-hidden"
             >
@@ -117,7 +125,9 @@ const Careers = () => {
                 aria-expanded={openJobId === job.id}
               >
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    {job.title}
+                  </h3>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                       {job.department}
@@ -132,17 +142,37 @@ const Careers = () => {
                 </div>
                 <div className="text-gray-500">
                   {openJobId === job.id ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   )}
                 </div>
               </button>
-              
+
               {openJobId === job.id && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
@@ -151,10 +181,12 @@ const Careers = () => {
                   className="px-6 pb-6 border-t border-gray-100"
                 >
                   <p className="text-gray-600 my-4">{job.description}</p>
-                  
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Обязанности:</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Обязанности:
+                      </h4>
                       <ul className="space-y-2">
                         {job.responsibilities.map((resp, idx) => (
                           <li key={idx} className="flex items-start">
@@ -164,9 +196,11 @@ const Careers = () => {
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Требования:</h4>
+                      <h4 className="font-semibold text-gray-800 mb-2">
+                        Требования:
+                      </h4>
                       <ul className="space-y-2">
                         {job.requirements.map((req, idx) => (
                           <li key={idx} className="flex items-start">
@@ -177,9 +211,9 @@ const Careers = () => {
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6">
-                    <GlassmorphicButton 
+                    <GlassmorphicButton
                       variant="onWhite"
                       size="large"
                       onClick={scrollToContact}
@@ -196,16 +230,17 @@ const Careers = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{ once: true, margin: '-50px' }}
           className="text-center mt-16 p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl"
         >
           <h3 className="text-2xl font-bold text-gray-800 mb-2">
             Не нашли подходящую вакансию?
           </h3>
           <p className="text-gray-600 mb-6">
-            Присылайте ваше резюме, мы свяжемся с вами при появлении подходящих предложений
+            Присылайте ваше резюме, мы свяжемся с вами при появлении подходящих
+            предложений
           </p>
-          <GlassmorphicButton 
+          <GlassmorphicButton
             variant="onWhite"
             size="large"
             onClick={scrollToContact}

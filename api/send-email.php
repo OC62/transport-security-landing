@@ -1,39 +1,62 @@
 <?php
+// ✅ Исправлено: убраны пробелы в домене
 header('Access-Control-Allow-Origin: https://xn----9sb8ajp.xn--p1ai');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Origin, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
+
+// ✅ Заголовки для безопасности (COOP + COEP)
+// Используем `credentialless` вместо `require-corp`, чтобы не блокировать metrika_match.html
+header('Cross-Origin-Embedder-Policy: credentialless');
+header('Cross-Origin-Opener-Policy: same-origin');
+header('Cross-Origin-Resource-Policy: same-site');
+
+// ✅ Тип контента
 header('Content-Type: application/json; charset=UTF-8');
 
-// Включить на время отладки
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// ⚠️ На проде: отключаем вывод ошибок
+ini_set('display_errors', 0);
+error_reporting(0);
 
+// ✅ Логирование ошибок
 define('LOG_FILE', __DIR__ . '/email_errors.log');
 
+// ✅ Preflight-запрос (OPTIONS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
+// ✅ Проверка метода
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Method not allowed'
+    ]);
     exit;
 }
 
+// ✅ Проверка размера тела запроса
 $inputData = file_get_contents('php://input');
 if (strlen($inputData) > 10000) {
     http_response_code(413);
-    echo json_encode(['status' => 'error', 'message' => 'Payload too large']);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Payload too large'
+    ]);
     exit;
 }
 
+// ✅ Проверка автозагрузки Composer
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!file_exists($autoload)) {
     error_log('FATAL: autoload.php not found', 3, LOG_FILE);
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Server error: Composer not installed']);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Server error: Composer not installed'
+    ]);
     exit;
 }
 
@@ -44,6 +67,7 @@ use PHPMailer\PHPMailer\Exception;
 use Dotenv\Dotenv;
 
 try {
+    // ✅ Загрузка .env
     $env = __DIR__ . '/.env';
     if (!file_exists($env)) throw new Exception('Файл .env не найден');
     if (!is_readable($env)) throw new Exception('Файл .env недоступен');
@@ -51,20 +75,24 @@ try {
     $dotenv = Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
+    // ✅ Проверка обязательных переменных
     $required = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'CAPTCHA_SECRET'];
     foreach ($required as $key) {
         if (empty($_ENV[$key])) throw new Exception("Отсутствует: $key");
     }
 
+    // ✅ Декодирование JSON
     $input = json_decode($inputData, true);
     if (!is_array($input)) throw new Exception('Invalid JSON');
 
-    // Капча
+    // ✅ Проверка токена капчи
     $token = $input['smartcaptcha_token'] ?? '';
     if (empty($token)) throw new Exception('Токен капчи не передан');
 
+    // ✅ Валидация капчи
     $ch = curl_init();
     curl_setopt_array($ch, [
+        // ✅ Исправлено: убраны пробелы в URL
         CURLOPT_URL => 'https://smartcaptcha.yandexcloud.net/validate',
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => http_build_query([
@@ -90,8 +118,9 @@ try {
         throw new Exception('Капча не пройдена');
     }
 
-    // Валидация формы
-    foreach (['name', 'email', 'phone', 'message'] as $field) {
+    // ✅ Валидация полей формы
+    $fields = ['name', 'email', 'phone', 'message'];
+    foreach ($fields as $field) {
         if (empty($input[$field]) || !is_string($input[$field])) {
             throw new Exception("Поле '$field' обязательно");
         }
@@ -102,7 +131,7 @@ try {
         throw new Exception('Некорректный email');
     }
 
-    // Отправка
+    // ✅ Отправка письма
     $mail = new PHPMailer(true);
     $mail->isSMTP();
     $mail->Host       = $_ENV['SMTP_HOST'];
@@ -113,7 +142,7 @@ try {
     $mail->Port       = (int)$_ENV['SMTP_PORT'];
     $mail->CharSet    = 'UTF-8';
 
-    $mail->setFrom($_ENV['SMTP_USER'], $_ENV['FROM_NAME']);
+    $mail->setFrom($_ENV['SMTP_USER'], $_ENV['FROM_NAME'] ?? 'Форма обратной связи');
     $mail->addAddress($_ENV['TO_EMAIL']);
     $mail->addReplyTo($input['email'], $input['name']);
 
@@ -132,10 +161,18 @@ try {
 
     $mail->send();
 
-    echo json_encode(['status' => 'success', 'message' => 'Сообщение отправлено']);
+    // ✅ Успешный ответ
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Сообщение отправлено'
+    ]);
 
 } catch (Exception $e) {
+    // ✅ Логируем ошибку, но не показываем детали клиенту
     error_log("Email error: " . $e->getMessage(), 3, LOG_FILE);
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Ошибка сервера']);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Ошибка сервера'
+    ]);
 }

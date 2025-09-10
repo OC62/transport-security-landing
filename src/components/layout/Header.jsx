@@ -6,7 +6,10 @@ import GlassmorphicButton from '../ui/GlassmorphicButton'; // ✅ Без фиг�
 // Компонент выпадающего меню
 const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState({ vertical: 'bottom', horizontal: 'left' });
+  const [position, setPosition] = useState({
+    vertical: 'bottom',
+    horizontal: 'left',
+  });
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -38,34 +41,40 @@ const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - buttonRect.bottom;
       const spaceAbove = buttonRect.top;
-      const verticalPosition = spaceBelow < dropdownRect.height && spaceAbove > dropdownRect.height ? 'top' : 'bottom';
+      const verticalPosition =
+        spaceBelow < dropdownRect.height && spaceAbove > dropdownRect.height
+          ? 'top'
+          : 'bottom';
       const spaceRight = window.innerWidth - buttonRect.left;
       const spaceLeft = buttonRect.right;
       let horizontalPosition = 'left';
       if (spaceRight < dropdownRect.width && spaceLeft > dropdownRect.width) {
         horizontalPosition = 'right';
       }
-      setPosition({ vertical: verticalPosition, horizontal: horizontalPosition });
+      setPosition({
+        vertical: verticalPosition,
+        horizontal: horizontalPosition,
+      });
     }
   }, [isOpen]);
 
   return (
-    <div 
+    <div
       className="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <button 
+      <button
         ref={buttonRef}
         className="flex items-center text-gray-700 hover:text-primary font-medium transition-colors text-xs lg:text-sm whitespace-nowrap py-2 px-2 group"
       >
         {item.name}
-        <svg 
-          className="ml-1 w-3 h-3 transition-transform duration-200 group-hover:rotate-180" 
-          viewBox="0 0 12 12" 
+        <svg
+          className="ml-1 w-3 h-3 transition-transform duration-200 group-hover:rotate-180"
+          viewBox="0 0 12 12"
           fill="currentColor"
         >
-          <path d="M6 8.5L2.5 5l.7-.7L6 7.1l2.8-2.8.7.7L6 8.5z"/>
+          <path d="M6 8.5L2.5 5l.7-.7L6 7.1l2.8-2.8.7.7L6 8.5z" />
         </svg>
       </button>
       {isOpen && (
@@ -75,13 +84,13 @@ const DropdownMenu = ({ item, scrollToSection, setIsMenuOpen }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.1 }}
           className={`absolute w-56 bg-white rounded-md shadow-xl py-1 z-[9999] border border-gray-100 ${
-            position.vertical === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'
-          } ${
-            position.horizontal === 'right' ? 'right-0' : 'left-0'
-          }`}
-          style={{ 
+            position.vertical === 'bottom'
+              ? 'top-full mt-1'
+              : 'bottom-full mb-1'
+          } ${position.horizontal === 'right' ? 'right-0' : 'left-0'}`}
+          style={{
             maxHeight: 'calc(100vh - 100px)',
-            overflowY: 'auto'
+            overflowY: 'auto',
           }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -137,11 +146,12 @@ const Header = () => {
       const element = document.getElementById(id);
       if (element) {
         const headerHeight = headerRef.current?.offsetHeight || 0;
-        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        const elementPosition =
+          element.getBoundingClientRect().top + window.pageYOffset;
         const offsetPosition = elementPosition - headerHeight;
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: 'smooth',
         });
       }
     }, 100);
@@ -149,49 +159,49 @@ const Header = () => {
 
   const navItems = [
     { name: 'Главная', href: '#hero' },
-    { 
-      name: 'О компании', 
+    {
+      name: 'О компании',
       href: '#about',
       submenu: [
         { name: 'О нас', href: '#about' },
         { name: 'Преимущества', href: '#about' },
         { name: 'Лицензии', href: '#licenses' },
-        { name: 'Партнеры', href: '#partners' }
-      ]
+        { name: 'Партнеры', href: '#partners' },
+      ],
     },
-    { 
-      name: 'Услуги', 
+    {
+      name: 'Услуги',
       href: '#services',
       submenu: [
         { name: 'Все услуги', href: '#services' },
         { name: 'Аудит безопасности', href: '#services' },
         { name: 'Мониторинг угроз', href: '#services' },
         { name: 'Обучение персонала', href: '#services' },
-        { name: 'Техническое оснащение', href: '#services' }
-      ]
+        { name: 'Техническое оснащение', href: '#services' },
+      ],
     },
-    { 
-      name: 'Проекты', 
+    {
+      name: 'Проекты',
       href: '#cases',
       submenu: [
         { name: 'Наши кейсы', href: '#cases' },
         { name: 'Реализованные проекты', href: '#cases' },
-        { name: 'Социальная ответственность', href: '#community' }
-      ]
+        { name: 'Социальная ответственность', href: '#community' },
+      ],
     },
-    { 
-      name: 'Вакансии', 
+    {
+      name: 'Вакансии',
       href: '#careers',
       submenu: [
         { name: 'Текущие вакансии', href: '#careers' },
-        { name: 'Карьера в компании', href: '#careers' }
-      ]
+        { name: 'Карьера в компании', href: '#careers' },
+      ],
     },
-    { name: 'Контакты', href: '#contact' }
+    { name: 'Контакты', href: '#contact' },
   ];
 
   return (
-    <header 
+    <header
       ref={headerRef}
       className="fixed w-full bg-white/90 backdrop-blur-sm shadow-sm z-50"
       style={{ overflow: 'visible' }}
@@ -199,21 +209,25 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Логотип */}
-          <div 
+          <div
             className="flex items-center space-x-2 cursor-pointer"
             onClick={() => scrollToSection('#hero')}
           >
             <img src={logoImage} alt="Логотип ООО ПТБ-М" className="h-8" />
-            <span className="text-xl lg:text-base font-bold text-primary">ООО "ПТБ-М"</span>
+            <span className="text-xl lg:text-base font-bold text-primary">
+              ООО "ПТБ-М"
+            </span>
           </div>
           {/* Навигация для десктопа */}
-          <nav className={`${isMobileView ? 'hidden' : 'flex'} items-center space-x-2`}>
+          <nav
+            className={`${isMobileView ? 'hidden' : 'flex'} items-center space-x-2`}
+          >
             <div className="flex space-x-2">
-              {navItems.map((item, index) => (
+              {navItems.map((item, index) =>
                 item.submenu ? (
-                  <DropdownMenu 
-                    key={index} 
-                    item={item} 
+                  <DropdownMenu
+                    key={index}
+                    item={item}
                     scrollToSection={scrollToSection}
                     setIsMenuOpen={setIsMenuOpen}
                   />
@@ -229,12 +243,12 @@ const Header = () => {
                     {item.name}
                   </button>
                 )
-              ))}
+              )}
             </div>
           </nav>
           {/* Кнопка CTA для десктопа */}
-          <GlassmorphicButton 
-            variant="onWhite" 
+          <GlassmorphicButton
+            variant="onWhite"
             size="large"
             onClick={() => scrollToSection('#contact')}
             className={`${isMobileView ? 'hidden' : 'block'} text-xs`}
@@ -245,13 +259,28 @@ const Header = () => {
           <button
             className={`${isMobileView ? 'block' : 'hidden'} text-gray-700 hover:text-primary transition-colors`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
+            aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 18" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 18"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -271,7 +300,7 @@ const Header = () => {
                 <div key={index}>
                   {item.submenu ? (
                     <div>
-                      <button 
+                      <button
                         className="flex items-center w-full text-left px-2 py-2 text-gray-700 hover:text-primary font-medium transition-colors"
                         onClick={(e) => {
                           e.preventDefault();
@@ -279,12 +308,12 @@ const Header = () => {
                         }}
                       >
                         {item.name}
-                        <svg 
-                          className="ml-1 w-3 h-3" 
-                          viewBox="0 0 12 12" 
+                        <svg
+                          className="ml-1 w-3 h-3"
+                          viewBox="0 0 12 12"
                           fill="currentColor"
                         >
-                          <path d="M6 8.5L2.5 5l.7-.7L6 7.1l2.8-2.8.7.7L6 8.5z"/>
+                          <path d="M6 8.5L2.5 5l.7-.7L6 7.1l2.8-2.8.7.7L6 8.5z" />
                         </svg>
                       </button>
                       <div className="pl-4 space-y-2">

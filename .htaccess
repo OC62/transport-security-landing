@@ -1,32 +1,40 @@
 # Запрет на просмотр содержимого папки
 Options -Indexes
 
+# Установка MIME-типов для корректной обработки файлов
+<IfModule mod_mime.c>
+  # Важно: правильный тип для webapp-манифеста
+  AddType application/manifest+json .webmanifest
+  AddType application/wasm .wasm
+  AddType text/cache-manifest .appcache
+  AddType image/webp .webp
+</IfModule>
+
 # Настройки CORS для API
-# Убедитесь, что домен указан без пробелов
+# ВАЖНО: убраны пробелы в домене
 Header always set Access-Control-Allow-Origin "https://xn----9sb8ajp.xn--p1ai"
 Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
 Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 Header always set Access-Control-Allow-Credentials "true"
 Header always set Access-Control-Max-Age "3600"
 
-# Обработка preflight запросов (OPTIONS)
+# Обработка preflight-запросов (OPTIONS)
 RewriteEngine On
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^ - [R=200,L]
 
-# Защита от распространённых атак (XSS, инъекции)
+# Защита от XSS и инъекций
 RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
 RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
 RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
 RewriteRule ^ - [F,L]
 
-# Защита sensitive-файлов (.env, .git, composer.json и др.)
-<FilesMatch "^(\.env|\.git|composer\.(json|lock))$">
+# Запрет доступа к конфиденциальным файлам
+<FilesMatch "^(\.env|\.git|composer\.(json|lock)|\.htaccess|site\.webmanifest\.bak)$">
     Require all denied
 </FilesMatch>
 
-# Дополнительная защита конфиденциальных файлов
-<Files ~ "\.(env|ini|log|sh|sql|tpl)$">
+<Files ~ "\.(env|ini|log|sh|sql|tpl|bak)$">
     Require all denied
 </Files>
 
@@ -37,8 +45,10 @@ RewriteRule ^ - [F,L]
     ExpiresByType image/jpeg "access plus 1 month"
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
     ExpiresByType text/css "access plus 1 month"
     ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/manifest+json "access plus 1 week"
     ExpiresDefault "access plus 2 days"
 </IfModule>
 
@@ -48,4 +58,13 @@ RewriteRule ^ - [F,L]
     AddOutputFilterByType DEFLATE text/html
     AddOutputFilterByType DEFLATE text/css
     AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/manifest+json
+</IfModule>
+
+# Обеспечение UTF-8 для JSON и manifest
+<IfModule mod_headers.c>
+    <FilesMatch "\.(webmanifest|json)$">
+        Header always set Content-Type "application/manifest+json; charset=utf-8"
+    </FilesMatch>
 </IfModule>

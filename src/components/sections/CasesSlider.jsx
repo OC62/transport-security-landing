@@ -20,25 +20,29 @@ const CasesSlider = () => {
   const cases = [
     {
       id: 1,
-      title: "Реализация комплексной системы транспортной безопасности на автовокзалах",
-      description: "Комплексное решение для защиты автовокзалов",
-      results: "Снижение инцидентов на 85%, экономия 2 млн руб. в год",
+      title:
+        'Реализация комплексной системы транспортной безопасности на автовокзалах',
+      description: 'Комплексное решение для защиты автовокзалов',
+      results: 'Снижение инцидентов на 85%, экономия 2 млн руб. в год',
       image: BusstationsImage,
     },
     {
       id: 2,
-      title: "Реализация комплексной системы транспортной безопасности на строящихся объектах транспортной инфраструктуры (СОТИ)",
-      description: "Комплексное решение для защиты СОТИ",
-      results: "Снижение инцидентов на 90%, экономия 2 млн руб. в год",
+      title:
+        'Реализация комплексной системы транспортной безопасности на строящихся объектах транспортной инфраструктуры (СОТИ)',
+      description: 'Комплексное решение для защиты СОТИ',
+      results: 'Снижение инцидентов на 90%, экономия 2 млн руб. в год',
       image: BreadgeImage,
     },
     {
       id: 3,
-      title: "Реализация комплексной системы транспортной безопасности на действующих объектах транспортной инфраструктуры (ОТИ)",
-      description: "Проведение комплексного аудита системы транспортной безопасности ОТИ",
-      results: "Выявлено 15 критических уязвимостей, разработан план улучшений",
+      title:
+        'Реализация комплексной системы транспортной безопасности на действующих объектах транспортной инфраструктуры (ОТИ)',
+      description:
+        'Проведение комплексного аудита системы транспортной безопасности ОТИ',
+      results: 'Выявлено 15 критических уязвимостей, разработан план улучшений',
       image: OtiImage,
-    }
+    },
   ];
 
   // Обработчик свайпа
@@ -53,25 +57,32 @@ const CasesSlider = () => {
     if (Math.abs(diffX) > 10) e.preventDefault();
   };
 
-  const handleTouchEnd = useCallback((e) => {
-    if (!sliderRef.current || !e.changedTouches.length) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diffX = touchStartX.current - touchEndX;
-    const minSwipeDistance = 50;
+  const handleTouchEnd = useCallback(
+    (e) => {
+      if (!sliderRef.current || !e.changedTouches.length) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const diffX = touchStartX.current - touchEndX;
+      const minSwipeDistance = 50;
 
-    if (diffX > minSwipeDistance) {
-      setCurrentSlide((prev) => (prev === cases.length - 1 ? 0 : prev + 1));
-    } else if (diffX < -minSwipeDistance) {
-      setCurrentSlide((prev) => (prev === 0 ? cases.length - 1 : prev - 1));
-    }
-  }, [cases.length]);
+      if (diffX > minSwipeDistance) {
+        setCurrentSlide((prev) => (prev === cases.length - 1 ? 0 : prev + 1));
+      } else if (diffX < -minSwipeDistance) {
+        setCurrentSlide((prev) => (prev === 0 ? cases.length - 1 : prev - 1));
+      }
+    },
+    [cases.length]
+  );
 
   useEffect(() => {
     const sliderElement = sliderRef.current;
     if (!sliderElement) return;
 
-    sliderElement.addEventListener('touchstart', handleTouchStart, { passive: false });
-    sliderElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    sliderElement.addEventListener('touchstart', handleTouchStart, {
+      passive: false,
+    });
+    sliderElement.addEventListener('touchmove', handleTouchMove, {
+      passive: false,
+    });
     sliderElement.addEventListener('touchend', handleTouchEnd);
 
     return () => {
@@ -85,11 +96,10 @@ const CasesSlider = () => {
     <section id="cases" className="py-20 bg-gray-900 text-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Наши кейсы
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Наши кейсы</h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Успешные проекты по обеспечению транспортной безопасности по всей России
+            Успешные проекты по обеспечению транспортной безопасности по всей
+            России
           </p>
         </div>
 
