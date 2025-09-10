@@ -35,7 +35,7 @@
   }
 }
 
-/* Glassmorphic Button Styles */
+/* Glassmorphic Button Styles — без изменений */
 .glassmorphic-btn {
   --border-width: clamp(1px, 0.0625em, 4px);
   all: unset;
@@ -143,19 +143,56 @@
   }
 }
 
-/* === УДАЛЕНЫ СТИЛИ .captcha-container === */
-/* Больше не стилизуем контейнер — он невидим */
-.captcha-container {
-  /* Пустой — только для ref */
-}
+/* === ИСПРАВЛЕНИЕ YANDEX SMARTCAPTCHA === */
 
-/* Визуальный блок — не связан с капчей */
-.captcha-visual {
+.captcha-container {
   width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
+  min-height: 80px;
+  position: relative;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background-color: #f9fafb;
-  overflow: hidden;
+  overflow: visible !important;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Скрываем backend-iframe */
+.captcha-container > iframe[src*="backend"] {
+  position: absolute !important;
+  left: -10000px !important;
+  top: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  border: none !important;
+  pointer-events: none !important;
+}
+
+/* Принудительно центрируем виджет */
+.captcha-container > div {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.captcha-container > div iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 80px !important;
+  border: none !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: block !important;
+  transform: none !important;
+  object-fit: cover;
+  scale: 1 !important;
 }

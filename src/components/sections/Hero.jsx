@@ -57,7 +57,7 @@ const Hero = () => {
             transition={{ type: "spring", stiffness: 100, damping: 12 }}
             className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-green-200 text-transparent bg-clip-text leading-tight"
           >
-            Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года
+            Комплексное обеспечение транспортной безопасности для объектов дорожного хозяйства с 2017 года.
           </motion.h1>
 
           {/* Подзаголовок */}
