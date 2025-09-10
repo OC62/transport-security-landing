@@ -86,7 +86,7 @@ const ContactForm = () => {
       console.error('Ошибка инициализации капчи:', error);
       setCaptchaError('Не удалось загрузить капчу');
     }
-  }, [reloadCaptcha]);
+  }, [reloadCaptcha, CAPTCHA_SITE_KEY]);
 
   // --- Загрузка капчи ---
   useEffect(() => {
@@ -101,7 +101,7 @@ const ContactForm = () => {
           };
           window.addEventListener('smartcaptcha-ready', onReady);
         }
-      }, 100); // Увеличена задержка для стабильности
+      }, 200);
     };
 
     load();
@@ -286,18 +286,25 @@ const ContactForm = () => {
                   </label>
                 </div>
 
-                <div className="mt-4 w-full">
+                {/* Внешний блок для отображения — только для визуала */}
+                <div className="mt-4 w-full flex flex-col items-center">
                   <div
                     ref={captchaContainerRef}
-                    className="captcha-container"
-                    style={{ minHeight: '100px'}}
+                    className="captcha-container hidden"
                     role="region"
                     aria-label="Проверка: я не робот"
                   ></div>
 
+                  {/* Визуальный контейнер — не влияет на капчу */}
+                  <div className="w-full max-w-xs mx-auto border border-gray-300 rounded-lg bg-white p-2 shadow-sm">
+                    <div className="w-full h-16 flex items-center justify-center text-sm text-gray-500 bg-gray-50 rounded">
+                      Загрузка капчи...
+                    </div>
+                  </div>
+
                   {captchaError && (
-                    <div className="mt-2">
-                      <p className="text-red-500 text-sm mb-2">{captchaError}</p>
+                    <div className="mt-2 text-center">
+                      <p className="text-red-500 text-sm mb-1">{captchaError}</p>
                       <button
                         type="button"
                         onClick={reloadCaptcha}
