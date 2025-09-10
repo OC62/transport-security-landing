@@ -51,7 +51,6 @@ jobs:
     - name: Copy PHP files
       run: |
         cp api/send-email.php dist/api/
-        cp api/.htaccess dist/api/ 2>/dev/null || echo "No api/.htaccess found"
 
     - name: Copy vendor folder
       run: cp -r api/vendor/ dist/api/vendor/
@@ -70,7 +69,7 @@ jobs:
         APP_DEBUG=false
         EOF
 
-    - name: Copy .htaccess to root
+    - name: Copy .htaccess to root (only if exists)
       run: |
         cp .htaccess dist/ 2>/dev/null || echo "No root .htaccess found"
 

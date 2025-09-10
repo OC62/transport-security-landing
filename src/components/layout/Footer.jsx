@@ -107,7 +107,7 @@ const Footer = () => {
               <span className="text-2xl font-bold">ООО "ПТБ-М"</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
-              Обеспечиваем безопасность на объектах дорожного хозяйства с 2017 года
+              Комплексное обеспечение транспортной безопасности для объектов дорожного хозяйства с 2017 года.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
